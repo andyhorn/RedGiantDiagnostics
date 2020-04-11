@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+  # PostgreSQL Database
+  database:
+    container_name: "database"
+    image: postgres:12
+    restart: unless-stopped
+    env_file: 
+      - database.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # PGAdmin Server
+  pgadmin:
+    container_name: "pgadmin"
+    image: dpage/pgadmin4:4
+    restart: unless-stopped
+    env_file: 
+      - pgadmin.env
+    ports:
+      - "8080:80"
+
+# Save database data
+volumes:
+  db_data:
