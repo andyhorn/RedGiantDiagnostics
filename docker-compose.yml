@@ -1,3 +1,10 @@
+# Filename:       docker-compose.yml
+# Author:         Andy Horn
+# Created:        4/10/2020
+# Description:    This is the base/production version of the 
+#                 docker-compose configuration for the app.
+#                 It will launch all the containers in "production" mode.
+
 version: "3"
 services:
   # Vue.js frontend
