@@ -13,3 +13,7 @@ services:
       dockerfile: Dockerfile.dev  # Use the Development Dockerfile
     environment: 
       NODE_ENV: "development"     # Set the Node environment to "development"
+
+  api:
+    ports:
+      - "5000:5000"               # Expose the port during development
