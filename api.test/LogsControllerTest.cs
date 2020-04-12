@@ -33,5 +33,11 @@ namespace api.test
             // Ensure it contains the "Hello world!" string
             Assert.AreEqual("Hello world!", content);
         }
+
+        [Test]
+        public void LogsController_GetById()
+        {
+            
+        }
     }
 }
