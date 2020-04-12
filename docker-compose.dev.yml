@@ -17,3 +17,5 @@ services:
   api:
     ports:
       - "5000:5000"               # Expose the port during development
+    environment: 
+      ASPNETCORE_ENVIRONMENT: Development # Override the .env file
