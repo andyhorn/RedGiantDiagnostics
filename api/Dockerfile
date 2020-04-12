@@ -33,5 +33,8 @@ WORKDIR /app
 # Copy the build artifacts
 COPY --from=build-stage /app/out .
 
+# Expose the port
+EXPOSE 5000
+
 # Set the Docker entrypoint
 ENTRYPOINT [ "dotnet", "API.dll" ]

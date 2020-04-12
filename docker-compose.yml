@@ -21,8 +21,8 @@ services:
     # Pull sensitive information from an environment file
     env_file: api.env
     environment: 
-      # Set the listening port
-      ASPNETCORE_URLS: http://+:5000
+      # Set the listening ports for http and https
+      ASPNETCORE_URLS: http://*:5000
       # Default to "Production", otherwise read from the environment
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       # Set the host for the database connection
