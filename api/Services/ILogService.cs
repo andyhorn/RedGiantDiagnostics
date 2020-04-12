@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Models;
 
 namespace API.Services
 {
     public interface ILogService
     {
-        Task<bool> CreateAsync();
-        Task<IEnumerable<int>> GetAllLogsAsync();
-        Task GetByIdAsync(string id);
-        Task GetForUserAsync(string userId);
+        Task<ILogFile> CreateAsync(ILogFile log);
+        Task<IEnumerable<ILogFile>> GetAllLogsAsync();
+        Task<ILogFile> GetByIdAsync(string id);
+        Task<IEnumerable<ILogFile>> GetForUserAsync(string userId);
         Task<bool> DeleteAsync(string id);
-        bool Parse();
+        ILogFile Parse(string data);
     }
 }
