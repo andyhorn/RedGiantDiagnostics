@@ -9,13 +9,17 @@ version: "3"
 services:
   web:
     build:
+      # Use the development-spec Dockerfile
       context: ./web
-      dockerfile: Dockerfile.dev  # Use the Development Dockerfile
+      dockerfile: Dockerfile.dev
     environment: 
-      NODE_ENV: "development"     # Set the Node environment to "development"
+      # Set the node environment to "development"
+      NODE_ENV: "development"
 
   api:
     ports:
-      - "5000:5000"               # Expose the port during development
-    environment: 
-      ASPNETCORE_ENVIRONMENT: Development # Override the .env file
+      # Expose the port externally during development for testing
+      - "5000:5000"
+    environment:
+      # Set the environment to "Development" instead of "Production"
+      ASPNETCORE_ENVIRONMENT: Development
