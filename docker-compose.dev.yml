@@ -15,6 +15,9 @@ services:
     environment: 
       # Set the node environment to "development"
       NODE_ENV: "development"
+    volumes:
+      # Mount the local files to the container
+      - ./web/src:/app/src
 
   api:
     ports:
