@@ -1,0 +1,15 @@
+# Filename:     docker-compose.dev.yml
+# Author:       Andy Horn
+# Created:      4/12/2020
+# Description:  This is a Development-mode override file that will change
+#               configuration settings to put the applications into 
+#               "development" mode instead of "production" mode.
+
+version: "3"
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev  # Use the Development Dockerfile
+    environment: 
+      NODE_ENV: "development"     # Set the Node environment to "development"

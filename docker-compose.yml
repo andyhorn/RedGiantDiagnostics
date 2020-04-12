@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3"
 services:
   # Vue.js frontend
   web:
@@ -11,7 +11,7 @@ services:
     ports:
       - ${WEB_PORT:-80:80} # Pull the web port from the environment - default to 80
     restart: "unless-stopped"
-    
+
   # PostgreSQL Database
   database:
     container_name: "database"
