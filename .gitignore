@@ -2,3 +2,4 @@
 *.env
 */obj/*
 .vscode/*
+*/bin/*

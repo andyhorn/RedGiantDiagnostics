@@ -1,9 +1,11 @@
 using NUnit.Framework;
+using FakeItEasy;
 
 namespace api.tests
 {
-    public class Tests
+    public class LogsControllerTests
     {
+        private LogsController _logsController = new LogsController();
         [SetUp]
         public void Setup()
         {
