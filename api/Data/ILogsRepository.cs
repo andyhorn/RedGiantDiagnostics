@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using API.Models;
 
 namespace API.Data
 {
     public interface ILogsRepository
     {
-        List<ILogFile> GetAllLogs();
-        ILogFile GetById(string id);
-        ILogFile Save(ILogFile file);
-        void Update(ILogFile update);
-        void Remove(string id);
+        Task<List<ILogFile>> GetAllLogsAsync();
+        Task<ILogFile> GetByIdAsync(string id);
+        Task<ILogFile> SaveAsync(ILogFile file);
+        Task<ILogFile> UpdateAsync(ILogFile update);
+        Task RemoveAsync(string id);
     }
 }

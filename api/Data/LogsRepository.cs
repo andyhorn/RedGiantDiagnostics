@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using API.Models;
 using MongoDB.Driver;
 
@@ -15,29 +16,36 @@ namespace API.Data
 
             _logs = database.GetCollection<ILogFile>(settings.LogsCollectionName);
         }
-        public List<ILogFile> GetAllLogs()
+        public async Task<List<ILogFile>> GetAllLogsAsync()
         {
-            throw new System.NotImplementedException();
+            var logs = await _logs.FindAsync(log => true);
+            var list = await logs.ToListAsync();
+            return list;
         }
 
-        public ILogFile GetById(string id)
+        public async Task<ILogFile> GetByIdAsync(string id)
         {
-            throw new System.NotImplementedException();
+            var find = await _logs.FindAsync(log => log.Id == id);
+            var log = await find.SingleOrDefaultAsync();
+            return log;
         }
 
-        public void Remove(string id)
+        public async Task RemoveAsync(string id)
         {
-            throw new System.NotImplementedException();
+            await _logs.FindOneAndDeleteAsync(log => log.Id == id);
         }
 
-        public ILogFile Save(ILogFile file)
+        public async Task<ILogFile> SaveAsync(ILogFile file)
         {
-            throw new System.NotImplementedException();
+            await _logs.InsertOneAsync(file);
+            return file;
         }
 
-        public void Update(ILogFile update)
+        public async Task<ILogFile> UpdateAsync(ILogFile update)
         {
-            throw new System.NotImplementedException();
+            await _logs.FindOneAndReplaceAsync(log => log.Id == update.Id, update);
+            var updated = await (await _logs.FindAsync(log => log.Id == update.Id)).FirstOrDefaultAsync();
+            return updated;
         }
     }
 }
