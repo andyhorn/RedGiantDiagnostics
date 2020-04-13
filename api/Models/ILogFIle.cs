@@ -4,6 +4,7 @@ namespace API.Models
 {
     public interface ILogFile
     {
+        string Id { get; set; }
         IDictionary<string, string> EnvironmentVariables { get; set; }
         string RlmVersion { get; set; }
         IEnumerable<string> HostIdList { get; set; }
