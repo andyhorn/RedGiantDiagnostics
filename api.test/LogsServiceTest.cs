@@ -1,11 +1,14 @@
+//  File:           LogsServiceTest.cs
+//  Author:         Andy Horn
+//  Description:    Tests the LogsService implementation.
+
 using API.Data;
 using NUnit.Framework;
 using FakeItEasy;
-using System.Collections.Generic;
 using API.Models;
-using API.Entities;
 using System.Threading.Tasks;
 using API.Services;
+using System.Linq;
 
 namespace api.test
 {
@@ -26,23 +29,9 @@ namespace api.test
         public async Task LogsService_GetAllLogsAsync_ReturnsLogList()
         {
             // Arrange
-            A.CallTo(() => _logsRepository.GetAllLogsAsync()).Returns(
-                new List<ILogFile>
-                {
-                    new LogFile
-                    {
-                        Id = A.Dummy<string>()
-                    },
-                    new LogFile
-                    {
-                        Id = A.Dummy<string>()
-                    },
-                    new LogFile
-                    {
-                        Id = A.Dummy<string>()
-                    }
-                }
-            );
+            const int numLogs = 5;
+            var fakeList = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            A.CallTo(() => _logsRepository.GetAllLogsAsync()).Returns(Task.FromResult(fakeList));
 
             // Act
             var list = await _logService.GetAllLogsAsync();
@@ -50,6 +39,7 @@ namespace api.test
             // Assert
             A.CallTo(() => _logsRepository.GetAllLogsAsync()).MustHaveHappenedOnceExactly();
             Assert.IsNotEmpty(list);
+            Assert.AreEqual(numLogs, list.ToList().Count);
         }
 
         
