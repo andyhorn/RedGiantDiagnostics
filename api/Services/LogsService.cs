@@ -17,6 +17,11 @@ namespace API.Services
 
         public async Task<ILogFile> CreateAsync(ILogFile log)
         {
+            if (log == null) 
+            {
+                return null;
+            }
+
             await _logs.SaveAsync(log);
             return log;
         }
@@ -34,7 +39,12 @@ namespace API.Services
 
         public async Task<ILogFile> UpdateAsync(ILogFile update)
         {
-            throw new NotImplementedException();
+            if (update == null)
+            {
+                return null;
+            }
+
+            return await _logs.UpdateAsync(update);
         }
 
         public async Task<IEnumerable<ILogFile>> GetAllLogsAsync()
@@ -49,6 +59,11 @@ namespace API.Services
 
         public async Task<IEnumerable<ILogFile>> GetForUserAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return null;
+            }
+            
             var logs = await _logs.GetAllLogsAsync();
             var userLogs = logs.Where(log => log.OwnerId == userId);
             return userLogs;

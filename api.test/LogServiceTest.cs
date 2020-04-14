@@ -81,6 +81,21 @@ namespace api.test
         }
 
         [Test]
+        public async Task LogsService_CreateAsync_HandlesNullObject()
+        {
+            // Arrange
+            ILogFile nullObject = null;
+
+            // Act
+            var result = await _logsService.CreateAsync(nullObject);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.SaveAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
         public async Task LogsService_GetByIdAsync_ReturnsLogWithValidId()
         {
             // Arrange
@@ -95,6 +110,36 @@ namespace api.test
             Assert.IsNotNull(retrieved);
             A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsService_GetByIdAsync_HandlesNullId()
+        {
+            // Arrange
+            const string nullId = null;
+
+            // Act
+            var result = await _logsService.GetByIdAsync(nullId);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsService_GetByIdAsync_HandlesWhitespaceId()
+        {
+            // Arrange
+            const string emptyId = "    ";
+
+            // Act
+            var result = await _logsService.GetByIdAsync(emptyId);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Test]
@@ -166,6 +211,36 @@ namespace api.test
         }
 
         [Test]
+        public async Task LogsService_GetForUserAsync_HandlesNullUserId()
+        {
+            // Arrange
+            const string nullUserId = null;
+
+            // Act
+            var result = await _logsService.GetForUserAsync(nullUserId);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.GetAllLogsAsync())
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsService_GetForUserAsync_HandlesWhitespaceUserId()
+        {
+            // Arrange
+            const string emptyUserId = "    ";
+
+            // Act
+            var result = await _logsService.GetForUserAsync(emptyUserId);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.GetAllLogsAsync())
+                .MustNotHaveHappened();
+        }
+
+        [Test]
         public async Task LogsService_DeleteAsync_RemovesItemFromList()
         {
             // Arrange
@@ -196,6 +271,22 @@ namespace api.test
 
             // Act
             await _logsService.DeleteAsync(nullId);
+
+            // Assert
+            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsService_DeleteAsync_HandlesEmptyId()
+        {
+            // Arrange
+            const string emptyId = "    ";
+
+            // Act
+            await _logsService.DeleteAsync(emptyId);
 
             // Assert
             A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
