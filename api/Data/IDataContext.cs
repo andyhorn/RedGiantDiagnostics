@@ -1,3 +1,7 @@
+//  File:           IDataContext.cs
+//  Author:         Andy Horn
+//  Description:    An interface that exposes an IMongoCollection<ILogFile> property.
+
 using API.Models;
 using MongoDB.Driver;
 
