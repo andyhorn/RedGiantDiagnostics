@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
+using API.Factories;
 using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,9 @@ namespace API
 
             // Add a singleton of the Logs MongoDB Context
             services.AddSingleton<IDataContext>(service => service.GetRequiredService<DataContext>());
+
+            // Add a singleton of the ILogFactory interface
+            services.AddSingleton<ILogFactory>(service => service.GetRequiredService<LogFactory>());
             
             services.AddControllers();
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
+using API.Factories;
 using API.Models;
 
 namespace API.Services
@@ -10,9 +11,11 @@ namespace API.Services
     public class LogsService : ILogsService
     {
         private readonly ILogsRepository _logs;
-        public LogsService(ILogsRepository logs)
+        private readonly ILogFactory _factory;
+        public LogsService(ILogsRepository logs, ILogFactory factory)
         {
             _logs = logs;
+            _factory = factory;
         }
 
         public async Task<ILogFile> CreateAsync(ILogFile log)
@@ -54,6 +57,11 @@ namespace API.Services
 
         public async Task<ILogFile> GetByIdAsync(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return null;
+            }
+            
             return await _logs.GetByIdAsync(id);
         }
 
@@ -71,7 +79,12 @@ namespace API.Services
 
         public ILogFile Parse(string data)
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return null;
+            }
+
+            return _factory.Parse(data);
         }
     }
 }

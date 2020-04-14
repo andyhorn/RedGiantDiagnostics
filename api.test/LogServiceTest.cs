@@ -17,14 +17,16 @@ namespace api.test
     public class LogsServiceTest
     {
         private ILogsRepository _logsRepository; // Mock
+        private ILogFactory _logFactory; // Mock
 
         private ILogsService _logsService; // System Under Test
 
         [SetUp]
         public void Setup()
         {
+            _logFactory = A.Fake<ILogFactory>();
             _logsRepository = A.Fake<ILogsRepository>();
-            _logsService = new LogsService(_logsRepository);
+            _logsService = new LogsService(_logsRepository, _logFactory);
         }
 
         [Test]
@@ -379,12 +381,7 @@ namespace api.test
         public void LogsService_Parse_ParsesData()
         {
             // Arrange
-            var factory = A.Fake<ILogFactory>();
-
-            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
-                .Invokes(call => factory.Parse((string)call.Arguments[0]));
-
-            A.CallTo(() => factory.Parse(A<string>.Ignored))
+            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
                 .Returns(A.Fake<ILogFile>());
 
             // Act
@@ -394,7 +391,7 @@ namespace api.test
             Assert.IsInstanceOf(typeof(ILogFile), newLog);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => factory.Parse(A<string>.Ignored))
+            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -409,6 +406,9 @@ namespace api.test
 
             // Assert
             Assert.IsNull(result);
+
+            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Test]
@@ -422,6 +422,8 @@ namespace api.test
 
             // Assert
             Assert.IsNull(result);
+            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
+                .MustNotHaveHappened();
         }
     }
 }
