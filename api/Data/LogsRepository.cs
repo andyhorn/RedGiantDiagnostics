@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using API.Factories;
 using API.Models;
 using MongoDB.Driver;
 
@@ -9,19 +8,11 @@ namespace API.Data
     public class LogsRepository : ILogsRepository
     {
         private readonly IMongoCollection<ILogFile> _logs;
-
         public LogsRepository(IDataContext context)
         {
             _logs = context.Logs;
         }
 
-        // public LogsRepository(ILogsDatabaseSettings settings)
-        // {
-        //     var client = new MongoClient(settings.ConnectionString);
-        //     var database = client.GetDatabase(settings.DatabaseName);
-
-        //     _logs = database.GetCollection<ILogFile>(settings.LogsCollectionName);
-        // }
         public async Task<List<ILogFile>> GetAllLogsAsync()
         {
             var logs = await _logs.FindAsync(log => true);
