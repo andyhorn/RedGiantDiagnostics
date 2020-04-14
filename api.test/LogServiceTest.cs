@@ -392,6 +392,36 @@ namespace api.test
 
             // Assert
             Assert.IsInstanceOf(typeof(ILogFile), newLog);
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => factory.Parse(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public void LogsService_Parse_RejectsNullString()
+        {
+            // Arrange
+            const string nullString = null;
+
+            // Act
+            var result = _logsService.Parse(nullString);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void LogsService_Parse_RejectsEmptyString()
+        {
+            // Arrange
+            const string emptyString = "   ";
+
+            // Act
+            var result = _logsService.Parse(emptyString);
+
+            // Assert
+            Assert.IsNull(result);
         }
     }
 }
