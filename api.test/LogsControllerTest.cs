@@ -8,6 +8,7 @@ using API.Services;
 using API.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using API.Contracts.Requests;
 
 namespace api.test
 {
@@ -147,7 +148,7 @@ namespace api.test
         [Test]
         public async Task LogsController_GetForUser_HandlesNullUserId()
         {
-            // Arrage
+            // Arrange
 
             // Act
             var result = await _logsController.GetForUser(null);
@@ -155,6 +156,64 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_Update_ValidUpdateRequest()
+        {
+            // Arrange
+            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+                .Returns(A.Fake<ILogFile>());
+
+            // Act
+            var result = await _logsController.Update(A.Fake<string>(), A.Fake<ILogUpdateRequest>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+
+            var okResult = result as OkObjectResult;
+            var content = okResult.Value as ILogFile;
+
+            Assert.IsInstanceOf(typeof(ILogFile), content);
+
+            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_Update_HandlesNullId()
+        {
+            // Arrange
+            const string nullId = null;
+
+            // Act
+            var result = await _logsController.Update(nullId, A.Fake<ILogUpdateRequest>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+
+            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_Update_HandlesNullLogUpdateRequestObject()
+        {
+            // Arrange
+            const string id = "validIdString";
+            ILogUpdateRequest nullUpdateRequest = null;
+
+            // Act
+            var result = await _logsController.Update(id, nullUpdateRequest);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
     }
