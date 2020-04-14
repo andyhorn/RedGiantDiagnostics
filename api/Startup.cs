@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Data;
+using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace API
 {
@@ -25,6 +28,15 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Set up the Logs Database Settings for Dependency Injection
+            services.AddSingleton<ILogsDatabaseSettings>(service => service.GetRequiredService<IOptions<LogsDatabaseSettings>>().Value);
+
+            // Add a singleton of the Logs Repository
+            services.AddSingleton<ILogsRepository>(service => service.GetRequiredService<LogsRepository>());
+
+            // Add a singleton of the Logs Service
+            services.AddSingleton<ILogService>(service => service.GetRequiredService<LogService>());
+            
             services.AddControllers();
         }
 

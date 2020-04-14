@@ -1,11 +1,18 @@
 using System.Collections.Generic;
 using API.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace API.Entities
 {
     public class LogFile : ILogFile
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
+
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string OwnerId { get; set; }
         public IDictionary<string, string> EnvironmentVariables { get; set; }
         public string RlmVersion { get; set; }
         public IEnumerable<string> HostIdList { get; set; }

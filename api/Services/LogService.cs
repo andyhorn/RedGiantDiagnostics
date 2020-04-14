@@ -1,35 +1,46 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using API.Data;
 using API.Models;
 
 namespace API.Services
 {
     public class LogService : ILogService
     {
-        public LogService()
-        public Task<ILogFile> CreateAsync(ILogFile log)
+        private readonly ILogsRepository _logs;
+        public LogService(ILogsRepository logs)
         {
-            throw new System.NotImplementedException();
+            _logs = logs;
         }
 
-        public Task<bool> DeleteAsync(string id)
+        public async Task<ILogFile> CreateAsync(ILogFile log)
         {
-            throw new System.NotImplementedException();
+            await _logs.SaveAsync(log);
+            return log;
         }
 
-        public Task<IEnumerable<ILogFile>> GetAllLogsAsync()
+        public async Task<bool> DeleteAsync(string id)
         {
-            throw new System.NotImplementedException();
+            await _logs.RemoveAsync(id);
+            return await _logs.GetByIdAsync(id) == null;
         }
 
-        public Task<ILogFile> GetByIdAsync(string id)
+        public async Task<IEnumerable<ILogFile>> GetAllLogsAsync()
         {
-            throw new System.NotImplementedException();
+            return await _logs.GetAllLogsAsync();
         }
 
-        public Task<IEnumerable<ILogFile>> GetForUserAsync(string userId)
+        public async Task<ILogFile> GetByIdAsync(string id)
         {
-            throw new System.NotImplementedException();
+            return await _logs.GetByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<ILogFile>> GetForUserAsync(string userId)
+        {
+            var logs = await _logs.GetAllLogsAsync();
+            var userLogs = logs.Where(log => log.OwnerId == userId);
+            return userLogs;
         }
 
         public ILogFile Parse(string data)
