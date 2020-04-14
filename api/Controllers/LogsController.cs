@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using API.Contracts;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -8,6 +10,12 @@ namespace API.Controllers
     [Route(Routes.Controller)]
     public class LogsController : ControllerBase
     {
+        private readonly ILogsService _logsService;
+        public LogsController(ILogsService service)
+        {
+            _logsService = service;
+        }
+
         [HttpGet]
         [Route(Routes.Logs.Get)]
         public IActionResult Get()
@@ -17,7 +25,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Routes.Logs.GetById)]
-        public IActionResult GetById(string id)
+        public Task<IActionResult> GetById(string id)
         {
             throw new NotImplementedException();
         }
