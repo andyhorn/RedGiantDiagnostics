@@ -237,6 +237,53 @@ namespace api.test
         }
 
         [Test]
+        public async Task LogsService_UpdateAsync_CallsRepositoryUpdate()
+        {
+            // Arrange
+            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
+                .Returns(Task.FromResult(A.Fake<ILogFile>()));
+
+            // Act
+            var result = await _logsService.UpdateAsync(A.Fake<ILogFile>());
+
+            // Assert
+            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsService_UpdateAsync_ReturnsSameLogFile()
+        {
+            // Arrange
+            var logFile = A.Fake<ILogFile>();
+            const string id = "fakeId";
+            logFile.Id = id;
+            A.CallTo(() => _logsRepository.UpdateAsync(logFile))
+                .Returns(logFile);
+
+            // Act
+            var result = await _logsService.UpdateAsync(logFile);
+
+            // Assert
+            Assert.AreSame(logFile, result);
+        }
+
+        [Test]
+        public async Task LogsService_UpdateAsync_HandlesNullObject()
+        {
+            // Arrange 
+            ILogFile nullObject = null;
+            
+            // Act
+            var result = await _logsService.UpdateAsync(nullObject);
+
+            // Assert
+            Assert.IsNull(result);
+            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
         public void LogsService_Parse_ParsesData()
         {
             // Arrange

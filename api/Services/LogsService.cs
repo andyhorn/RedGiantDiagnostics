@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,6 +30,11 @@ namespace API.Services
 
             await _logs.RemoveAsync(id);
             return;
+        }
+
+        public async Task<ILogFile> UpdateAsync(ILogFile update)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<ILogFile>> GetAllLogsAsync()
