@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
+using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,7 +55,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Routes.Logs.Save)]
-        public IActionResult Save()
+        public Task<IActionResult> Save([FromBody]ILogFile log)
         {
             throw new NotImplementedException();
         }

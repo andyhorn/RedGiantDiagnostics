@@ -301,5 +301,82 @@ namespace api.test
             A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
+
+        [Test]
+        public async Task LogsController_Save_ValidLogObjectSaves()
+        {
+            // Arrange
+            var list = new List<ILogFile>();
+            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+                .Invokes(call => {
+                    var log = (ILogFile)call.Arguments[0];
+
+                    if (log != null)
+                    {
+                        list.Add(log);
+                    }
+                });
+
+            // Act
+            var result = await _logsController.Save(A.Fake<ILogFile>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(CreatedResult), result);
+
+            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+                .MustHaveHappenedOnceExactly();
+
+            Assert.AreEqual(1, list.Count);
+        }
+
+        [Test]
+        public async Task LogsController_Save_HandlesNullLogObject()
+        {
+            // Arrange
+            ILogFile nullLog = null;
+
+            // Act
+            var result = await _logsController.Save(nullLog);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+
+            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_Save_ExistingObjectReturnsConflict()
+        {
+            // Arrange 
+            const int numLogs = 5;
+            const string logId = "iExist";
+            var list = A.CollectionOfFake<ILogFile>(5);
+            list[0].Id = logId;
+            var newLog = A.Fake<ILogFile>();
+            newLog.Id = logId;
+            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+                .Invokes(call => {
+                    var log = (ILogFile)call.Arguments[0];
+
+                    if (log != null)
+                    {
+                        list.Add(log);
+                    }
+                });
+
+            // Act
+            var result = await _logsController.Save(newLog);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(ConflictObjectResult), result);
+
+            Assert.AreEqual(numLogs, list.Count);
+
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+                .MustNotHaveHappened();
+        }
     }
 }
