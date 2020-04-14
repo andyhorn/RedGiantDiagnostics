@@ -13,7 +13,6 @@ using API.Data;
 using MongoDB.Driver;
 using API.Models;
 using System.Threading.Tasks;
-using Moq;
 
 namespace api.test
 {
@@ -22,7 +21,6 @@ namespace api.test
         private ILogsRepository _logsRepository; // System Under Test
         private IDataContext _context; // Mock
         private IMongoCollection<ILogFile> _logCollection; // Mock
-        private Mock<IAsyncCursor<ILogFile>> _logCursor; // Mock
 
         [SetUp]
         public void Setup()
