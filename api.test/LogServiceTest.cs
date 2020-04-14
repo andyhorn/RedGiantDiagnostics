@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using API.Services;
 using System.Linq;
 using System.IO;
+using API.Factories;
 
 namespace api.test
 {
@@ -378,12 +379,16 @@ namespace api.test
         public void LogsService_Parse_ParsesData()
         {
             // Arrange
-            var cwd = System.IO.Directory.GetCurrentDirectory();
-            var path = System.IO.Path.Combine(cwd, "..", "..", "..", "SampleLog.txt");
-            var logData = File.ReadAllText(path);
+            var factory = A.Fake<ILogFactory>();
+
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .Invokes(call => factory.Parse((string)call.Arguments[0]));
+
+            A.CallTo(() => factory.Parse(A<string>.Ignored))
+                .Returns(A.Fake<ILogFile>());
 
             // Act
-            var newLog = _logsService.Parse(logData);
+            var newLog = _logsService.Parse(A.Fake<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(ILogFile), newLog);
