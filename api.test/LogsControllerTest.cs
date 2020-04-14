@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace api.test
 {
-    public class Tests
+    public class LogsControllerTests
     {
         private LogsController _controller;
 

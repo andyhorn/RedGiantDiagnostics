@@ -36,6 +36,9 @@ namespace API
 
             // Add a singleton of the Logs Service
             services.AddSingleton<ILogService>(service => service.GetRequiredService<LogService>());
+
+            // Add a singleton of the Logs MongoDB Collection
+            // var client = 
             
             services.AddControllers();
         }
