@@ -6,10 +6,10 @@ using API.Models;
 
 namespace API.Services
 {
-    public class LogService : ILogService
+    public class LogsService : ILogsService
     {
         private readonly ILogsRepository _logs;
-        public LogService(ILogsRepository logs)
+        public LogsService(ILogsRepository logs)
         {
             _logs = logs;
         }
@@ -20,10 +20,15 @@ namespace API.Services
             return log;
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task DeleteAsync(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return;
+            }
+
             await _logs.RemoveAsync(id);
-            return await _logs.GetByIdAsync(id) == null;
+            return;
         }
 
         public async Task<IEnumerable<ILogFile>> GetAllLogsAsync()

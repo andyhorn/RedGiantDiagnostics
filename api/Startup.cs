@@ -35,7 +35,7 @@ namespace API
             services.AddSingleton<ILogsRepository>(service => service.GetRequiredService<LogsRepository>());
 
             // Add a singleton of the Logs Service
-            services.AddSingleton<ILogService>(service => service.GetRequiredService<LogService>());
+            services.AddSingleton<ILogsService>(service => service.GetRequiredService<LogsService>());
 
             // Add a singleton of the Logs MongoDB Context
             services.AddSingleton<IDataContext>(service => service.GetRequiredService<DataContext>());

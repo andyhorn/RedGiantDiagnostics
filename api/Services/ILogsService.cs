@@ -4,13 +4,13 @@ using API.Models;
 
 namespace API.Services
 {
-    public interface ILogService
+    public interface ILogsService
     {
         Task<ILogFile> CreateAsync(ILogFile log);
         Task<IEnumerable<ILogFile>> GetAllLogsAsync();
         Task<ILogFile> GetByIdAsync(string id);
         Task<IEnumerable<ILogFile>> GetForUserAsync(string userId);
-        Task<bool> DeleteAsync(string id);
+        Task DeleteAsync(string id);
         ILogFile Parse(string data);
     }
 }
