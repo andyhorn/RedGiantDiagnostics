@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,7 +40,7 @@ namespace API.Controllers
 
         [HttpPut]
         [Route(Routes.Logs.Update)]
-        public IActionResult Update(string id)
+        public Task <IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
         {
             throw new NotImplementedException();
         }
