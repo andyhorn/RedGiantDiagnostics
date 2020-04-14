@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using API.Services;
 using API.Models;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace api.test
 {
@@ -75,6 +76,85 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_GetById_HandlesInvalidId()
+        {
+            // Arrange
+            // Simulate not finding a match for the ID
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .Returns<ILogFile>(null);
+
+            // Act
+            var result = await _logsController.GetById(A.Fake<string>());
+
+            // Assert
+            // Sending an invalid (non-matching) ID should result in a 404 Not Found
+            Assert.IsInstanceOf(typeof(NotFoundObjectResult), result);
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_GetForUser_ReturnsList()
+        {
+            // Arrange
+            const int numLogs = 5;
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .Returns(A.CollectionOfDummy<ILogFile>(numLogs));
+
+            // Act
+            var result = await _logsController.GetForUser(A.Fake<string>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+
+            var okResult = result as OkObjectResult;
+            var data = okResult.Value as List<ILogFile>;
+
+            Assert.IsInstanceOf(typeof(List<ILogFile>), data);
+            Assert.AreEqual(numLogs, data.Count);
+
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_GetForUser_HandlesNoMatchingLogs()
+        {
+            // Arrange
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .Returns(new List<ILogFile>());
+
+            // Act
+            var result = await _logsController.GetForUser(A.Fake<string>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+
+            var okResult = result as OkObjectResult;
+            var data = okResult.Value as List<ILogFile>;
+
+            Assert.IsInstanceOf(typeof(List<ILogFile>), data);
+            Assert.IsEmpty(data);
+
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_GetForUser_HandlesNullUserId()
+        {
+            // Arrage
+
+            // Act
+            var result = await _logsController.GetForUser(null);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
     }

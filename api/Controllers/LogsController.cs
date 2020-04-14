@@ -32,7 +32,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Routes.Logs.GetForUser)]
-        public IActionResult GetForUser(string userId)
+        public Task <IActionResult> GetForUser(string userId)
         {
             throw new NotImplementedException();
         }
