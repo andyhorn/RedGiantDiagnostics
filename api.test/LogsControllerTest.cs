@@ -9,6 +9,7 @@ using API.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using API.Contracts.Requests;
+using System.Linq;
 
 namespace api.test
 {
@@ -214,6 +215,90 @@ namespace api.test
             A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_Delete_ValidDeleteRequest()
+        {
+            // Arrange
+            const int numLogs = 10;
+            var fakeCollection = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            const string deleteId = "deleteMe";
+            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
+                .Invokes(call => {
+                    var id = (string)call.Arguments[0];
+
+                    var item = fakeCollection.FirstOrDefault(x => x.Id == id);
+                    if (item != null)
+                    {
+                        fakeCollection.Remove(item);
+                    }
+                });
+
+            // Act
+            var result = await _logsController.Delete(deleteId);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+
+            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_Delete_NoMatchingId_ReturnsNotFound()
+        {
+            // Sending a delete request for a non-existent ID should return
+            // a 404 Not Found error.
+
+            // Arrange
+            const string id = "noMatchForMe";
+
+            // Act
+            var result = await _logsController.Delete(id);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundObjectResult), result);
+            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task LogsController_Delete_HandlesNullId()
+        {
+            // Arrange
+            const string nullId = null;
+
+            // Act
+            var result = await _logsController.Delete(nullId);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task LogsController_Delete_HandlesEmptyId()
+        {
+            // Arrange
+            const string emptyId = "    ";
+
+            // Act
+            var result = await _logsController.Delete(emptyId);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
     }

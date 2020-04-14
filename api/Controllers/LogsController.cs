@@ -33,21 +33,21 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Routes.Logs.GetForUser)]
-        public Task <IActionResult> GetForUser(string userId)
+        public Task<IActionResult> GetForUser(string userId)
         {
             throw new NotImplementedException();
         }
 
         [HttpPut]
         [Route(Routes.Logs.Update)]
-        public Task <IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
+        public Task<IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
         {
             throw new NotImplementedException();
         }
 
         [HttpDelete]
         [Route(Routes.Logs.Delete)]
-        public IActionResult Delete(string id)
+        public Task<IActionResult> Delete(string id)
         {
             throw new NotImplementedException();
         }
