@@ -20,7 +20,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Routes.Logs.Get)]
-        public IActionResult Get()
+        public Task<IActionResult> Get()
         {
             return Ok("Hello world!");
         }

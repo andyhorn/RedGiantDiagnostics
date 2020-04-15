@@ -26,20 +26,36 @@ namespace api.test
         }
 
         [Test]
-        public void LogsController_Get()
+        public async Task LogsController_Get()
         {
-            // Get the test endpiont
-            var result = _logsController.Get();
+            // Arrange
+            const int numLogs = 5;
+            var fakeCollection = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            A.CallTo(() => _logsService.GetAllLogsAsync())
+                .Returns(fakeCollection);
 
-            // Ensure it returns an Ok
+            // Act
+            var result = await _logsController.Get();
+
+            // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
-            
-            // Get the content from the result
-            var data = result as OkObjectResult;
-            var content = (string)data.Value;
 
-            // Ensure it contains the "Hello world!" string
-            Assert.AreEqual("Hello world!", content);
+            var okResult = result as OkObjectResult;
+            var data = okResult.Value as List<ILogFile>;
+
+            Assert.AreEqual(numLogs, data.Count);
+            // // Get the test endpiont
+            // var result = _logsController.Get();
+
+            // // Ensure it returns an Ok
+            // Assert.IsInstanceOf(typeof(OkObjectResult), result);
+            
+            // // Get the content from the result
+            // var data = result as OkObjectResult;
+            // var content = (string)data.Value;
+
+            // // Ensure it contains the "Hello world!" string
+            // Assert.AreEqual("Hello world!", content);
         }
 
         [Test]
