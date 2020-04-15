@@ -22,7 +22,7 @@ namespace API.Controllers
         [Route(Routes.Logs.Get)]
         public Task<IActionResult> Get()
         {
-            return Ok("Hello world!");
+            throw new NotImplementedException();
         }
 
         [HttpGet]

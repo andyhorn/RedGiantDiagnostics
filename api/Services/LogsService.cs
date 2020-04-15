@@ -73,7 +73,7 @@ namespace API.Services
             }
             
             var logs = await _logs.GetAllLogsAsync();
-            var userLogs = logs.Where(log => log.OwnerId == userId);
+            var userLogs = logs.FindAll(x => x.OwnerId == userId);
             return userLogs;
         }
 

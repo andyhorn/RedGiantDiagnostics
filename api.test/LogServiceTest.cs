@@ -9,13 +9,17 @@ using API.Models;
 using System.Threading.Tasks;
 using API.Services;
 using System.Linq;
-using System.IO;
 using API.Factories;
 
 namespace api.test
 {
+
     public class LogsServiceTest
     {
+        private class DummyStringFactory : DummyFactory<string>
+        {
+            protected override string Create() => "DummyString";
+        }
         private ILogsRepository _logsRepository; // Mock
         private ILogFactory _logFactory; // Mock
 
@@ -199,13 +203,18 @@ namespace api.test
         {
             // Arrange
 
-            // None of the logs will have a matching OwnerId
+            // Create a list of fake logs, give each one an ID
             var fakeList = A.CollectionOfFake<ILogFile>(10).ToList();
+            for (var i = 0; i < fakeList.Count; i++)
+            {
+                fakeList[i].OwnerId = i.ToString();
+            }
+
             A.CallTo(() => _logsRepository.GetAllLogsAsync())
                 .Returns(Task.FromResult(fakeList));
 
             // Act
-            var result = await _logsService.GetForUserAsync("ownerId");
+            var result = await _logsService.GetForUserAsync(A.Dummy<string>());
 
             // Assert
             Assert.IsEmpty(result);
@@ -385,12 +394,10 @@ namespace api.test
                 .Returns(A.Fake<ILogFile>());
 
             // Act
-            var newLog = _logsService.Parse(A.Fake<string>());
+            var newLog = _logsService.Parse(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(ILogFile), newLog);
-            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
             A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }

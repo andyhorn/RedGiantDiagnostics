@@ -15,6 +15,10 @@ namespace api.test
 {
     public class LogsControllerTests
     {
+        private class DummyStringFactory : DummyFactory<string>
+        {
+            protected override string Create() => "DummyString";
+        }
         private LogsController _logsController;
         private ILogsService _logsService;
 
@@ -106,7 +110,7 @@ namespace api.test
                 .Returns<ILogFile>(null);
 
             // Act
-            var result = await _logsController.GetById(A.Fake<string>());
+            var result = await _logsController.GetById(A.Dummy<string>());
 
             // Assert
             // Sending an invalid (non-matching) ID should result in a 404 Not Found
@@ -124,7 +128,7 @@ namespace api.test
                 .Returns(A.CollectionOfDummy<ILogFile>(numLogs));
 
             // Act
-            var result = await _logsController.GetForUser(A.Fake<string>());
+            var result = await _logsController.GetForUser(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
@@ -147,7 +151,7 @@ namespace api.test
                 .Returns(new List<ILogFile>());
 
             // Act
-            var result = await _logsController.GetForUser(A.Fake<string>());
+            var result = await _logsController.GetForUser(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
@@ -184,7 +188,7 @@ namespace api.test
                 .Returns(A.Fake<ILogFile>());
 
             // Act
-            var result = await _logsController.Update(A.Fake<string>(), A.Fake<ILogUpdateRequest>());
+            var result = await _logsController.Update(A.Dummy<string>(), A.Fake<ILogUpdateRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
