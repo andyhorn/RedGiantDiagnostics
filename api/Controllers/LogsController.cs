@@ -20,51 +20,139 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Routes.Logs.Get)]
-        public Task<IActionResult> Get()
+        public async Task<IActionResult> Get()
         {
-            throw new NotImplementedException();
+            var list = await _logsService.GetAllLogsAsync();
+            return Ok(list);
         }
 
         [HttpGet]
         [Route(Routes.Logs.GetById)]
-        public Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var log = await _logsService.GetByIdAsync(id);
+
+            if (log == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(log);
         }
 
         [HttpGet]
         [Route(Routes.Logs.GetForUser)]
-        public Task<IActionResult> GetForUser(string userId)
+        public async Task<IActionResult> GetForUser(string userId)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest();
+            }
+
+            var logs = await _logsService.GetForUserAsync(userId);
+
+            if (logs == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(logs);
         }
 
         [HttpPut]
         [Route(Routes.Logs.Update)]
-        public Task<IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
+        public async Task<IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            if (update == null)
+            {
+                return BadRequest();
+            }
+
+            var result = await _logsService.UpdateAsync(update.Log);
+            return Ok(result);
         }
 
         [HttpDelete]
         [Route(Routes.Logs.Delete)]
-        public Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            var exists = await _logsService.GetByIdAsync(id) != null;
+
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            await _logsService.DeleteAsync(id);
+
+            return Ok();
         }
 
         [HttpPost]
         [Route(Routes.Logs.Save)]
-        public Task<IActionResult> Save([FromBody]ILogFile log)
+        public async Task<IActionResult> Save([FromBody]ILogFile log)
         {
-            throw new NotImplementedException();
+            if (log == null)
+            {
+                return BadRequest();
+            }
+
+            if (!string.IsNullOrWhiteSpace(log.Id))
+            {
+                var exists = await _logsService.GetByIdAsync(log.Id) != null;
+
+                if (exists)
+                {
+                    return Conflict();
+                }
+            }
+
+            var result = await _logsService.CreateAsync(log);
+
+            if (result == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Created(result.Id, result);
         }
 
         [HttpPost]
         [Route(Routes.Logs.Upload)]
-        public IActionResult Upload([FromBody]string data)
+        public async Task<IActionResult> Upload([FromBody]string data)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return BadRequest();
+            }
+
+            ILogFile log = null;
+
+            await Task.Run(() => {
+                log = _logsService.Parse(data);
+            });
+
+            if (log == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Ok(log);
         }
     }
 }

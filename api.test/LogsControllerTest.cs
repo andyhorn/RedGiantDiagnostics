@@ -77,10 +77,10 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var data = result as OkObjectResult;
-            var content = (string)data.Value;
+            var content = (ILogFile)data.Value;
 
-            var log = JsonConvert.DeserializeObject<ILogFile>(content);
-            Assert.IsInstanceOf(typeof(ILogFile), log);
+            // var log = JsonConvert.DeserializeObject<ILogFile>(content);
+            Assert.IsInstanceOf(typeof(ILogFile), content);
 
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
@@ -96,7 +96,7 @@ namespace api.test
             var result = await _logsController.GetById(nullId);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
@@ -114,7 +114,7 @@ namespace api.test
 
             // Assert
             // Sending an invalid (non-matching) ID should result in a 404 Not Found
-            Assert.IsInstanceOf(typeof(NotFoundObjectResult), result);
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
@@ -175,7 +175,7 @@ namespace api.test
             var result = await _logsController.GetForUser(null);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
@@ -212,7 +212,7 @@ namespace api.test
             var result = await _logsController.Update(nullId, A.Fake<ILogUpdateRequest>());
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
             A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
                 .MustNotHaveHappened();
@@ -231,7 +231,7 @@ namespace api.test
             var result = await _logsController.Update(id, nullUpdateRequest);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
             A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
@@ -260,7 +260,7 @@ namespace api.test
             var result = await _logsController.Delete(deleteId);
 
             // Assert
-            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+            Assert.IsInstanceOf(typeof(OkResult), result);
 
             A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
@@ -274,12 +274,14 @@ namespace api.test
 
             // Arrange
             const string id = "noMatchForMe";
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .Returns<ILogFile>(null);
 
             // Act
             var result = await _logsController.Delete(id);
 
             // Assert
-            Assert.IsInstanceOf(typeof(NotFoundObjectResult), result);
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
             A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
@@ -296,7 +298,7 @@ namespace api.test
             var result = await _logsController.Delete(nullId);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
@@ -314,7 +316,7 @@ namespace api.test
             var result = await _logsController.Delete(emptyId);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
@@ -336,6 +338,8 @@ namespace api.test
                         list.Add(log);
                     }
                 });
+            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
+                .Returns<ILogFile>(null);
 
             // Act
             var result = await _logsController.Save(A.Fake<ILogFile>());
@@ -359,7 +363,7 @@ namespace api.test
             var result = await _logsController.Save(nullLog);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
             A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
                 .MustNotHaveHappened();
@@ -389,7 +393,7 @@ namespace api.test
             var result = await _logsController.Save(newLog);
 
             // Assert
-            Assert.IsInstanceOf(typeof(ConflictObjectResult), result);
+            Assert.IsInstanceOf(typeof(ConflictResult), result);
 
             Assert.AreEqual(numLogs, list.Count);
 
@@ -400,14 +404,14 @@ namespace api.test
         }
 
         [Test]
-        public void LogsController_Upload_ValidUpload()
+        public async Task LogsController_Upload_ValidUpload()
         {
             // Arrange
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .Returns(A.Fake<ILogFile>());
 
             // Act
-            var result = _logsController.Upload(A.Dummy<string>());
+            var result = await _logsController.Upload(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
@@ -421,31 +425,31 @@ namespace api.test
         }
 
         [Test]
-        public void LogsController_Upload_HandlesNullObject()
+        public async Task LogsController_Upload_HandlesNullObject()
         {
             // Arrange
             const string nullObject = null;
 
             // Act
-            var result = _logsController.Upload(nullObject);
+            var result = await _logsController.Upload(nullObject);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
 
         [Test]
-        public void LogsController_Upload_HandlesEmptyString()
+        public async Task LogsController_Upload_HandlesEmptyString()
         {
             // Arrange
             const string emptyString = "   ";
 
             // Act
-            var result = _logsController.Upload(emptyString);
+            var result = await _logsController.Upload(emptyString);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
