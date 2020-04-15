@@ -48,18 +48,6 @@ namespace api.test
             var data = okResult.Value as List<ILogFile>;
 
             Assert.AreEqual(numLogs, data.Count);
-            // // Get the test endpiont
-            // var result = _logsController.Get();
-
-            // // Ensure it returns an Ok
-            // Assert.IsInstanceOf(typeof(OkObjectResult), result);
-            
-            // // Get the content from the result
-            // var data = result as OkObjectResult;
-            // var content = (string)data.Value;
-
-            // // Ensure it contains the "Hello world!" string
-            // Assert.AreEqual("Hello world!", content);
         }
 
         [Test]
