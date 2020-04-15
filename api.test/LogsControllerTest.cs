@@ -273,12 +273,11 @@ namespace api.test
             // a 404 Not Found error.
 
             // Arrange
-            const string id = "noMatchForMe";
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .Returns<ILogFile>(null);
 
             // Act
-            var result = await _logsController.Delete(id);
+            var result = await _logsController.Delete(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
