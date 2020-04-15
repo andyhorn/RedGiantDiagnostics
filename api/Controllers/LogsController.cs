@@ -62,7 +62,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Routes.Logs.Upload)]
-        public IActionResult Upload()
+        public IActionResult Upload([FromBody]string data)
         {
             throw new NotImplementedException();
         }

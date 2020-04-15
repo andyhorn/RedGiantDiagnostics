@@ -378,5 +378,56 @@ namespace api.test
             A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
                 .MustNotHaveHappened();
         }
+
+        [Test]
+        public void LogsController_Upload_ValidUpload()
+        {
+            // Arrange
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .Returns(A.Fake<ILogFile>());
+
+            // Act
+            var result = _logsController.Upload(A.Dummy<string>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+
+            var okResult = result as OkObjectResult;
+            var data = okResult.Value as ILogFile;
+
+            Assert.IsInstanceOf(typeof(ILogFile), data);
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public void LogsController_Upload_HandlesNullObject()
+        {
+            // Arrange
+            const string nullObject = null;
+
+            // Act
+            var result = _logsController.Upload(nullObject);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public void LogsController_Upload_HandlesEmptyString()
+        {
+            // Arrange
+            const string emptyString = "   ";
+
+            // Act
+            var result = _logsController.Upload(emptyString);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+            A.CallTo(() => _logsService.Parse(A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
     }
 }
