@@ -17,7 +17,8 @@ namespace API.Entities
         public DateTime Date { get; set; }
         public IDictionary<string, string> EnvironmentVariables { get; set; }
         public string RlmVersion { get; set; }
-        public IEnumerable<string> HostIdList { get; set; }
+        public IEnumerable<string> HostMacList { get; set; }
+        public IEnumerable<string> HostIpList { get; set; }
         public string PrimaryHost { get; set; }
         public string Hostname { get; set; }
         public IEnumerable<ILicenseFile> Licenses { get; set; }

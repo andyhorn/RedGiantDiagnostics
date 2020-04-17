@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using API.Models;
 
 namespace API.Factories
@@ -39,6 +41,9 @@ namespace API.Factories
 
             // Get the Environment Variables
             ParseEnvironmentVariables();
+
+            // Get the detected MAC and IP addresses
+            ParseHostMacAndIpLists();
         }
 
         /// <summary>
@@ -110,9 +115,26 @@ namespace API.Factories
         /// <summary>
         /// Parse the host id list line from the log file.
         /// </summary>
-        private void ParseHostIdList()
+        private void ParseHostMacAndIpLists()
         {
-            throw new NotImplementedException();
+            var line = LinesBetween("RLM hostid list:", "License files:");
+            var list = line[0].Split(" ");
+
+            var isMac = new Regex("[A-Fa-f0-9]{12}");
+            var isIp = new Regex("(?<=ip=)(([0-9]{1,3}.){4})");
+
+            var macList = list.ToList()
+                .Where(x => isMac.IsMatch(x))
+                .Select(x => MakeMac(x))
+                .ToList();
+
+            var ipList = list.ToList()
+                .Where(x => isIp.IsMatch(x))
+                .Select(x => isIp.Match(x).Value)
+                .ToList();
+
+            _log.HostMacList = macList;
+            _log.HostIpList = ipList;
         }
 
         /// <summary>
@@ -137,6 +159,26 @@ namespace API.Factories
         private void ParseRlmStatistics()
         {
 
+        }
+
+        private string MakeMac(string mac)
+        {
+            string newMac = string.Empty;
+            mac.Replace(":", "");
+            mac.Replace("-", "");
+            mac.Replace(".", "");
+
+            for (var i = 0; i < mac.Length; i++)
+            {
+                if (i % 2 == 0 && i > 1)
+                {
+                    newMac += ":";
+                }
+                
+                newMac += mac[i].ToString().ToUpper();
+            }
+
+            return newMac;
         }
     }
 }

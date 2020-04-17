@@ -10,7 +10,8 @@ namespace API.Models
         DateTime Date { get; set; }
         IDictionary<string, string> EnvironmentVariables { get; set; }
         string RlmVersion { get; set; }
-        IEnumerable<string> HostIdList { get; set; }
+        IEnumerable<string> HostMacList { get; set; }
+        IEnumerable<string> HostIpList { get; set; }
         string PrimaryHost { get; set; }
         string Hostname { get; set; }
         IEnumerable<ILicenseFile> Licenses { get; set; }
