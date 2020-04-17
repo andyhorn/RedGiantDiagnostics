@@ -4,7 +4,7 @@ namespace API.Factories
 {
     public interface ILogFactory
     {
-        ILogFile GetNew();
+        ILogFile New();
         ILogFile Parse(string data);
     }
 }

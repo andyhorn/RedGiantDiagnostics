@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace API.Models
@@ -6,6 +7,7 @@ namespace API.Models
     {
         string Id { get; set; }
         string OwnerId { get; set; }
+        DateTime Date { get; set; }
         IDictionary<string, string> EnvironmentVariables { get; set; }
         string RlmVersion { get; set; }
         IEnumerable<string> HostIdList { get; set; }

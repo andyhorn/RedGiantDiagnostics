@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using API.Models;
 using MongoDB.Bson;
@@ -13,6 +14,7 @@ namespace API.Entities
 
         [BsonRepresentation(BsonType.ObjectId)]
         public string OwnerId { get; set; }
+        public DateTime Date { get; set; }
         public IDictionary<string, string> EnvironmentVariables { get; set; }
         public string RlmVersion { get; set; }
         public IEnumerable<string> HostIdList { get; set; }
