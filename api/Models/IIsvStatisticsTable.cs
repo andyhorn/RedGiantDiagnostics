@@ -1,6 +1,6 @@
 namespace API.Models
 {
-    public interface IIsvStatisticsTable : IStatisticsTable
+    public interface IIsvStatisticsTable : IServerStatisticsTable
     {
         int[] Checkouts { get; set; }
         int[] Denials { get; set; }
