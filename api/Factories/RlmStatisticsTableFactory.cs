@@ -16,8 +16,56 @@ namespace API.Factories
 
             table.ServerName = GetServerName(data);
             table.StartTimes = GetStartTimes(data);
+            table.Messages = GetMessages(data);
+            table.Connections = GetConnections(data);
 
             return table;
+        }
+
+        private static int[] GetConnections(string[] data)
+        {
+            var dataLine = data
+                .Where(x => x.Contains("Connections:"))
+                .ToList()[0]
+                .Split(" ")
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToArray();
+
+            var startConnections = dataLine[1];
+            var midnightConnections = dataLine[4];
+            var recentConnections = dataLine[7];
+
+            var connections = new int[3]
+            {
+                int.Parse(startConnections),
+                int.Parse(midnightConnections),
+                int.Parse(recentConnections)
+            };
+
+            return connections;
+        }
+
+        private static int[] GetMessages(string[] data)
+        {
+            var dataLine = data
+                .Where(x => x.Contains("Messages:"))
+                .ToList()[0]
+                .Split(" ")
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToArray();
+
+            var startMessages = dataLine[1];
+            var midnightMessages = dataLine[4];
+            var recentMessages = dataLine[7];
+
+            var messages = new int[3]
+            {
+                int.Parse(startMessages),
+                int.Parse(midnightMessages),
+                int.Parse(recentMessages)
+            };
+
+            return messages;
         }
 
         private static DateTime[] GetStartTimes(string[] data)
