@@ -12,7 +12,7 @@ namespace API.Models
         string RlmVersion { get; set; }
         IEnumerable<string> HostMacList { get; set; }
         IEnumerable<string> HostIpList { get; set; }
-        string PrimaryHost { get; set; }
+        string PrimaryHost { get; }
         string Hostname { get; set; }
         IEnumerable<ILicenseFile> Licenses { get; set; }
         IRlmStatisticsTable RlmStatistics { get; set; }

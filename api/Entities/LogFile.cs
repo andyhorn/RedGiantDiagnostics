@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using API.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -19,7 +20,17 @@ namespace API.Entities
         public string RlmVersion { get; set; }
         public IEnumerable<string> HostMacList { get; set; }
         public IEnumerable<string> HostIpList { get; set; }
-        public string PrimaryHost { get; set; }
+        public string PrimaryHost 
+        { 
+            get
+            {
+                if (HostMacList.Count() > 0)
+                {
+                    return HostMacList.ToList()[0];
+                }
+                return string.Empty;
+            }
+        }
         public string Hostname { get; set; }
         public IEnumerable<ILicenseFile> Licenses { get; set; }
         public IRlmStatisticsTable RlmStatistics { get; set; }
