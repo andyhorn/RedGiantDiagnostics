@@ -48,6 +48,9 @@ namespace API.Factories
 
             // Get the license files
             ParseLicenseFiles();
+
+            // Get the main RLM statistics table
+            ParseRlmStatistics();
         }
 
         /// <summary>
@@ -183,6 +186,8 @@ namespace API.Factories
             var rlmStatisticData = HelperMethods.GetLinesBetween("Status for \"rlm\"", "=============", _data, true);
 
             var rlmStatistics = RlmStatisticsTableFactory.Parse(rlmStatisticData);
+
+            _log.RlmStatistics = rlmStatistics;
         }
     }
 }
