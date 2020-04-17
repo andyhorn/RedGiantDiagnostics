@@ -12,6 +12,5 @@ namespace API.Models
         string HostPort { get; set; }
         string IsvPort { get; set; }
         IEnumerable<IProductLicense> ProductLicenses { get; set; }
-        bool IsRoaming { get; set; }
     }
 }

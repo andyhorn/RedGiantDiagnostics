@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using API.Entities;
 using API.Models;
 
@@ -18,6 +19,7 @@ namespace API.Factories
             licenseFile.HostPort = GetLicenseHostPort(data);
             licenseFile.IsvName = GetLicenseIsvName(data);
             licenseFile.IsvPort = GetLicenseIsvPort(data);
+            licenseFile.ProductLicenses = GetLicenseProducts(data);
 
             return licenseFile;
         }
@@ -93,6 +95,42 @@ namespace API.Factories
                 isvPort = isvPort.Substring("port=".Length);
 
             return isvPort;
+        }
+
+        private IEnumerable<IProductLicense> GetLicenseProducts(string[] data)
+        {
+            var productData = new List<string[]>();
+            var productLicenses = new List<IProductLicense>();
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                if (data[i].Contains("LICENSE") && !data[i].Contains("FILE:"))
+                {
+                    var section = new List<string>();
+
+                    for (var j = i; j < data.Length; j++)
+                    {
+                        section.Add(data[j]);
+
+                        if (data[j].Contains("sig="))
+                        {
+                            i = j;
+                            break;
+                        }
+                    }
+
+                    productData.Add(section.ToArray());
+                }
+            }
+
+            var factory = new ProductLicenseFactory();
+            foreach (var product in productData)
+            {
+                var newProductLicense = factory.Parse(product);
+                productLicenses.Add(newProductLicense);
+            }
+
+            return productLicenses;
         }
 
         private string GetLineValue(string searchTerm, int section, string[] data)

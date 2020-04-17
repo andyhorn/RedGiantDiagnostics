@@ -223,7 +223,9 @@ namespace API.Factories
         /// </summary>
         private void ParseRlmStatistics()
         {
+            var rlmStatisticData = LinesBetween("Status for \"rlm\"", "=============", true);
 
+            var rlmStatistics = new RlmStatisticsFactory().Parse(rlmStatisticData);
         }
 
         private string MakeMac(string mac)
