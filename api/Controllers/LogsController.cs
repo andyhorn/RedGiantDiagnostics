@@ -8,6 +8,7 @@ using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace API.Controllers
 {
@@ -151,7 +152,8 @@ namespace API.Controllers
             {
                 var log = await ParseFormData(file);
 
-                return Ok(log);
+                var data = JsonConvert.SerializeObject(log);
+                return Ok(data);
             }
             catch (FileNotFoundException)
             {
