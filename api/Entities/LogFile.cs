@@ -27,10 +27,5 @@ namespace API.Entities
         public IEnumerable<IDebugLog> IsvLogs { get; set; }
         public IEnumerable<IRlmInstance> RlmInstances { get; set; }
         public IEnumerable<IAnalysisResult> AnalysisResults { get; set; }
-
-        public void Analyze()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

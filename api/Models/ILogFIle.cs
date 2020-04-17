@@ -20,7 +20,5 @@ namespace API.Models
         IEnumerable<IDebugLog> IsvLogs { get; set; }
         IEnumerable<IRlmInstance> RlmInstances { get; set; }
         IEnumerable<IAnalysisResult> AnalysisResults { get; set; }
-        // void ReadData(string data); Move this to a Factory
-        void Analyze();
     }
 }

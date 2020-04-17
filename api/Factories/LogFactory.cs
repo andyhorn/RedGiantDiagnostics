@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using API.Entities;
 using API.Models;
 
@@ -10,30 +7,27 @@ namespace API.Factories
 {
     public class LogFactory : ILogFactory
     {
-        private string[] _data;
-        private ILogFile _log;
         public ILogFile New() => new LogFile();
 
-        public LogFactory()
+        public ILogFile Parse(string rawData)
         {
-            _data = null;
-            _log = null;
-        }
+            // Prepare the raw data for parsing
+            string[] data = PrepareData(rawData);
 
-        public ILogFile Parse(string data)
-        {
-            _log = New();
-            _data = PrepareData(data);
+            // Instantiate a new log parser with a new LogFile and
+            // the cleansed data
+            var parser = new LogParser(New(), data);
 
-            var thread = new Thread(Exec);
-            thread.Start(this);
-            thread.Join();
+            // Start the log parser's Parse method on a new thread
+            // and wait for it to complete
+            var parseThread = new Thread(parser.Parse);
+            parseThread.Start();
+            parseThread.Join();
 
-            var log = _log;
+            // Retrieve the parsed log from the log parser
+            var log = parser.Log;
 
-            _log = null;
-            _data = null;
-
+            // Return the LogFile
             return log;
         }
 
@@ -55,31 +49,6 @@ namespace API.Factories
             }
 
             return list.ToArray();
-        }
-
-        private static void Exec(object param)
-        {
-            var factory = param as LogFactory;
-
-            // Parse the log metadata
-            factory.ParseMetadata();
-
-            // Parse the Environment Variables
-            factory.ParseEnvironmentVariables();
-        }
-
-        private void ParseMetadata()
-        {
-            var md = LogParser.ParseMetadata(_data);
-            _log.Hostname = md["Hostname"];
-            _log.RlmVersion = md["Rlm Version"];
-            _log.Date = DateTime.Parse($"{md["Date"]} {md["Time"]}");
-        }
-
-        private void ParseEnvironmentVariables()
-        {
-            var env = LogParser.ParseEnvironmentVariables(_data);
-            _log.EnvironmentVariables = env;
         }
     }
 }
