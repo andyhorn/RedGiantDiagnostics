@@ -1,9 +1,12 @@
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
 using API.Models;
 using API.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -66,7 +69,7 @@ namespace API.Controllers
 
         [HttpPut]
         [Route(Routes.Logs.Update)]
-        public async Task<IActionResult> Update(string id, [FromBody]ILogUpdateRequest update)
+        public async Task<IActionResult> Update(string id, [FromBody]LogUpdateRequest update)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -105,12 +108,14 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Routes.Logs.Save)]
-        public async Task<IActionResult> Save([FromBody]ILogFile log)
+        public async Task<IActionResult> Save([FromBody]LogSaveRequest save)
         {
-            if (log == null)
+            if (save == null || save.Log == null)
             {
-                return BadRequest();
+                return BadRequest("Log data cannot be null");
             }
+
+            var log = save.Log;
 
             if (!string.IsNullOrWhiteSpace(log.Id))
             {
@@ -132,27 +137,52 @@ namespace API.Controllers
             return Created(result.Id, result);
         }
 
+        private string ReadFileData(Stream fileStream)
+        {
+            byte[] data = new byte[fileStream.Length];
+
+            fileStream.Read(data, 0, (int)fileStream.Length);
+
+            var str = Encoding.UTF8.GetString(data, 0, (int)fileStream.Length);
+
+            return str;
+        }
+
         [HttpPost]
         [Route(Routes.Logs.Upload)]
-        public async Task<IActionResult> Upload([FromBody]string data)
+        [DisableRequestSizeLimit]
+        public async Task<IActionResult> Upload([FromForm]IFormFile file)
         {
-            if (string.IsNullOrWhiteSpace(data))
+            // var file = Request.Form.Files[0];
+            if (file != null)
             {
-                return BadRequest();
+                
+                var stream = file.OpenReadStream();
+                string data = string.Empty;
+                await Task.Run(() => {
+                    data = ReadFileData(stream);
+                });
+                return Ok(data);
             }
+            else
+                return NoContent();
+            // if (string.IsNullOrWhiteSpace(data))
+            // {
+            //     return BadRequest();
+            // }
 
-            ILogFile log = null;
+            // ILogFile log = null;
 
-            await Task.Run(() => {
-                log = _logsService.Parse(data);
-            });
+            // await Task.Run(() => {
+            //     log = _logsService.Parse(data);
+            // });
 
-            if (log == null)
-            {
-                return StatusCode(500);
-            }
+            // if (log == null)
+            // {
+            //     return StatusCode(500);
+            // }
 
-            return Ok(log);
+            // return Ok(log);
         }
     }
 }

@@ -176,7 +176,7 @@ namespace api.test
                 .Returns(A.Fake<ILogFile>());
 
             // Act
-            var result = await _logsController.Update(A.Dummy<string>(), A.Fake<ILogUpdateRequest>());
+            var result = await _logsController.Update(A.Dummy<string>(), A.Fake<LogUpdateRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
@@ -197,7 +197,7 @@ namespace api.test
             const string nullId = null;
 
             // Act
-            var result = await _logsController.Update(nullId, A.Fake<ILogUpdateRequest>());
+            var result = await _logsController.Update(nullId, A.Fake<LogUpdateRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -213,7 +213,7 @@ namespace api.test
         {
             // Arrange
             const string id = "validIdString";
-            ILogUpdateRequest nullUpdateRequest = null;
+            LogUpdateRequest nullUpdateRequest = null;
 
             // Act
             var result = await _logsController.Update(id, nullUpdateRequest);
