@@ -5,9 +5,12 @@ namespace API.Models
     public interface ILicenseFile
     {
         string Name { get; set; }
-        string MemberName { get; set; }
+        string IsvName { get; set; }
         string UUID { get; set; }
-        string Host { get; set; }
+        string HostAddress { get; set; }
+        string HostMac { get; set; }
+        string HostPort { get; set; }
+        string IsvPort { get; set; }
         IEnumerable<ILicense> Licenses { get; set; }
         bool IsRoaming { get; set; }
     }
