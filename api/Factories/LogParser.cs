@@ -15,6 +15,7 @@ namespace API.Factories
     {
         private ILogFile _log;
         private string[] _data;
+        private ILicenseFileFactory _licenseFileFactory;
         public ILogFile Log
         {
             get
@@ -27,6 +28,7 @@ namespace API.Factories
         {
             _log = log;
             _data = data;
+            _licenseFileFactory = new LicenseFileFactory();
         }
 
         /// <summary>
@@ -44,6 +46,9 @@ namespace API.Factories
 
             // Get the detected MAC and IP addresses
             ParseHostMacAndIpLists();
+
+            // Get the license files
+            ParseLicenseFiles();
         }
 
         /// <summary>
@@ -52,21 +57,31 @@ namespace API.Factories
         /// <param name="begin">The string marking the beginning of the section to collect.</param>
         /// <param name="end">The string marking the end of the section to collect.</param>
         /// <returns>Returns a string array containing all lines between the begin and end markers.</returns>
-        private string[] LinesBetween(string begin, string end)
+        private string[] LinesBetween(string begin, string end, bool inclusive = false)
         {
             List<string> lines = new List<string>();
 
+            var beginMatch = new Regex(begin);
+            var endMatch = new Regex(end);
+
             // Find the beginning marker from the given/default offset
             int i = 0;
-            while (_data[i] != begin && i < _data.Length) { i++; }
+            // while (_data[i] != begin && i < _data.Length) { i++; }
+            while (!beginMatch.IsMatch(_data[i]) && i < _data.Length) { i++; }
 
-            // We are now sitting on the "begin" marker, advance one and begin collection
-            i++;
+            // We are now sitting on the "begin" marker, 
+            // if not inclusive, advance one and begin collection
+            if (!inclusive) i++;
 
             for (; i < _data.Length; i++)
             {
-                if (_data[i] == end)
+                // if (_data[i] == end)
+                if (endMatch.IsMatch(_data[i]))
                 {
+                    if (inclusive)
+                    {
+                        lines.Add(_data[i]);
+                    }
                     break;
                 }
                 else
@@ -138,19 +153,69 @@ namespace API.Factories
         }
 
         /// <summary>
-        /// Parse the list of license files from the log file.
-        /// </summary>
-        private void ParseLicenseFileList()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Parse the contents of each license file in the log file.
         /// </summary>
         private void ParseLicenseFiles()
         {
-            throw new NotImplementedException();
+            var licenseList = LinesBetween("LICENSE FILE:", "RLM Options", true);
+
+            var licenseData = GetLicenseData(licenseList);
+
+            var licenses = new List<ILicenseFile>();
+            foreach (var data in licenseData)
+            {
+                var license = _licenseFileFactory.Parse(data);
+                licenses.Add(license);
+            }
+
+            _log.Licenses = licenses;
+        }
+
+        private List<string[]> GetLicenseData(string[] data)
+        {
+            // Create a new list of string arrays - Each string array
+            // represents the raw text data for a different license file
+            var list = new List<string[]>();
+
+            // Nested for-loops, may need to refactor later.
+            // Loop through the full text; At each point of a new license file,
+            // signified by "LICENSE FILE: {name}", we will start a new for-loop
+            // to gather all the data in this license file - stopping when a new
+            // license file section is found or when the RLM Options section is found.
+            // Then, we will fast-forward the outer for-loop to when the inner loop ended.
+            for (var i = 0; i < data.Length; i++)
+            {
+                // When a new license file is found, begin the inner collection loop
+                if (data[i].Contains("LICENSE FILE:"))
+                {
+                    // Create a new list of strings and add this first line, containing
+                    // the file name, to the list
+                    var license = new List<string>();
+                    license.Add(data[i]);
+
+                    // Start the inner for-loop, collecting all lines between the file name and
+                    // the end of this license file section
+                    for (var j = i + 1; j < data.Length; j++)
+                    {
+                        // If the current line contains a new file name or the RLM Options title,
+                        // we have reached the end of the license file data and can break the loop
+                        if (data[j].Contains("LICENSE FILE:") || data[j].Contains("RLM Options"))
+                        {
+                            break;
+                        }
+
+                        // Otherwise, add this line of text to the current license file list
+                        license.Add(data[j]);
+                    }
+
+                    // Once the inner collection has been completed, convert this list to an array
+                    // and add it to the parent list
+                    list.Add(license.ToArray());
+                }
+            }
+
+            // Return everything we found
+            return list;
         }
 
         /// <summary>
@@ -174,7 +239,7 @@ namespace API.Factories
                 {
                     newMac += ":";
                 }
-                
+
                 newMac += mac[i].ToString().ToUpper();
             }
 
