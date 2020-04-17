@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using API.Models;
+using API.Helpers;
 
 namespace API.Factories
 {
@@ -15,7 +16,6 @@ namespace API.Factories
     {
         private ILogFile _log;
         private string[] _data;
-        private ILicenseFileFactory _licenseFileFactory;
         public ILogFile Log
         {
             get
@@ -28,7 +28,6 @@ namespace API.Factories
         {
             _log = log;
             _data = data;
-            _licenseFileFactory = new LicenseFileFactory();
         }
 
         /// <summary>
@@ -49,48 +48,6 @@ namespace API.Factories
 
             // Get the license files
             ParseLicenseFiles();
-        }
-
-        /// <summary>
-        /// Returns the text between two lines in the rlmdiag.txt file.
-        /// </summary>
-        /// <param name="begin">The string marking the beginning of the section to collect.</param>
-        /// <param name="end">The string marking the end of the section to collect.</param>
-        /// <returns>Returns a string array containing all lines between the begin and end markers.</returns>
-        private string[] LinesBetween(string begin, string end, bool inclusive = false)
-        {
-            List<string> lines = new List<string>();
-
-            var beginMatch = new Regex(begin);
-            var endMatch = new Regex(end);
-
-            // Find the beginning marker from the given/default offset
-            int i = 0;
-            // while (_data[i] != begin && i < _data.Length) { i++; }
-            while (!beginMatch.IsMatch(_data[i]) && i < _data.Length) { i++; }
-
-            // We are now sitting on the "begin" marker, 
-            // if not inclusive, advance one and begin collection
-            if (!inclusive) i++;
-
-            for (; i < _data.Length; i++)
-            {
-                // if (_data[i] == end)
-                if (endMatch.IsMatch(_data[i]))
-                {
-                    if (inclusive)
-                    {
-                        lines.Add(_data[i]);
-                    }
-                    break;
-                }
-                else
-                {
-                    lines.Add(_data[i]);
-                }
-            }
-
-            return lines.ToArray();
         }
 
         /// <summary>
@@ -115,7 +72,7 @@ namespace API.Factories
         /// </summary>
         private void ParseEnvironmentVariables()
         {
-            var varLines = LinesBetween("Environment:", "RLM hostid list:");
+            var varLines = HelperMethods.GetLinesBetween("Environment:", "RLM hostid list:", _data);
             var envVariables = new Dictionary<string, string>();
 
             foreach (var pair in varLines)
@@ -132,7 +89,7 @@ namespace API.Factories
         /// </summary>
         private void ParseHostMacAndIpLists()
         {
-            var line = LinesBetween("RLM hostid list:", "License files:");
+            var line = HelperMethods.GetLinesBetween("RLM hostid list:", "License files:", _data);
             var list = line[0].Split(" ");
 
             var isMac = new Regex("[A-Fa-f0-9]{12}");
@@ -140,7 +97,7 @@ namespace API.Factories
 
             var macList = list.ToList()
                 .Where(x => isMac.IsMatch(x))
-                .Select(x => MakeMac(x))
+                .Select(x => HelperMethods.MakeMac(x))
                 .ToList();
 
             var ipList = list.ToList()
@@ -157,14 +114,14 @@ namespace API.Factories
         /// </summary>
         private void ParseLicenseFiles()
         {
-            var licenseList = LinesBetween("LICENSE FILE:", "RLM Options", true);
+            var licenseList = HelperMethods.GetLinesBetween("LICENSE FILE:", "RLM Options", _data, true);
 
             var licenseData = GetLicenseData(licenseList);
 
             var licenses = new List<ILicenseFile>();
             foreach (var data in licenseData)
             {
-                var license = _licenseFileFactory.Parse(data);
+                var license = LicenseFileFactory.Parse(data);
                 licenses.Add(license);
             }
 
@@ -223,29 +180,9 @@ namespace API.Factories
         /// </summary>
         private void ParseRlmStatistics()
         {
-            var rlmStatisticData = LinesBetween("Status for \"rlm\"", "=============", true);
+            var rlmStatisticData = HelperMethods.GetLinesBetween("Status for \"rlm\"", "=============", _data, true);
 
-            var rlmStatistics = new RlmStatisticsFactory().Parse(rlmStatisticData);
-        }
-
-        private string MakeMac(string mac)
-        {
-            string newMac = string.Empty;
-            mac.Replace(":", "");
-            mac.Replace("-", "");
-            mac.Replace(".", "");
-
-            for (var i = 0; i < mac.Length; i++)
-            {
-                if (i % 2 == 0 && i > 1)
-                {
-                    newMac += ":";
-                }
-
-                newMac += mac[i].ToString().ToUpper();
-            }
-
-            return newMac;
+            var rlmStatistics = RlmStatisticsTableFactory.Parse(rlmStatisticData);
         }
     }
 }

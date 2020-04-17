@@ -4,11 +4,11 @@ using API.Models;
 
 namespace API.Factories
 {
-    public class LicenseFileFactory : ILicenseFileFactory
+    public static class LicenseFileFactory
     {
-        public ILicenseFile New() => new LicenseFile();
+        public static ILicenseFile New() => new LicenseFile();
 
-        public ILicenseFile Parse(string[] data)
+        public static ILicenseFile Parse(string[] data)
         {
             var licenseFile = New();
 
@@ -24,7 +24,7 @@ namespace API.Factories
             return licenseFile;
         }
 
-        private string GetLicenseName(string[] data)
+        private static string GetLicenseName(string[] data)
         {
             string name = string.Empty;
 
@@ -33,7 +33,7 @@ namespace API.Factories
             return name;
         }
 
-        private string GetLicenseUuid(string[] data)
+        private static string GetLicenseUuid(string[] data)
         {
             string uuid = string.Empty;
 
@@ -42,7 +42,7 @@ namespace API.Factories
             return uuid;
         }
 
-        private string GetLicenseHostAddress(string[] data)
+        private static string GetLicenseHostAddress(string[] data)
         {
             string address = string.Empty;
 
@@ -51,7 +51,7 @@ namespace API.Factories
             return address;
         }
 
-        private string GetLicenseHostMac(string[] data)
+        private static string GetLicenseHostMac(string[] data)
         {
             string mac = string.Empty;
 
@@ -67,7 +67,7 @@ namespace API.Factories
             return mac;
         }
 
-        private string GetLicenseHostPort(string[] data)
+        private static string GetLicenseHostPort(string[] data)
         {
             string port = string.Empty;
 
@@ -76,7 +76,7 @@ namespace API.Factories
             return port;
         }
 
-        private string GetLicenseIsvName(string[] data)
+        private static string GetLicenseIsvName(string[] data)
         {
             string isvName = string.Empty;
 
@@ -85,7 +85,7 @@ namespace API.Factories
             return isvName;
         }
 
-        private string GetLicenseIsvPort(string[] data)
+        private static string GetLicenseIsvPort(string[] data)
         {
             string isvPort = string.Empty;
 
@@ -97,7 +97,7 @@ namespace API.Factories
             return isvPort;
         }
 
-        private IEnumerable<IProductLicense> GetLicenseProducts(string[] data)
+        private static IEnumerable<IProductLicense> GetLicenseProducts(string[] data)
         {
             var productData = new List<string[]>();
             var productLicenses = new List<IProductLicense>();
@@ -123,17 +123,16 @@ namespace API.Factories
                 }
             }
 
-            var factory = new ProductLicenseFactory();
             foreach (var product in productData)
             {
-                var newProductLicense = factory.Parse(product);
+                var newProductLicense = ProductLicenseFactory.Parse(product);
                 productLicenses.Add(newProductLicense);
             }
 
             return productLicenses;
         }
 
-        private string GetLineValue(string searchTerm, int section, string[] data)
+        private static string GetLineValue(string searchTerm, int section, string[] data)
         {
             string value = string.Empty;
 
@@ -153,7 +152,7 @@ namespace API.Factories
             return value;
         }
 
-        private string MakeMacAddress(string mac)
+        private static string MakeMacAddress(string mac)
         {
             mac = mac.Replace(":", "");
             mac = mac.Replace("-", "");

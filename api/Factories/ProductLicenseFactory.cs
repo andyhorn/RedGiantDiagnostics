@@ -1,14 +1,15 @@
 using API.Models;
 using API.Entities;
 using System;
+using API.Helpers;
 
 namespace API.Factories
 {
-    public class ProductLicenseFactory : IProductLicenseFactory
+    public static class ProductLicenseFactory
     {
-        public IProductLicense New { get => new ProductLicense(); }
+        public static IProductLicense New { get => new ProductLicense(); }
 
-        public IProductLicense Parse(string[] data)
+        public static IProductLicense Parse(string[] data)
         {
             var product = New;
 
@@ -20,25 +21,9 @@ namespace API.Factories
             return product;
         }
 
-        private DateTime? GetDateFrom(string dateString)
+        private static DateTime? GetProductIssueDate(string[] data)
         {
-            if (dateString == null || dateString.Length == 0)
-            {
-                return null;
-            }
-
-            var date = new DateTime();
-            if (DateTime.TryParse(dateString, out date))
-            {
-                return date;
-            }
-
-            return null;
-        }
-
-        private DateTime? GetProductIssueDate(string[] data)
-        {
-            var issueDate = GetLineValue("start=", 1, data);
+            var issueDate = HelperMethods.GetLineValue("start=", 1, data);
 
             if (issueDate == null || issueDate.Length == 0)
             {
@@ -50,30 +35,30 @@ namespace API.Factories
                 issueDate = issueDate.Substring("start=".Length);
             } 
 
-            var date = GetDateFrom(issueDate);
+            var date = HelperMethods.GetDateTimeFrom(issueDate);
 
             return date;
         }
 
-        private DateTime? GetProductExpirationDate(string[] data)
+        private static DateTime? GetProductExpirationDate(string[] data)
         {
-            var expirationDate = GetLineValue("LICENSE", 4, data);
+            var expirationDate = HelperMethods.GetLineValue("LICENSE", 4, data);
 
-            var date = GetDateFrom(expirationDate);
+            var date = HelperMethods.GetDateTimeFrom(expirationDate);
 
             return date;
         }
 
-        private string GetProductName(string[] data)
+        private static string GetProductName(string[] data)
         {
-            var name = GetLineValue("LICENSE", 2, data);
+            var name = HelperMethods.GetLineValue("LICENSE", 2, data);
 
             return name;
         }
 
-        private int GetProductSeats(string[] data)
+        private static int GetProductSeats(string[] data)
         {
-            var seats = GetLineValue("LICENSE", 5, data);
+            var seats = HelperMethods.GetLineValue("LICENSE", 5, data);
             int num = 0;
 
             if (seats == "uncounted")
@@ -86,26 +71,6 @@ namespace API.Factories
             }
 
             return num;
-        }
-
-        private string GetLineValue(string searchTerm, int word, string[] data)
-        {
-            string value = string.Empty;
-
-            foreach (var line in data)
-            {
-                if (line.Contains(searchTerm))
-                {
-                    var words = line.Split(" ");
-
-                    if (word < words.Length)
-                        value = words[word].Trim();
-
-                    break;
-                }
-            }
-
-            return value;
         }
     }
 }
