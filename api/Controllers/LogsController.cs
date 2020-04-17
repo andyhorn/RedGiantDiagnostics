@@ -153,36 +153,39 @@ namespace API.Controllers
         [DisableRequestSizeLimit]
         public async Task<IActionResult> Upload([FromForm]IFormFile file)
         {
-            // var file = Request.Form.Files[0];
-            if (file != null)
+            if (file == null)
             {
-                
-                var stream = file.OpenReadStream();
-                string data = string.Empty;
+                return BadRequest();
+            }
+
+            string data = string.Empty;
+
+            using (var stream = file.OpenReadStream())
+            {
                 await Task.Run(() => {
                     data = ReadFileData(stream);
                 });
-                return Ok(data);
             }
-            else
-                return NoContent();
-            // if (string.IsNullOrWhiteSpace(data))
-            // {
-            //     return BadRequest();
-            // }
 
-            // ILogFile log = null;
+            ILogFile log = null;
 
-            // await Task.Run(() => {
-            //     log = _logsService.Parse(data);
-            // });
+            try
+            {
+                await Task.Run(() => {
+                    log = _logsService.Parse(data);
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
 
-            // if (log == null)
-            // {
-            //     return StatusCode(500);
-            // }
+            if (log == null)
+            {
+                return StatusCode(500);
+            }
 
-            // return Ok(log);
+            return Ok(log);
         }
     }
 }
