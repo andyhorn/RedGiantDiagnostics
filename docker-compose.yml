@@ -50,34 +50,12 @@ services:
       # Wait for the API before starting
       - api
 
-  # PostgreSQL Database
+  # MongoDB Database
   database:
     container_name: rg-database
-    # Use the standard Postgres image
-    image: postgres:12
-    # Restart the container unless manually stopped
-    restart: unless-stopped
-    # Read sensitive information from a file
+    image: mongo
+    restart: "unless-stopped"
     env_file: database.env
-    volumes:
-      # Save database data to a local volume
-      - db_data:/var/lib/postgresql/data
-    ports:
-      # Expose the database server port
-      - "5432:5432"
-
-  # PGAdmin Server
-  pgadmin:
-    container_name: "pgadmin"
-    image: dpage/pgadmin4:4
-    # Read sensitive information from a file
-    env_file: pgadmin.env
-    ports:
-      # Expose the port for connecting through a browser
-      - "8080:80"
-    depends_on: 
-      # Wait for the database container before starting
-      - database
 
 volumes:
   db_data:
