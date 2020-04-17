@@ -108,14 +108,19 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Routes.Logs.Save)]
-        public async Task<IActionResult> Save([FromBody]LogSaveRequest save)
+        public async Task<IActionResult> Save([FromBody]ILogFile log)
         {
-            if (save == null || save.Log == null)
-            {
-                return BadRequest("Log data cannot be null");
-            }
+            // if (save == null || save.Log == null)
+            // {
+            //     return BadRequest("Log data cannot be null");
+            // }
 
-            var log = save.Log;
+            // var log = save.Log;
+
+            if (log == null)
+            {
+                return BadRequest();
+            }
 
             if (!string.IsNullOrWhiteSpace(log.Id))
             {
@@ -137,55 +142,77 @@ namespace API.Controllers
             return Created(result.Id, result);
         }
 
-        private string ReadFileData(Stream fileStream)
-        {
-            byte[] data = new byte[fileStream.Length];
-
-            fileStream.Read(data, 0, (int)fileStream.Length);
-
-            var str = Encoding.UTF8.GetString(data, 0, (int)fileStream.Length);
-
-            return str;
-        }
-
         [HttpPost]
         [Route(Routes.Logs.Upload)]
         [DisableRequestSizeLimit]
         public async Task<IActionResult> Upload([FromForm]IFormFile file)
         {
-            if (file == null)
-            {
-                return BadRequest();
-            }
-
-            string data = string.Empty;
-
-            using (var stream = file.OpenReadStream())
-            {
-                await Task.Run(() => {
-                    data = ReadFileData(stream);
-                });
-            }
-
-            ILogFile log = null;
-
             try
             {
-                await Task.Run(() => {
-                    log = _logsService.Parse(data);
-                });
+                var log = await ParseFormData(file);
+
+                return Ok(log);
+            }
+            catch (FileNotFoundException)
+            {
+                return BadRequest("No file was uploaded");
+            }
+            catch (ArgumentNullException)
+            {
+                return StatusCode(500, "Unable to parse form data");
             }
             catch (Exception)
             {
-                return StatusCode(500);
+                return StatusCode(500, "An unknown error occurred");
             }
+            // if (file == null)
+            // {
+            //     return BadRequest();
+            // }
 
-            if (log == null)
+            // string data = await FileService.ReadFormFileAsync(file);
+
+            // ILogFile log = null;
+
+            // try
+            // {
+            //     await Task.Run(() => {
+            //         log = _logsService.Parse(data);
+            //     });
+            // }
+            // catch (Exception)
+            // {
+            //     return StatusCode(500);
+            // }
+
+            // if (log == null)
+            // {
+            //     return StatusCode(500);
+            // }
+
+            // return Ok(log);
+        }
+
+        private async Task<ILogFile> ParseFormData(IFormFile form)
+        {
+            if (form == null)
             {
-                return StatusCode(500);
+                throw new FileNotFoundException();
             }
 
-            return Ok(log);
+            var data = await FileService.ReadFormFileAsync(form);
+
+            if (data == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            ILogFile log = null;
+            await Task.Run(() => {
+                log = _logsService.Parse(data);
+            });
+
+            return log;
         }
     }
 }
