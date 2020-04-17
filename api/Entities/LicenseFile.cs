@@ -12,7 +12,7 @@ namespace API.Entities
         public string HostMac { get; set; }
         public string HostPort { get; set; }
         public string IsvPort { get; set; }
-        public IEnumerable<ILicense> Licenses { get; set; }
+        public IEnumerable<IProductLicense> ProductLicenses { get; set; }
         public bool IsRoaming { get; set; }
     }
 }

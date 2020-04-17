@@ -2,7 +2,7 @@ using System;
 
 namespace API.Models
 {
-    public interface ILicense
+    public interface IProductLicense
     {
         DateTime IssueDate { get; set; }
         DateTime ExpirationDate { get; set; }

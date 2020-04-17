@@ -15,6 +15,9 @@ namespace API.Factories
             licenseFile.UUID = GetLicenseUuid(data);
             licenseFile.HostAddress = GetLicenseHostAddress(data);
             licenseFile.HostMac = GetLicenseHostMac(data);
+            licenseFile.HostPort = GetLicenseHostPort(data);
+            licenseFile.IsvName = GetLicenseIsvName(data);
+            licenseFile.IsvPort = GetLicenseIsvPort(data);
 
             return licenseFile;
         }
@@ -23,16 +26,7 @@ namespace API.Factories
         {
             string name = string.Empty;
 
-            foreach (var line in data)
-            {
-                if (line.Contains("LICENSE FILE:"))
-                {
-                    name = line.Substring("LICENSE FILE: ".Length);
-                    if (name.Contains(" ---- contents"))
-                        name = name.Substring(0, name.Length - " ---- contents".Length);
-                    break;
-                }
-            }
+            name = GetLineValue("LICENSE FILE", 2, data);
 
             return name;
         }
@@ -41,15 +35,7 @@ namespace API.Factories
         {
             string uuid = string.Empty;
 
-            foreach (var line in data)
-            {
-                if (line.Contains("license uuid"))
-                {
-                    var sections = line.Split(" ");
-                    uuid = sections[3].Trim();
-                    break;
-                }
-            }
+            uuid = GetLineValue("license uuid", 3, data);
 
             return uuid;
         }
@@ -58,15 +44,7 @@ namespace API.Factories
         {
             string address = string.Empty;
 
-            foreach (var line in data)
-            {
-                if (line.Contains("HOST"))
-                {
-                    var sections = line.Split(" ");
-                    address = sections[1].Trim();
-                    break;
-                }
-            }
+            address = GetLineValue("HOST", 1, data);
 
             return address;
         }
@@ -75,15 +53,7 @@ namespace API.Factories
         {
             string mac = string.Empty;
 
-            foreach (var line in data)
-            {
-                if (line.Contains("HOST"))
-                {
-                    var sections = line.Split(" ");
-                    mac = sections[2].Trim();
-                    break;
-                }
-            }
+            mac = GetLineValue("HOST", 2, data);
 
             if (mac.Contains("ether="))
             {
@@ -93,6 +63,56 @@ namespace API.Factories
             mac = MakeMacAddress(mac);
 
             return mac;
+        }
+
+        private string GetLicenseHostPort(string[] data)
+        {
+            string port = string.Empty;
+
+            port = GetLineValue("HOST", 3, data);
+
+            return port;
+        }
+
+        private string GetLicenseIsvName(string[] data)
+        {
+            string isvName = string.Empty;
+
+            isvName = GetLineValue("ISV", 1, data);
+
+            return isvName;
+        }
+
+        private string GetLicenseIsvPort(string[] data)
+        {
+            string isvPort = string.Empty;
+
+            isvPort = GetLineValue("ISV", 2, data);
+
+            if (isvPort.Contains("port="))
+                isvPort = isvPort.Substring("port=".Length);
+
+            return isvPort;
+        }
+
+        private string GetLineValue(string searchTerm, int section, string[] data)
+        {
+            string value = string.Empty;
+
+            foreach (var line in data)
+            {
+                if (line.Contains(searchTerm))
+                {
+                    var sections = line.Split(" ");
+
+                    if (section < sections.Length)
+                        value = sections[section].Trim();
+
+                    break;
+                }
+            }
+
+            return value;
         }
 
         private string MakeMacAddress(string mac)
