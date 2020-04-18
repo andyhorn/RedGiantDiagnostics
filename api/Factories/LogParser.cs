@@ -57,6 +57,9 @@ namespace API.Factories
 
             // Get and parse each of the debug log sections
             ParseDebugLogs();
+
+            // Get the RLM instances from the log file
+            ParseRlmInstances();
         }
 
         /// <summary>
@@ -219,17 +222,10 @@ namespace API.Factories
             _log.IsvStatistics = isvStatistics;
         }
 
-        // private void ParseRlmDebugLog()
-        // {
-        //     // Get the RLM debug log section from the file
-        //     var rlmDebugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "END rlm debug log", _data, true);
-
-        //     // Build a DebugLog object for the RLM debug log contents
-        //     var rlmDebugLog = DebugLogFactory.Parse(rlmDebugLogSection);
-
-        //     _log.RlmLog = rlmDebugLog;
-        // }
-
+        /// <summary>
+        /// Parse the debug log sections for the RLM server and each of the ISV servers
+        /// into their own DebugLog objects.
+        /// </summary>
         private void ParseDebugLogs()
         {
             var isvDebugLogs = new List<IDebugLog>();
@@ -255,6 +251,28 @@ namespace API.Factories
             }
 
             _log.IsvLogs = isvDebugLogs;
+        }
+
+        /// <summary>
+        /// Parse the RLM instances section of the log file.
+        /// </summary>
+        private void ParseRlmInstances()
+        {
+            var instances = new List<IRlmInstance>();
+
+            // Get the RLM instances section, this should run through the end of the file
+            var rlmInstanceSection = HelperMethods.GetLinesBetween("^RLM processes running on this machine", null, _data);
+
+            // Break this into subsections for each instance of RLM detected
+            var rlmInstances = HelperMethods.GetSubsections("RLM Version", "RLM Version", rlmInstanceSection);
+
+            foreach (var rlmInstance in rlmInstances)
+            {
+                var instance = RlmInstanceFactory.Parse(rlmInstance.ToArray());
+                instances.Add(instance);
+            }
+
+            _log.RlmInstances = instances;
         }
     }
 }

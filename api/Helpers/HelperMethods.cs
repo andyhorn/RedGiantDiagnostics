@@ -115,7 +115,13 @@ namespace API.Helpers
             // Convert the beginning and ending markers into 
             // Regular Expressions for more flexibility and precision.
             var beginMatch = new Regex(begin);
-            var endMatch = new Regex(end);
+
+            // Allow the end marker to be null - This indicates that we
+            // should collect from the begin marker through the end
+            // of the string array data
+            Regex endMatch = null;
+            if (end != null)
+                endMatch = new Regex(end);
 
             // Advance the index to the beginning marker
             int i = 0;
@@ -131,7 +137,7 @@ namespace API.Helpers
             for (; i < data.Length; i++)
             {
                 // If the current line matches the end marker, we are done collecting
-                if (endMatch.IsMatch(data[i]))
+                if (endMatch != null && endMatch.IsMatch(data[i]))
                 {
                     // If the inclusive flag is set, we will add this final line to
                     // the collection
