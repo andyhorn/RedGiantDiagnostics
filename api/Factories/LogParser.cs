@@ -204,7 +204,7 @@ namespace API.Factories
             // Filter the string array again, removing the extraneous information from the beginning and end
             relevantData = HelperMethods.GetLinesBetween("========", "========", relevantData);
 
-            var isvStatistics = 
+            var isvStatistics = IsvStatisticsFactory.Parse(relevantData);
         }
     }
 }
