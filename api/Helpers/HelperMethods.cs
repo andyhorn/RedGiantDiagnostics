@@ -78,10 +78,10 @@ namespace API.Helpers
             string newMac = string.Empty;
 
             // Strip the old MAC address of any separators
-            mac.Replace(":", "");
-            mac.Replace("-", "");
-            mac.Replace(".", "");
-            mac.Replace(" ", "");
+            mac = mac.Replace(":", "");
+            mac = mac.Replace("-", "");
+            mac = mac.Replace(".", "");
+            mac = mac.Replace(" ", "");
 
             // Loop through the original MAC length (should be 12 characters)
             for (var i = 0; i < mac.Length; i++)

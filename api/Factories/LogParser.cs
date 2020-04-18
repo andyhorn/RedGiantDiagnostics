@@ -221,7 +221,13 @@ namespace API.Factories
 
         private void ParseRlmDebugLog()
         {
-            
+            // Get the RLM debug log section from the file
+            var rlmDebugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "END rlm debug log", _data, true);
+
+            // Build a DebugLog object for the RLM debug log contents
+            var rlmDebugLog = DebugLogFactory.Parse(rlmDebugLogSection);
+
+            _log.RlmLog = rlmDebugLog;
         }
     }
 }
