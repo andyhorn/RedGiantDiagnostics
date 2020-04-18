@@ -125,7 +125,7 @@ namespace API.Helpers
 
             // Advance the index to the beginning marker
             int i = 0;
-            while (!beginMatch.IsMatch(data[i]) && i < data.Length) { i++; }
+            while (i < data.Length && !beginMatch.IsMatch(data[i])) { i++; }
 
             // We are now sitting on the "begin" marker, 
             // if not inclusive, advance one and begin collection;

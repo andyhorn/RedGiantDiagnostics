@@ -231,7 +231,7 @@ namespace API.Factories
             var isvDebugLogs = new List<IDebugLog>();
 
             // Get all the debug logs from the file
-            var debugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "RLM processes running on this machine", _data, true);
+            var debugLogSection = HelperMethods.GetLinesBetween("^rlm debug log file contents", "^RLM processes running on this machine", _data, true);
 
             // Split each debug log section into its own collection
             var logSections = HelperMethods.GetSubsections("debug log file contents", "END .+ debug log file contents", debugLogSection);

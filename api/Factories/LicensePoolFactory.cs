@@ -26,23 +26,13 @@ namespace API.Factories
         {
             var collection = new List<string>();
             
-            // Remove the usage title line from the array
-            if (data[0].Contains("Usage for pool"))
-            {
-                var list = data.ToList();
-                list.RemoveAt(0);
-                data = list.ToArray();
-            }
+            var checkoutLines = 
+                HelperMethods.GetLinesBetween("Usage for pool", null, data)
+                .Where(x => !x.Contains("======="));
 
-            for (var i = 2; i < data.Length; i++)
+            foreach (var checkoutLine in checkoutLines)
             {
-                if (data[i].Contains("No Licenses in use"))
-                {
-                    break;
-                }
-
-                // Format the string into the checkout information
-                var checkout = GetCheckout(data[i]);
+                var checkout = GetCheckout(checkoutLine);
                 collection.Add(checkout);
             }
 
