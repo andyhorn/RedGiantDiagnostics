@@ -55,8 +55,8 @@ namespace API.Factories
             // Get the statistics for each ISV server
             ParseIsvStatistics();
 
-            // Get the RLM debug log
-            ParseRlmDebugLog();
+            // Get and parse each of the debug log sections
+            ParseDebugLogs();
         }
 
         /// <summary>
@@ -219,15 +219,42 @@ namespace API.Factories
             _log.IsvStatistics = isvStatistics;
         }
 
-        private void ParseRlmDebugLog()
+        // private void ParseRlmDebugLog()
+        // {
+        //     // Get the RLM debug log section from the file
+        //     var rlmDebugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "END rlm debug log", _data, true);
+
+        //     // Build a DebugLog object for the RLM debug log contents
+        //     var rlmDebugLog = DebugLogFactory.Parse(rlmDebugLogSection);
+
+        //     _log.RlmLog = rlmDebugLog;
+        // }
+
+        private void ParseDebugLogs()
         {
-            // Get the RLM debug log section from the file
-            var rlmDebugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "END rlm debug log", _data, true);
+            var isvDebugLogs = new List<IDebugLog>();
 
-            // Build a DebugLog object for the RLM debug log contents
-            var rlmDebugLog = DebugLogFactory.Parse(rlmDebugLogSection);
+            // Get all the debug logs from the file
+            var debugLogSection = HelperMethods.GetLinesBetween("rlm debug log file contents", "RLM processes running on this machine", _data, true);
 
-            _log.RlmLog = rlmDebugLog;
+            // Split each debug log section into its own collection
+            var logSections = HelperMethods.GetSubsections("debug log file contents", "END .+ debug log file contents", debugLogSection);
+
+            foreach (var logSection in logSections)
+            {
+                var debugLog = DebugLogFactory.Parse(logSection.ToArray());
+
+                if (logSection.ToArray()[0].Contains("rlm debug log"))
+                {
+                    _log.RlmLog = debugLog;
+                }
+                else
+                {
+                    isvDebugLogs.Add(debugLog);
+                }
+            }
+
+            _log.IsvLogs = isvDebugLogs;
         }
     }
 }
