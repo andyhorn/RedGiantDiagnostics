@@ -31,11 +31,13 @@ namespace API.Factories
         {
             var licensePools = new List<ILicensePool>();
 
+            // Get the license pool section from the log file
             var poolData = HelperMethods.GetLinesBetween("License pool status", "ISV", data).ToList();
-            // poolData.RemoveAt(poolData.Count - 1); // Remove the last cell containing "===="
 
-            var licensePoolSections = GetLicensePoolSections(poolData.ToArray());
+            // Break the license pools into their own subsections
+            var licensePoolSections = HelperMethods.GetSubsections("Pool", "Pool", poolData.ToArray());
 
+            // Build LicensePool objects from each subsection of the file
             foreach (var section in licensePoolSections)
             {
                 var licensePool = LicensePoolFactory.Parse(section.ToArray());
@@ -43,50 +45,6 @@ namespace API.Factories
             }
 
             return licensePools;
-        }
-
-        private static IEnumerable<IEnumerable<string>> GetLicensePoolSections(string[] data)
-        {
-            var masterCollection = new List<string[]>();
-
-            // Loop through the full list of license pool data for this ISV server.
-            for (var i = 0; i < data.Length; i++)
-            {
-                // If this line is the marking of a new product's license pool, we 
-                // will enter the nested for-loop to gather the related lines of data.
-                if (data[i].Contains("Pool"))
-                {
-                    // Create a new collection of strings
-                    var collection = new List<string>();
-
-                    // Add this header line to the collection
-                    collection.Add(data[i]);
-
-                    // Start the nested for-loop, beginning on the line after the header.
-                    for (var j = i + 1; j < data.Length; j++)
-                    {
-                        // If the current line marks the beginning of a new product's
-                        // license pool section, we will move the outer for-loop to the
-                        // current line and then break this inner for-loop.
-                        if (data[j].Contains("Pool"))
-                        {
-                            i = j - 1;
-                            break;
-                        }
-
-                        // Otherwise, we will add the current line to this current
-                        // collection of license pool data.
-                        collection.Add(data[j]);
-                    }
-
-                    // Once we have finished the nested for-loop, collecting lines of data
-                    // for an individual product's license pool, we will add that collection
-                    // to the parent collection.
-                    masterCollection.Add(collection.ToArray());
-                }
-            }
-
-            return masterCollection;
         }
 
         private static string GetServerName(string[] data)
