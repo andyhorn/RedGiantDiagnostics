@@ -25,9 +25,12 @@ namespace API.Helpers
         {
             string value = string.Empty;
 
+            var regex = new Regex(searchTerm);
+
             foreach (var line in data)
             {
-                if (line.Contains(searchTerm))
+                // if (line.Contains(searchTerm))
+                if (regex.IsMatch(line))
                 {
                     var words = line.Split(" ");
 
