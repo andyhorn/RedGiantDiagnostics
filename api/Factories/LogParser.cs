@@ -54,6 +54,9 @@ namespace API.Factories
 
             // Get the statistics for each ISV server
             ParseIsvStatistics();
+
+            // Get the RLM debug log
+            ParseRlmDebugLog();
         }
 
         /// <summary>
@@ -214,6 +217,11 @@ namespace API.Factories
             }
 
             _log.IsvStatistics = isvStatistics;
+        }
+
+        private void ParseRlmDebugLog()
+        {
+            
         }
     }
 }

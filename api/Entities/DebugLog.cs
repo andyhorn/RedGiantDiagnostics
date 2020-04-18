@@ -7,9 +7,6 @@ namespace API.Entities
 {
     public class DebugLog : IDebugLog
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
 
         public string Filename { get; set; }
 
