@@ -4,7 +4,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class IsvStatisticsTable : IIsvStatisticsTable
+    public class IsvStatisticsTable : IIsvStatistics
     {
         public int[] Checkouts { get; set; }
         public int[] Denials { get; set; }

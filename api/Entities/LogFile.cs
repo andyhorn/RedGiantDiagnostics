@@ -33,8 +33,8 @@ namespace API.Entities
         }
         public string Hostname { get; set; }
         public IEnumerable<ILicenseFile> Licenses { get; set; }
-        public IRlmStatisticsTable RlmStatistics { get; set; }
-        public IEnumerable<IIsvStatisticsTable> IsvStatistics { get; set; }
+        public IRlmStatistics RlmStatistics { get; set; }
+        public IEnumerable<IIsvStatistics> IsvStatistics { get; set; }
         public IDebugLog RlmLog { get; set; }
         public IEnumerable<IDebugLog> IsvLogs { get; set; }
         public IEnumerable<IRlmInstance> RlmInstances { get; set; }

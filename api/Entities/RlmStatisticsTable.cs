@@ -4,7 +4,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class RlmStatisticsTable : IRlmStatisticsTable
+    public class RlmStatisticsTable : IRlmStatistics
     {
         public IEnumerable<IServerStatus> Servers { get; set; }
         public string ServerName { get; set; }

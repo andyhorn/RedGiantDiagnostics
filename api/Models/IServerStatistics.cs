@@ -2,7 +2,7 @@ using System;
 
 namespace API.Models
 {
-    public interface IServerStatisticsTable
+    public interface IServerStatistics
     {
         string ServerName { get; set; }
         DateTime[] StartTimes { get; set; }

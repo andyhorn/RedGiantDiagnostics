@@ -15,8 +15,8 @@ namespace API.Models
         string PrimaryHost { get; }
         string Hostname { get; set; }
         IEnumerable<ILicenseFile> Licenses { get; set; }
-        IRlmStatisticsTable RlmStatistics { get; set; }
-        IEnumerable<IIsvStatisticsTable> IsvStatistics { get; set; }
+        IRlmStatistics RlmStatistics { get; set; }
+        IEnumerable<IIsvStatistics> IsvStatistics { get; set; }
         IDebugLog RlmLog { get; set; }
         IEnumerable<IDebugLog> IsvLogs { get; set; }
         IEnumerable<IRlmInstance> RlmInstances { get; set; }

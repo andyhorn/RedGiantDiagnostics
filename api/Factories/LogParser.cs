@@ -51,6 +51,9 @@ namespace API.Factories
 
             // Get the main RLM statistics table
             ParseRlmStatistics();
+
+            // Get the statistics for each ISV server
+            ParseIsvStatistics();
         }
 
         /// <summary>
@@ -188,6 +191,20 @@ namespace API.Factories
             var rlmStatistics = RlmStatisticsTableFactory.Parse(rlmStatisticData);
 
             _log.RlmStatistics = rlmStatistics;
+        }
+
+        /// <summary>
+        /// Parse the statistics from each ISV server in the log file.
+        /// </summary>
+        private void ParseIsvStatistics()
+        {
+            // Get the ISV details from the main log data
+            var relevantData = HelperMethods.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
+
+            // Filter the string array again, removing the extraneous information from the beginning and end
+            relevantData = HelperMethods.GetLinesBetween("========", "========", relevantData);
+
+            var isvStatistics = 
         }
     }
 }
