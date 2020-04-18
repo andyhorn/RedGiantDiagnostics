@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using API.Entities;
 using API.Helpers;
 using API.Models;
@@ -24,6 +25,15 @@ namespace API.Factories
         private static IEnumerable<string> GetCheckedOutToList(string[] data)
         {
             var collection = new List<string>();
+            
+            // Remove the usage title line from the array
+            if (data[0].Contains("Usage for pool"))
+            {
+                var list = data.ToList();
+                list.RemoveAt(0);
+                data = list.ToArray();
+            }
+
             for (var i = 2; i < data.Length; i++)
             {
                 if (data[i].Contains("No Licenses in use"))
@@ -31,10 +41,23 @@ namespace API.Factories
                     break;
                 }
 
-                collection.Add(data[i]);
+                // Format the string into the checkout information
+                var checkout = GetCheckout(data[i]);
+                collection.Add(checkout);
             }
 
             return collection;
+        }
+
+        private static string GetCheckout(string data)
+        {
+            var columns = data.Split(":");
+            var user = columns[0];
+            var host = columns[1];
+            var time = columns[8];
+
+            var value = $"{user}:{host} - {time}";
+            return value;
         }
 
         private static int GetInUseSeats(string[] data)
