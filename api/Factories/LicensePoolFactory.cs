@@ -26,7 +26,7 @@ namespace API.Factories
             var collection = new List<string>();
             for (var i = 2; i < data.Length; i++)
             {
-                if (data[i].Contains("No licenses in use"))
+                if (data[i].Contains("No Licenses in use"))
                 {
                     break;
                 }

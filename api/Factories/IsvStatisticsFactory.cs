@@ -32,7 +32,7 @@ namespace API.Factories
             var licensePools = new List<ILicensePool>();
 
             var poolData = HelperMethods.GetLinesBetween("License pool status", "ISV", data).ToList();
-            poolData.RemoveAt(poolData.Count - 1); // Remove the last cell containing "===="
+            // poolData.RemoveAt(poolData.Count - 1); // Remove the last cell containing "===="
 
             var licensePoolSections = GetLicensePoolSections(poolData.ToArray());
 
@@ -70,7 +70,7 @@ namespace API.Factories
                         // current line and then break this inner for-loop.
                         if (data[j].Contains("Pool"))
                         {
-                            i = j;
+                            i = j - 1;
                             break;
                         }
 

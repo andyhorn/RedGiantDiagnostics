@@ -198,13 +198,54 @@ namespace API.Factories
         /// </summary>
         private void ParseIsvStatistics()
         {
+            var isvStatistics = new List<IIsvStatistics>();
+
             // Get the ISV details from the main log data
             var relevantData = HelperMethods.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
 
             // Filter the string array again, removing the extraneous information from the beginning and end
-            relevantData = HelperMethods.GetLinesBetween("========", "========", relevantData);
+            // relevantData = HelperMethods.GetLinesBetween("========", "========", relevantData);
+            var isvSections = GetIsvSections(relevantData);
 
-            var isvStatistics = IsvStatisticsFactory.Parse(relevantData);
+            foreach (var section in isvSections)
+            {
+                var isv = IsvStatisticsFactory.Parse(section);
+                isvStatistics.Add(isv);
+            }
+
+            _log.IsvStatistics = isvStatistics;
+        }
+
+        private static IEnumerable<string[]> GetIsvSections(string[] data)
+        {
+            var masterCollection = new List<string[]>();
+
+            var beginRe = new Regex("ISV .+ status on");
+            var endRe = new Regex("ISV .+ status on");
+
+            for (var outer = 0; outer < data.Length; outer++)
+            {
+                if (beginRe.IsMatch(data[outer]))
+                {
+                    var subCollection = new List<string>();
+                    subCollection.Add(data[outer]);
+
+                    for (var inner = outer + 1; inner < data.Length; inner++)
+                    {
+                        if (endRe.IsMatch(data[inner]))
+                        {
+                            outer = inner;
+                            break;
+                        }
+
+                        subCollection.Add(data[inner]);
+                    }
+
+                    masterCollection.Add(subCollection.ToArray());
+                }
+            }
+
+            return masterCollection;
         }
     }
 }
