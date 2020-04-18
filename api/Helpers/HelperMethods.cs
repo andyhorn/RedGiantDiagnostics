@@ -99,33 +99,53 @@ namespace API.Helpers
             return newMac;
         }
 
+        /// <summary>
+        /// Collects an array of strings from between two points in a larger array of strings.
+        /// </summary>
+        /// <param name="begin">A search term to indicate where to begin collection.</param>
+        /// <param name="end">A search term to indicate where to stop collection.</param>
+        /// <param name="data">The parent string array from which to collect.</param>
+        /// <param name="inclusive">A flag indicating whether the lines containing
+        /// the begin and end markers should be included in the final collection.</param>
+        /// <returns>A string array containing all lines between the two markers.</returns>
         public static string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false)
         {
             List<string> lines = new List<string>();
 
+            // Convert the beginning and ending markers into 
+            // Regular Expressions for more flexibility and precision.
             var beginMatch = new Regex(begin);
             var endMatch = new Regex(end);
 
-            // Find the beginning marker from the given/default offset
+            // Advance the index to the beginning marker
             int i = 0;
             while (!beginMatch.IsMatch(data[i]) && i < data.Length) { i++; }
 
             // We are now sitting on the "begin" marker, 
-            // if not inclusive, advance one and begin collection
+            // if not inclusive, advance one and begin collection;
+            // If this is inclusive, the current line will be added
+            // once the for-loop begins.
             if (!inclusive) i++;
 
+            // Loop through the input data array
             for (; i < data.Length; i++)
             {
+                // If the current line matches the end marker, we are done collecting
                 if (endMatch.IsMatch(data[i]))
                 {
+                    // If the inclusive flag is set, we will add this final line to
+                    // the collection
                     if (inclusive)
                     {
                         lines.Add(data[i]);
                     }
+
+                    // Break the loop to exit
                     break;
                 }
                 else
                 {
+                    // Otherwise, add the current line to the collection
                     lines.Add(data[i]);
                 }
             }
@@ -133,6 +153,13 @@ namespace API.Helpers
             return lines.ToArray();
         }
 
+        /// <summary>
+        /// Breaks a section of repeated text into individual sub-sections.
+        /// </summary>
+        /// <param name="beginMarker">A term used to indicate the beginning of a sub-section.</param>
+        /// <param name="endMarker">A term used to indicate the ending of a sub-section.</param>
+        /// <param name="data">The parent string array from which to collect.</param>
+        /// <returns>A 2-D enumerable of strings, each of which contains a sub-section from the parent collection.</returns>
         public static IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data)
         {
             var beginRe = new Regex(beginMarker);
