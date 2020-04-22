@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class LicenseFile : ILicenseFile
+    public class LicenseFile
     {
         public string Name { get; set; }
         public string IsvName { get; set; }
@@ -12,6 +12,6 @@ namespace API.Entities
         public string HostMac { get; set; }
         public string HostPort { get; set; }
         public string IsvPort { get; set; }
-        public IEnumerable<IProductLicense> ProductLicenses { get; set; }
+        public IEnumerable<ProductLicense> ProductLicenses { get; set; }
     }
 }

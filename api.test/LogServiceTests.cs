@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using API.Services;
 using System.Linq;
 using API.Factories;
+using API.Entities;
 
 namespace api.test
 {
@@ -38,7 +39,7 @@ namespace api.test
         {
             // Arrange
             const int numLogs = 5;
-            var fakeList = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(numLogs).ToList();
             A.CallTo(() => _logsRepository.GetAllLogsAsync()).Returns(Task.FromResult(fakeList));
 
             // Act
@@ -54,7 +55,7 @@ namespace api.test
         public async Task LogsService_GetAllLogsAsync_ReturnsEmptyList()
         {
             // Arrange
-            var fakeList = A.CollectionOfFake<ILogFile>(0).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(0).ToList();
             A.CallTo(() => _logsRepository.GetAllLogsAsync()).Returns(Task.FromResult(fakeList));
 
             // Act
@@ -70,11 +71,11 @@ namespace api.test
         {
             // Arrange
             const int numOriginalLogs = 3;
-            var fakeLog = A.Fake<ILogFile>();
-            var list = A.CollectionOfFake<ILogFile>(numOriginalLogs);
-            A.CallTo(() => _logsRepository.SaveAsync(A<ILogFile>.Ignored))
+            var fakeLog = A.Fake<LogFile>();
+            var list = A.CollectionOfFake<LogFile>(numOriginalLogs);
+            A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
                 .Invokes((callObject) => {
-                    list.Add(callObject.FakedObject as ILogFile);
+                    list.Add(callObject.FakedObject as LogFile);
                 });
 
             // Act
@@ -82,7 +83,7 @@ namespace api.test
 
             // Assert
             Assert.IsNotNull(result);
-            A.CallTo(() => _logsRepository.SaveAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
                 .MustHaveHappenedOnceExactly();
             Assert.AreEqual(numOriginalLogs + 1, list.Count);
         }
@@ -91,14 +92,14 @@ namespace api.test
         public async Task LogsService_CreateAsync_HandlesNullObject()
         {
             // Arrange
-            ILogFile nullObject = null;
+            LogFile nullObject = null;
 
             // Act
             var result = await _logsService.CreateAsync(nullObject);
 
             // Assert
             Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.SaveAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
         }
 
@@ -106,7 +107,7 @@ namespace api.test
         public async Task LogsService_GetByIdAsync_ReturnsLogWithValidId()
         {
             // Arrange
-            var fakeLog = A.Fake<ILogFile>();
+            var fakeLog = A.Fake<LogFile>();
             A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
                 .Returns(Task.FromResult(fakeLog));
 
@@ -154,7 +155,7 @@ namespace api.test
         {
             // Arrange
             A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .Returns(Task.FromResult<ILogFile>(null));
+                .Returns(Task.FromResult<LogFile>(null));
 
             // Act
             var result = await _logsService.GetByIdAsync(A.Dummy<string>());
@@ -174,7 +175,7 @@ namespace api.test
             const string ownerId = "OwnerId";   // The 'owner' ID to use
 
                 // Create the full list of logs
-            var fakeList = A.CollectionOfFake<ILogFile>(numTotalLogs).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(numTotalLogs).ToList();
 
                 // Set the owner ID on five of the logs in the list
             for (var i = 0; i < numMatchingLogs; i++)
@@ -204,7 +205,7 @@ namespace api.test
             // Arrange
 
             // Create a list of fake logs, give each one an ID
-            var fakeList = A.CollectionOfFake<ILogFile>(10).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(10).ToList();
             for (var i = 0; i < fakeList.Count; i++)
             {
                 fakeList[i].OwnerId = i.ToString();
@@ -258,7 +259,7 @@ namespace api.test
             // Arrange
             const int originalCount = 10;
             const string idToRemove = "removeMe";
-            var fakeList = A.CollectionOfFake<ILogFile>(originalCount).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(originalCount).ToList();
             fakeList[5].Id = idToRemove;
             A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
                 .Invokes(call => {
@@ -314,7 +315,7 @@ namespace api.test
             const string invalidId = "noMatchForMe";
             const int numLogs = 10;
             bool removed = false;
-            var fakeList = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            var fakeList = A.CollectionOfFake<LogFile>(numLogs).ToList();
 
             // Remove any items with a matching ID; There shouldn't be any
             // with a matching ID, so none should be removed.
@@ -343,14 +344,14 @@ namespace api.test
         public async Task LogsService_UpdateAsync_CallsRepositoryUpdate()
         {
             // Arrange
-            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
-                .Returns(Task.FromResult(A.Fake<ILogFile>()));
+            A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
+                .Returns(Task.FromResult(A.Fake<LogFile>()));
 
             // Act
-            var result = await _logsService.UpdateAsync(A.Fake<ILogFile>());
+            var result = await _logsService.UpdateAsync(A.Fake<LogFile>());
 
             // Assert
-            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -358,7 +359,7 @@ namespace api.test
         public async Task LogsService_UpdateAsync_ReturnsSameLogFile()
         {
             // Arrange
-            var logFile = A.Fake<ILogFile>();
+            var logFile = A.Fake<LogFile>();
             const string id = "fakeId";
             logFile.Id = id;
             A.CallTo(() => _logsRepository.UpdateAsync(logFile))
@@ -375,14 +376,14 @@ namespace api.test
         public async Task LogsService_UpdateAsync_HandlesNullObject()
         {
             // Arrange 
-            ILogFile nullObject = null;
+            LogFile nullObject = null;
             
             // Act
             var result = await _logsService.UpdateAsync(nullObject);
 
             // Assert
             Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.UpdateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
         }
 
@@ -391,13 +392,13 @@ namespace api.test
         {
             // Arrange
             A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
-                .Returns(A.Fake<ILogFile>());
+                .Returns(A.Fake<LogFile>());
 
             // Act
             var newLog = _logsService.Parse(A.Dummy<string>());
 
             // Assert
-            Assert.IsInstanceOf(typeof(ILogFile), newLog);
+            Assert.IsInstanceOf(typeof(LogFile), newLog);
             A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }

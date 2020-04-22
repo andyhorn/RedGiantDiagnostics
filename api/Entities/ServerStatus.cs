@@ -2,7 +2,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class ServerStatus : IServerStatus
+    public class ServerStatus
     {
         public string Name { get; set; }
         public bool IsRunning { get; set; }

@@ -8,9 +8,9 @@ namespace API.Factories
 {
     public static class RlmInstanceFactory
     {
-        public static IRlmInstance New => new RlmInstance();
+        public static RlmInstance New => new RlmInstance();
 
-        public static IRlmInstance Parse(string[] data)
+        public static RlmInstance Parse(string[] data)
         {
             var rlm = New;
 

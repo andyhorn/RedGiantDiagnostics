@@ -8,9 +8,9 @@ namespace API.Factories
 {
     public static class LicensePoolFactory
     {
-        public static ILicensePool New() => new LicensePool();
+        public static LicensePool New() => new LicensePool();
 
-        public static ILicensePool Parse(string[] data)
+        public static LicensePool Parse(string[] data)
         {
             var pool = New();
 

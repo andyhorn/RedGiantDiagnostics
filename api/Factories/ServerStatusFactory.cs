@@ -6,9 +6,9 @@ namespace API.Factories
 {
     public static class ServerStatusFactory
     {
-        public static IServerStatus GetServer() => new ServerStatus();
+        public static ServerStatus GetServer() => new ServerStatus();
 
-        public static IServerStatus Parse(string data)
+        public static ServerStatus Parse(string data)
         {
             var server = GetServer();
 

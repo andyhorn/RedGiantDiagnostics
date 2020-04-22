@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class LicensePool : ILicensePool
+    public class LicensePool
     {
         public string Product { get; set; }
         public int Available { get => TotalSeats - InUse; }

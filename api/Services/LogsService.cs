@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
+using API.Entities;
 using API.Factories;
 using API.Models;
 
@@ -18,7 +19,7 @@ namespace API.Services
             _factory = factory;
         }
 
-        public async Task<ILogFile> CreateAsync(ILogFile log)
+        public async Task<LogFile> CreateAsync(LogFile log)
         {
             if (log == null) 
             {
@@ -40,7 +41,7 @@ namespace API.Services
             return;
         }
 
-        public async Task<ILogFile> UpdateAsync(ILogFile update)
+        public async Task<LogFile> UpdateAsync(LogFile update)
         {
             if (update == null)
             {
@@ -50,12 +51,12 @@ namespace API.Services
             return await _logs.UpdateAsync(update);
         }
 
-        public async Task<IEnumerable<ILogFile>> GetAllLogsAsync()
+        public async Task<IEnumerable<LogFile>> GetAllLogsAsync()
         {
             return await _logs.GetAllLogsAsync();
         }
 
-        public async Task<ILogFile> GetByIdAsync(string id)
+        public async Task<LogFile> GetByIdAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -65,7 +66,7 @@ namespace API.Services
             return await _logs.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<ILogFile>> GetForUserAsync(string userId)
+        public async Task<IEnumerable<LogFile>> GetForUserAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -77,7 +78,7 @@ namespace API.Services
             return userLogs;
         }
 
-        public ILogFile Parse(string data)
+        public LogFile Parse(string data)
         {
             if (string.IsNullOrWhiteSpace(data))
             {

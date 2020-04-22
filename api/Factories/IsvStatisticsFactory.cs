@@ -8,9 +8,9 @@ namespace API.Factories
 {
     public static class IsvStatisticsFactory
     {
-        public static IIsvStatistics New() => new IsvStatistics();
+        public static IsvStatistics New() => new IsvStatistics();
 
-        public static IIsvStatistics Parse(string[] data)
+        public static IsvStatistics Parse(string[] data)
         {
             var isvStatistics = New();
 
@@ -27,9 +27,9 @@ namespace API.Factories
             return isvStatistics;
         }
 
-        private static IEnumerable<ILicensePool> GetLicensePools(string[] data)
+        private static IEnumerable<LicensePool> GetLicensePools(string[] data)
         {
-            var licensePools = new List<ILicensePool>();
+            var licensePools = new List<LicensePool>();
 
             // Get the license pool section from the log file
             var poolData = HelperMethods.GetLinesBetween("License pool status", "ISV", data).ToList();

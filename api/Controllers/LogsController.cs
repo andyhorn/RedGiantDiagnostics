@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
+using API.Entities;
 using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Http;
@@ -111,7 +112,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Routes.Logs.Save)]
-        public async Task<IActionResult> Save([FromBody]ILogFile log)
+        public async Task<IActionResult> Save([FromBody]LogFile log)
         {
             if (log == null)
             {
@@ -164,7 +165,7 @@ namespace API.Controllers
             }
         }
 
-        private async Task<ILogFile> ParseFormData(IFormFile form)
+        private async Task<LogFile> ParseFormData(IFormFile form)
         {
             if (form == null)
             {
@@ -179,7 +180,7 @@ namespace API.Controllers
                 throw new ArgumentNullException();
             }
 
-            ILogFile log = null;
+            LogFile log = null;
             await Task.Run(() => {
                 log = _logsService.Parse(data);
             });

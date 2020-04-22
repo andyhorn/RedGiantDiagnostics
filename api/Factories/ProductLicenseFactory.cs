@@ -7,9 +7,9 @@ namespace API.Factories
 {
     public static class ProductLicenseFactory
     {
-        public static IProductLicense New { get => new ProductLicense(); }
+        public static ProductLicense New { get => new ProductLicense(); }
 
-        public static IProductLicense Parse(string[] data)
+        public static ProductLicense Parse(string[] data)
         {
             var product = New;
 

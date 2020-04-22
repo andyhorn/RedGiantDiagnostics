@@ -2,6 +2,7 @@
 //  Author:         Andy Horn
 //  Description:    The concrete implementation of the IDataContext interface
 
+using API.Entities;
 using API.Models;
 using MongoDB.Driver;
 
@@ -25,13 +26,13 @@ namespace API.Data
         /// object, then returns the Logs collection.
         /// </summary>
         /// <value></value>
-        public IMongoCollection<ILogFile> Logs 
+        public IMongoCollection<LogFile> Logs 
         {
             get
             {
                 var client = new MongoClient(_settings.ConnectionString);
                 var database = client.GetDatabase(_settings.DatabaseName);
-                var collection = database.GetCollection<ILogFile>(_settings.LogsCollectionName);
+                var collection = database.GetCollection<LogFile>(_settings.LogsCollectionName);
                 return collection;
             }
         }

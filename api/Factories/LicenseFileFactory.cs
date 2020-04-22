@@ -6,9 +6,9 @@ namespace API.Factories
 {
     public static class LicenseFileFactory
     {
-        public static ILicenseFile New() => new LicenseFile();
+        public static LicenseFile New() => new LicenseFile();
 
-        public static ILicenseFile Parse(string[] data)
+        public static LicenseFile Parse(string[] data)
         {
             var licenseFile = New();
 
@@ -97,10 +97,10 @@ namespace API.Factories
             return isvPort;
         }
 
-        private static IEnumerable<IProductLicense> GetLicenseProducts(string[] data)
+        private static IEnumerable<ProductLicense> GetLicenseProducts(string[] data)
         {
             var productData = new List<string[]>();
-            var productLicenses = new List<IProductLicense>();
+            var productLicenses = new List<ProductLicense>();
 
             for (var i = 0; i < data.Length; i++)
             {

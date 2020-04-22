@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class DebugLog : IDebugLog
+    public class DebugLog
     {
         public string Filename { get; set; }
 

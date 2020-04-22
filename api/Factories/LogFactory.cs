@@ -7,9 +7,9 @@ namespace API.Factories
 {
     public class LogFactory : ILogFactory
     {
-        public ILogFile New() => new LogFile();
+        public LogFile New() => new LogFile();
 
-        public ILogFile Parse(string rawData)
+        public LogFile Parse(string rawData)
         {
             // Prepare the raw data for parsing
             string[] data = PrepareData(rawData);

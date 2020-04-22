@@ -24,7 +24,7 @@ namespace API.Factories
             return table;
         }
 
-        private static IEnumerable<IServerStatus> GetServers(string[] data)
+        private static IEnumerable<ServerStatus> GetServers(string[] data)
         {
             // Get the table section
             var dataLines = HelperMethods.GetLinesBetween("ISV Servers", "=========", data);
@@ -32,7 +32,7 @@ namespace API.Factories
             // Remove the column header line
             dataLines = dataLines.TakeLast(dataLines.Length - 1).ToArray();
 
-            var servers = new List<IServerStatus>();
+            var servers = new List<ServerStatus>();
 
             foreach (var serverData in dataLines)
             {

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Entities;
 using API.Models;
 using MongoDB.Driver;
 
@@ -14,7 +15,7 @@ namespace API.Data
         /// <summary>
         /// The MongoDB collection of ILogFile objects.
         /// </summary>
-        private readonly IMongoCollection<ILogFile> _logs;
+        private readonly IMongoCollection<LogFile> _logs;
 
         /// <summary>
         /// Constructor receives an IDataContext through Dependency Injection,
@@ -26,7 +27,7 @@ namespace API.Data
             _logs = context.Logs;
         }
 
-        public async Task<List<ILogFile>> GetAllLogsAsync()
+        public async Task<List<LogFile>> GetAllLogsAsync()
         {
             // Retrieve all logs from the collection
             var logs = await _logs.FindAsync(log => true);
@@ -36,7 +37,7 @@ namespace API.Data
             return list;
         }
 
-        public async Task<ILogFile> GetByIdAsync(string id)
+        public async Task<LogFile> GetByIdAsync(string id)
         {
             // Find a log with a matching ID
             var find = await _logs.FindAsync(log => log.Id == id);
@@ -50,14 +51,14 @@ namespace API.Data
             await _logs.FindOneAndDeleteAsync(log => log.Id == id);
         }
 
-        public async Task<ILogFile> SaveAsync(ILogFile file)
+        public async Task<LogFile> SaveAsync(LogFile file)
         {
             // Insert the log object into the collection
             await _logs.InsertOneAsync(file);
             return file;
         }
 
-        public async Task<ILogFile> UpdateAsync(ILogFile update)
+        public async Task<LogFile> UpdateAsync(LogFile update)
         {
             // Find a log with a matching ID and replace it with the "update" log
             await _logs.FindOneAndReplaceAsync(log => log.Id == update.Id, update);

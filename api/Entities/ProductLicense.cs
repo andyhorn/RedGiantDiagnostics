@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class ProductLicense : IProductLicense
+    public class ProductLicense
     {
         public DateTime? IssueDate { get; set; }
         public DateTime? ExpirationDate { get; set; }

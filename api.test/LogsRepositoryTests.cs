@@ -13,6 +13,7 @@ using API.Data;
 using MongoDB.Driver;
 using API.Models;
 using System.Threading.Tasks;
+using API.Entities;
 
 namespace api.test
 {
@@ -20,7 +21,7 @@ namespace api.test
     {
         private ILogsRepository _logsRepository; // System Under Test
         private IDataContext _context; // Mock
-        private IMongoCollection<ILogFile> _logCollection; // Mock
+        private IMongoCollection<LogFile> _logCollection; // Mock
 
         [SetUp]
         public void Setup()
@@ -29,7 +30,7 @@ namespace api.test
             _context = A.Fake<IDataContext>();
 
             // Set up a dummy mongo collection
-            _logCollection = A.Fake<IMongoCollection<ILogFile>>();
+            _logCollection = A.Fake<IMongoCollection<LogFile>>();
 
             // Return the dummy collection from the context's Logs property
             A.CallTo(() => _context.Logs).Returns(_logCollection);
@@ -86,7 +87,7 @@ namespace api.test
         public async Task LogsRepository_SaveAsync_CallsMongoInsertOneAsync()
         {
             // Arrange
-            var dummyLog = A.Dummy<ILogFile>();
+            var dummyLog = A.Dummy<LogFile>();
 
             // Act
             await _logsRepository.SaveAsync(dummyLog);
@@ -101,7 +102,7 @@ namespace api.test
         public async Task LogsRepository_UpdateAsync_CallsMongoFindOneAndReplaceAsync_And_FindAsync()
         {
             // Arrange
-            var dummyLog = A.Dummy<ILogFile>();
+            var dummyLog = A.Dummy<LogFile>();
 
             // Act
             await _logsRepository.UpdateAsync(dummyLog);

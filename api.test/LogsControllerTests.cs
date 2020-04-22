@@ -21,6 +21,20 @@ namespace api.test
         {
             protected override string Create() => "DummyString";
         }
+
+        private class DummyLogFactory : DummyFactory<LogFile>
+        {
+            protected override LogFile Create()
+            {
+                return new LogFile()
+                {
+                    Id = "1",
+                    Date = DateTime.Now,
+                    RlmVersion = "100",
+                    Hostname = "DummyLog"
+                };
+            }
+        }
         private LogsController _logsController;
         private ILogsService _logsService;
         private IFileService _fileService;
@@ -38,7 +52,7 @@ namespace api.test
         {
             // Arrange
             const int numLogs = 5;
-            var fakeCollection = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            var fakeCollection = A.CollectionOfFake<LogFile>(numLogs).ToList();
             A.CallTo(() => _logsService.GetAllLogsAsync())
                 .Returns(fakeCollection);
 
@@ -49,7 +63,7 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<ILogFile>;
+            var data = okResult.Value as List<LogFile>;
 
             Assert.AreEqual(numLogs, data.Count);
         }
@@ -60,7 +74,7 @@ namespace api.test
             // Arrange
                 // Simulate a valid id being passed and returning a log object
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
-                .Returns(Task.FromResult(A.Fake<ILogFile>()));
+                .Returns(Task.FromResult(A.Fake<LogFile>()));
 
             // Act
             var result = await _logsController.GetById(A.Dummy<string>());
@@ -69,10 +83,10 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var data = result as OkObjectResult;
-            var content = (ILogFile)data.Value;
+            var content = (LogFile)data.Value;
 
-            // var log = JsonConvert.DeserializeObject<ILogFile>(content);
-            Assert.IsInstanceOf(typeof(ILogFile), content);
+            // var log = JsonConvert.DeserializeObject<LogFile>(content);
+            Assert.IsInstanceOf(typeof(LogFile), content);
 
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
@@ -99,7 +113,7 @@ namespace api.test
             // Arrange
             // Simulate not finding a match for the ID
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
-                .Returns<ILogFile>(null);
+                .Returns<LogFile>(null);
 
             // Act
             var result = await _logsController.GetById(A.Dummy<string>());
@@ -117,7 +131,7 @@ namespace api.test
             // Arrange
             const int numLogs = 5;
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
-                .Returns(A.CollectionOfDummy<ILogFile>(numLogs));
+                .Returns(A.CollectionOfDummy<LogFile>(numLogs));
 
             // Act
             var result = await _logsController.GetForUser(A.Dummy<string>());
@@ -126,9 +140,9 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<ILogFile>;
+            var data = okResult.Value as List<LogFile>;
 
-            Assert.IsInstanceOf(typeof(List<ILogFile>), data);
+            Assert.IsInstanceOf(typeof(List<LogFile>), data);
             Assert.AreEqual(numLogs, data.Count);
 
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
@@ -139,8 +153,9 @@ namespace api.test
         public async Task LogsController_GetForUser_HandlesNoMatchingLogs()
         {
             // Arrange
+            var emptyList = A.CollectionOfFake<LogFile>(0);
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
-                .Returns(new List<ILogFile>());
+                .Returns(emptyList);
 
             // Act
             var result = await _logsController.GetForUser(A.Dummy<string>());
@@ -149,9 +164,9 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<ILogFile>;
+            var data = okResult.Value as List<LogFile>;
 
-            Assert.IsInstanceOf(typeof(List<ILogFile>), data);
+            Assert.IsInstanceOf(typeof(List<LogFile>), data);
             Assert.IsEmpty(data);
 
             A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
@@ -176,8 +191,8 @@ namespace api.test
         public async Task LogsController_Update_ValidUpdateRequest()
         {
             // Arrange
-            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
-                .Returns(A.Fake<ILogFile>());
+            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+                .Returns(A.Fake<LogFile>());
 
             // Act
             var result = await _logsController.Update(A.Dummy<string>(), A.Fake<LogUpdateRequest>());
@@ -186,11 +201,11 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var okResult = result as OkObjectResult;
-            var content = okResult.Value as ILogFile;
+            var content = okResult.Value as LogFile;
 
-            Assert.IsInstanceOf(typeof(ILogFile), content);
+            Assert.IsInstanceOf(typeof(LogFile), content);
 
-            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -206,7 +221,7 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
-            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
@@ -224,7 +239,7 @@ namespace api.test
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
-            A.CallTo(() => _logsService.UpdateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustNotHaveHappened();
@@ -235,7 +250,7 @@ namespace api.test
         {
             // Arrange
             const int numLogs = 10;
-            var fakeCollection = A.CollectionOfFake<ILogFile>(numLogs).ToList();
+            var fakeCollection = A.CollectionOfFake<LogFile>(numLogs).ToList();
             const string deleteId = "deleteMe";
             A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
                 .Invokes(call => {
@@ -266,7 +281,7 @@ namespace api.test
 
             // Arrange
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
-                .Returns<ILogFile>(null);
+                .Returns<LogFile>(null);
 
             // Act
             var result = await _logsController.Delete(A.Dummy<string>());
@@ -319,36 +334,28 @@ namespace api.test
         public async Task LogsController_Save_ValidLogObjectSaves()
         {
             // Arrange
-            var list = new List<ILogFile>();
-            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
-                .Invokes(call => {
-                    var log = (ILogFile)call.Arguments[0];
-
-                    if (log != null)
-                    {
-                        list.Add(log);
-                    }
-                });
-            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
-                .Returns<ILogFile>(null);
+            int numLogs = 0;
+            A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
+                .Invokes(() => numLogs++)
+                .Returns(A.Dummy<LogFile>());
 
             // Act
-            var result = await _logsController.Save(A.Fake<ILogFile>());
+            var result = await _logsController.Save(A.Fake<LogFile>());
 
             // Assert
             Assert.IsInstanceOf(typeof(CreatedResult), result);
 
-            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .MustHaveHappenedOnceExactly();
 
-            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual(1, numLogs);
         }
 
         [Test]
         public async Task LogsController_Save_HandlesNullLogObject()
         {
             // Arrange
-            ILogFile nullLog = null;
+            LogFile nullLog = null;
 
             // Act
             var result = await _logsController.Save(nullLog);
@@ -356,7 +363,7 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
 
-            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
         }
 
@@ -366,13 +373,13 @@ namespace api.test
             // Arrange 
             const int numLogs = 5;
             const string logId = "iExist";
-            var list = A.CollectionOfFake<ILogFile>(5);
+            var list = A.CollectionOfFake<LogFile>(5);
             list[0].Id = logId;
-            var newLog = A.Fake<ILogFile>();
+            var newLog = A.Fake<LogFile>();
             newLog.Id = logId;
-            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .Invokes(call => {
-                    var log = (ILogFile)call.Arguments[0];
+                    var log = (LogFile)call.Arguments[0];
 
                     if (log != null)
                     {
@@ -390,7 +397,7 @@ namespace api.test
 
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _logsService.CreateAsync(A<ILogFile>.Ignored))
+            A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .MustNotHaveHappened();
         }
 
@@ -401,8 +408,8 @@ namespace api.test
             A.CallTo(() => _fileService.ReadFormFileAsync(A<IFormFile>.Ignored))
                 .Returns(A.Dummy<string>());
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
-                .Returns(A.Fake<ILogFile>());
-            var fakeFile = A.Dummy<IFormFile>();
+                .Returns(A.Dummy<LogFile>());
+            var fakeFile = A.Fake<IFormFile>();
 
             // Act
             var result = await _logsController.Upload(fakeFile);
@@ -415,7 +422,8 @@ namespace api.test
             LogFile json = JsonConvert.DeserializeObject<LogFile>(data);
 
 
-            Assert.IsInstanceOf(typeof(ILogFile), json);
+            Assert.IsInstanceOf(typeof(LogFile), json);
+            Assert.AreEqual("DummyLog", json.Hostname);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
@@ -440,8 +448,8 @@ namespace api.test
         {
             // Arrange
             var fakeFile = A.Dummy<IFormFile>();
-            A.CallTo(() => _fileService.ReadFormFile(A<IFormFile>.Ignored))
-                .Returns(null);
+            A.CallTo(() => _fileService.ReadFormFileAsync(A<IFormFile>.Ignored))
+                .Throws(() => throw new ArgumentException());
 
             // Act
             var result = await _logsController.Upload(fakeFile);

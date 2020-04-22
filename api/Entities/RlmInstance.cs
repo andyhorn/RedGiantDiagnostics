@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class RlmInstance : IRlmInstance
+    public class RlmInstance
     {
         public string Version { get; set; }
         public string Command { get; set; }

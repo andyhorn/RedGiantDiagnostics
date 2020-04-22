@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using API.Models;
 using API.Helpers;
+using API.Entities;
 
 namespace API.Factories
 {
@@ -14,9 +15,9 @@ namespace API.Factories
     /// </summary>
     public class LogParser
     {
-        private ILogFile _log;
+        private LogFile _log;
         private string[] _data;
-        public ILogFile Log
+        public LogFile Log
         {
             get
             {
@@ -24,7 +25,7 @@ namespace API.Factories
             }
         }
 
-        public LogParser(ILogFile log, string[] data)
+        public LogParser(LogFile log, string[] data)
         {
             _log = log;
             _data = data;
@@ -130,7 +131,7 @@ namespace API.Factories
 
             var licenseData = GetLicenseData(licenseList);
 
-            var licenses = new List<ILicenseFile>();
+            var licenses = new List<LicenseFile>();
             foreach (var data in licenseData)
             {
                 var license = LicenseFileFactory.Parse(data);
@@ -204,7 +205,7 @@ namespace API.Factories
         /// </summary>
         private void ParseIsvStatistics()
         {
-            var isvStatistics = new List<IIsvStatistics>();
+            var isvStatistics = new List<IsvStatistics>();
 
             // Get the ISV details from the main log data
             var relevantData = HelperMethods.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
@@ -228,7 +229,7 @@ namespace API.Factories
         /// </summary>
         private void ParseDebugLogs()
         {
-            var isvDebugLogs = new List<IDebugLog>();
+            var isvDebugLogs = new List<DebugLog>();
 
             // Get all the debug logs from the file
             var debugLogSection = HelperMethods.GetLinesBetween("^rlm debug log file contents", "^RLM processes running on this machine", _data, true);
@@ -258,7 +259,7 @@ namespace API.Factories
         /// </summary>
         private void ParseRlmInstances()
         {
-            var instances = new List<IRlmInstance>();
+            var instances = new List<RlmInstance>();
 
             // Get the RLM instances section, this should run through the end of the file
             var rlmInstanceSection = HelperMethods.GetLinesBetween("^RLM processes running on this machine", null, _data);

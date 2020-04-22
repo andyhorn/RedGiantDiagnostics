@@ -7,9 +7,9 @@ namespace API.Factories
 {
     public static class DebugLogFactory
     {
-        public static IDebugLog New => new DebugLog();
+        public static DebugLog New => new DebugLog();
 
-        public static IDebugLog Parse(string[] data)
+        public static DebugLog Parse(string[] data)
         {
             var log = New;
 

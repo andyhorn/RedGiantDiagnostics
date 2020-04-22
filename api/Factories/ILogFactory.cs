@@ -1,10 +1,11 @@
+using API.Entities;
 using API.Models;
 
 namespace API.Factories
 {
     public interface ILogFactory
     {
-        ILogFile New();
-        ILogFile Parse(string data);
+        LogFile New();
+        LogFile Parse(string data);
     }
 }

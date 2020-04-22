@@ -4,7 +4,7 @@ using API.Models;
 
 namespace API.Entities
 {
-    public class IsvStatistics : IIsvStatistics
+    public class IsvStatistics
     {
         public int[] Checkouts { get; set; }
         public int[] Denials { get; set; }
@@ -13,6 +13,6 @@ namespace API.Entities
         public DateTime[] StartTimes { get; set; }
         public int[] Messages { get; set; }
         public int[] Connections { get; set; }
-        public IEnumerable<ILicensePool> LicensePools { get; set; }
+        public IEnumerable<LicensePool> LicensePools { get; set; }
     }
 }
