@@ -399,9 +399,6 @@ namespace api.test
             // Arrange
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .Returns(A.Fake<ILogFile>());
-            // A.CallTo(() => FileService.ReadFormFileAsync(A<IFormFile>.Ignored))
-            //     .Returns(A.Dummy<string>());
-            // var fakeFile = A.Fake<IFormFile>();
             var fakeFile = A.Dummy<IFormFile>();
 
             // Act
@@ -422,7 +419,6 @@ namespace api.test
         public async Task LogsController_Upload_HandlesNullObject()
         {
             // Arrange
-            // const string nullObject = null;
             IFormFile nullFile = null;
 
             // Act
@@ -435,15 +431,15 @@ namespace api.test
         }
 
         [Test]
-        // public async Task LogsController_Upload_HandlesEmptyString()
         public async Task LogsController_Upload_HandlesEmptyFile()
         {
             // Arrange
-            // const string emptyString = "   ";
-            IFormFile file = new FormFile(null, 0, 0, null, null);
+            var fakeFile = A.Dummy<IFormFile>();
+            A.CallTo(() => _fileService.ReadFormFile(A<IFormFile>.Ignored))
+                .Returns(null);
 
             // Act
-            var result = await _logsController.Upload(file);
+            var result = await _logsController.Upload(fakeFile);
 
             // Assert
             Assert.IsInstanceOf(typeof(ObjectResult), result);

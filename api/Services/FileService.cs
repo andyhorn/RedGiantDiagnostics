@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -8,9 +9,14 @@ namespace API.Services
     {
         public string ReadFormFile(IFormFile formFile)
         {
+            if (formFile == null)
+            {
+                throw new ArgumentNullException("formFile", "FormFile cannot be null");
+            }
+
             if (formFile.Length == 0)
             {
-                return null;
+                throw new ArgumentException("File length cannot be zero", "formFile");
             }
             
             string data = string.Empty;
