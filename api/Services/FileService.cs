@@ -4,10 +4,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace API.Services
 {
-    public static class FileService
+    public class FileService : IFileService
     {
-        public static string ReadFormFile(IFormFile formFile)
+        public string ReadFormFile(IFormFile formFile)
         {
+            if (formFile.Length == 0)
+            {
+                return null;
+            }
+            
             string data = string.Empty;
 
             using (var stream = formFile.OpenReadStream())
@@ -24,7 +29,7 @@ namespace API.Services
             return data;
         }
 
-        public static async Task<string> ReadFormFileAsync(IFormFile formFile)
+        public async Task<string> ReadFormFileAsync(IFormFile formFile)
         {
             string data = null;
             await Task.Run(() => {

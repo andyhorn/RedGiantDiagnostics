@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using API.Contracts.Requests;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace api.test
 {
@@ -21,12 +22,14 @@ namespace api.test
         }
         private LogsController _logsController;
         private ILogsService _logsService;
+        private IFileService _fileService;
 
         [SetUp]
         public void Setup()
         {
             _logsService = A.Fake<ILogsService>();
-            _logsController = new LogsController(_logsService);
+            _fileService = A.Fake<IFileService>();
+            _logsController = new LogsController(_logsService, _fileService);
         }
 
         [Test]
@@ -396,14 +399,18 @@ namespace api.test
             // Arrange
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .Returns(A.Fake<ILogFile>());
+            // A.CallTo(() => FileService.ReadFormFileAsync(A<IFormFile>.Ignored))
+            //     .Returns(A.Dummy<string>());
+            // var fakeFile = A.Fake<IFormFile>();
+            var fakeFile = A.Dummy<IFormFile>();
 
             // Act
-            var result = await _logsController.Upload(A.Dummy<string>());
+            var result = await _logsController.Upload(fakeFile);
 
             // Assert
-            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+            Assert.IsInstanceOf(typeof(ObjectResult), result);
 
-            var okResult = result as OkObjectResult;
+            var okResult = result as ObjectResult;
             var data = okResult.Value as ILogFile;
 
             Assert.IsInstanceOf(typeof(ILogFile), data);
@@ -415,28 +422,32 @@ namespace api.test
         public async Task LogsController_Upload_HandlesNullObject()
         {
             // Arrange
-            const string nullObject = null;
+            // const string nullObject = null;
+            IFormFile nullFile = null;
 
             // Act
-            var result = await _logsController.Upload(nullObject);
+            var result = await _logsController.Upload(nullFile);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestResult), result);
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustNotHaveHappened();
         }
 
         [Test]
-        public async Task LogsController_Upload_HandlesEmptyString()
+        // public async Task LogsController_Upload_HandlesEmptyString()
+        public async Task LogsController_Upload_HandlesEmptyFile()
         {
             // Arrange
-            const string emptyString = "   ";
+            // const string emptyString = "   ";
+            IFormFile file = new FormFile(null, 0, 0, null, null);
 
             // Act
-            var result = await _logsController.Upload(emptyString);
+            var result = await _logsController.Upload(file);
 
             // Assert
-            Assert.IsInstanceOf(typeof(BadRequestResult), result);
+            Assert.IsInstanceOf(typeof(ObjectResult), result);
+            Assert.AreEqual(500, (result as ObjectResult).StatusCode);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustNotHaveHappened();
         }

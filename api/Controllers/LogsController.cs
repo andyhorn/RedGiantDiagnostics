@@ -17,9 +17,11 @@ namespace API.Controllers
     public class LogsController : ControllerBase
     {
         private readonly ILogsService _logsService;
-        public LogsController(ILogsService service)
+        private readonly IFileService _fileService;
+        public LogsController(ILogsService logsService, IFileService fileService)
         {
-            _logsService = service;
+            _logsService = logsService;
+            _fileService = fileService;
         }
 
         [HttpGet]
@@ -111,13 +113,6 @@ namespace API.Controllers
         [Route(Routes.Logs.Save)]
         public async Task<IActionResult> Save([FromBody]ILogFile log)
         {
-            // if (save == null || save.Log == null)
-            // {
-            //     return BadRequest("Log data cannot be null");
-            // }
-
-            // var log = save.Log;
-
             if (log == null)
             {
                 return BadRequest();
@@ -167,32 +162,6 @@ namespace API.Controllers
             {
                 return StatusCode(500, "An unknown error occurred");
             }
-            // if (file == null)
-            // {
-            //     return BadRequest();
-            // }
-
-            // string data = await FileService.ReadFormFileAsync(file);
-
-            // ILogFile log = null;
-
-            // try
-            // {
-            //     await Task.Run(() => {
-            //         log = _logsService.Parse(data);
-            //     });
-            // }
-            // catch (Exception)
-            // {
-            //     return StatusCode(500);
-            // }
-
-            // if (log == null)
-            // {
-            //     return StatusCode(500);
-            // }
-
-            // return Ok(log);
         }
 
         private async Task<ILogFile> ParseFormData(IFormFile form)
@@ -202,7 +171,8 @@ namespace API.Controllers
                 throw new FileNotFoundException();
             }
 
-            var data = await FileService.ReadFormFileAsync(form);
+            // var data = await FileService.ReadFormFileAsync(form);
+            var data = await _fileService.ReadFormFileAsync(form);
 
             if (data == null)
             {

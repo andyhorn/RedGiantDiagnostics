@@ -32,21 +32,20 @@ namespace API
             // Set up the Logs Database Settings for Dependency Injection
             services.AddSingleton<ILogsDatabaseSettings>(service => service.GetRequiredService<IOptions<LogsDatabaseSettings>>().Value);
 
-            // Add a singleton of the Logs Repository
+            // DI the Logs Repository
             services.AddScoped<ILogsRepository, LogsRepository>();
-            // services.AddSingleton<ILogsRepository>(service => service.GetRequiredService<LogsRepository>());
 
-            // Add a singleton of the Logs Service
+            // DI the Logs Service
             services.AddScoped<ILogsService, LogsService>();
-            // services.AddSingleton<ILogsService>(service => service.GetRequiredService<LogsService>());
 
-            // Add a singleton of the Logs MongoDB Context
+            // DI the Logs MongoDB Context
             services.AddScoped<IDataContext, DataContext>();
-            // services.AddSingleton<IDataContext>(service => service.GetRequiredService<DataContext>());
 
-            // Add a singleton of the ILogFactory interface
+            // DI the ILogFactory interface
             services.AddScoped<ILogFactory, LogFactory>();
-            // services.AddSingleton<ILogFactory>(service => service.GetRequiredService<LogFactory>());
+
+            // DI the IFileService interface
+            services.AddScoped<IFileService, FileService>();
             
             services.AddControllers();
         }
