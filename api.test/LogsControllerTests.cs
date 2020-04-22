@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using API.Contracts.Requests;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using API.Entities;
 
 namespace api.test
 {
@@ -397,6 +398,8 @@ namespace api.test
         public async Task LogsController_Upload_ValidUpload()
         {
             // Arrange
+            A.CallTo(() => _fileService.ReadFormFileAsync(A<IFormFile>.Ignored))
+                .Returns(A.Dummy<string>());
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .Returns(A.Fake<ILogFile>());
             var fakeFile = A.Dummy<IFormFile>();
@@ -408,9 +411,11 @@ namespace api.test
             Assert.IsInstanceOf(typeof(ObjectResult), result);
 
             var okResult = result as ObjectResult;
-            var data = okResult.Value as ILogFile;
+            var data = okResult.Value as string;
+            LogFile json = JsonConvert.DeserializeObject<LogFile>(data);
 
-            Assert.IsInstanceOf(typeof(ILogFile), data);
+
+            Assert.IsInstanceOf(typeof(ILogFile), json);
             A.CallTo(() => _logsService.Parse(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }

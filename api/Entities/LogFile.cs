@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace API.Entities
 {
-    public class LogFile : ILogFile
+    public class LogFile
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -32,12 +32,12 @@ namespace API.Entities
             }
         }
         public string Hostname { get; set; }
-        public IEnumerable<ILicenseFile> Licenses { get; set; }
-        public IRlmStatistics RlmStatistics { get; set; }
-        public IEnumerable<IIsvStatistics> IsvStatistics { get; set; }
+        public IEnumerable<LicenseFile> Licenses { get; set; }
+        public RlmStatisticsTable RlmStatistics { get; set; }
+        public IEnumerable<IsvStatistics> IsvStatistics { get; set; }
         public IDebugLog RlmLog { get; set; }
-        public IEnumerable<IDebugLog> IsvLogs { get; set; }
-        public IEnumerable<IRlmInstance> RlmInstances { get; set; }
-        public IEnumerable<IAnalysisResult> AnalysisResults { get; set; }
+        public IEnumerable<DebugLog> IsvLogs { get; set; }
+        public IEnumerable<RlmInstance> RlmInstances { get; set; }
+        public IEnumerable<AnalysisResult> AnalysisResults { get; set; }
     }
 }
