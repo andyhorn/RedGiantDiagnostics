@@ -5,30 +5,83 @@ using System.Text.RegularExpressions;
 using API.Models;
 using API.Helpers;
 using API.Entities;
+using System.Threading;
 
 namespace API.Factories
 {
+    public interface ILogParserFactory
+    {
+        ILogParser New { get; }
+    }
+
+    public class LogParserFactory : ILogParserFactory
+    {
+        private IUtilities _utilities;
+        private IDebugLogFactory _debugLogFactory;
+        private IIsvStatisticsFactory _isvStatisticsFactory;
+        private ILicenseFileFactory _licenseFileFactory;
+        private IRlmStatisticsTableFactory _rlmStatisticsTableFactory;
+        private IRlmInstanceFactory _rlmInstanceFactory;
+        public LogParserFactory(IUtilities utilities, 
+            IDebugLogFactory debugLogFactory, 
+            IIsvStatisticsFactory isvStatisticsFactory,
+            ILicenseFileFactory licenseFileFactory,
+            IRlmStatisticsTableFactory rlmStatisticsTableFactory,
+            IRlmInstanceFactory rlmInstanceFactory)
+            {
+                _utilities = utilities;
+                _debugLogFactory = debugLogFactory;
+                _isvStatisticsFactory = isvStatisticsFactory;
+                _licenseFileFactory = licenseFileFactory;
+                _rlmStatisticsTableFactory = rlmStatisticsTableFactory;
+                _rlmInstanceFactory = rlmInstanceFactory;
+            }
+        public ILogParser New { get => new LogParser(
+            _utilities,
+            _debugLogFactory,
+            _isvStatisticsFactory,
+            _licenseFileFactory,
+            _rlmStatisticsTableFactory,
+            _rlmInstanceFactory
+        ); }
+    }
+    public interface ILogParser
+    {
+        LogFile Parse(LogFile file, string[] data);
+    }
     /// <summary>
     /// Each LogParser will receive an ILogFile object and an array
     /// of strings, representing the log file's cleansed and prepped data.
     /// The Parse method will then build a LogFile object from this data.
     /// </summary>
-    public class LogParser
+    public class LogParser : ILogParser
     {
+        private IUtilities _utilities;
+        private IDebugLogFactory _debugLogFactory;
+        private IIsvStatisticsFactory _isvStatisticsFactory;
+        private ILicenseFileFactory _licenseFileFactory;
+        private IRlmStatisticsTableFactory _rlmStatisticsTableFactory;
+        private IRlmInstanceFactory _rlmInstanceFactory;
         private LogFile _log;
         private string[] _data;
-        public LogFile Log
-        {
-            get
-            {
-                return _log;
-            }
-        }
 
-        public LogParser(LogFile log, string[] data)
+        public LogParser(
+            IUtilities utilities, 
+            IDebugLogFactory debugLogFactory, 
+            IIsvStatisticsFactory isvStatisticsFactory,
+            ILicenseFileFactory licenseFileFactory,
+            IRlmStatisticsTableFactory rlmStatisticsTableFactory,
+            IRlmInstanceFactory rlmInstanceFactory
+        )
         {
-            _log = log;
-            _data = data;
+            // _log = log;
+            // _data = data;
+            _utilities = utilities;
+            _debugLogFactory = debugLogFactory;
+            _isvStatisticsFactory = isvStatisticsFactory;
+            _licenseFileFactory = licenseFileFactory;
+            _rlmStatisticsTableFactory = rlmStatisticsTableFactory;
+            _rlmInstanceFactory = rlmInstanceFactory;
         }
 
         /// <summary>
@@ -36,7 +89,49 @@ namespace API.Factories
         /// parses its share of information from the data and
         /// adds it to the LogFile object.
         /// </summary>
-        public void Parse()
+        public LogFile Parse(LogFile log, string[] data)
+        {
+            // Store the data and log file
+            _data = data;
+            _log = log;
+
+            // Run the parsing algorithm on a background thread
+            var thread = new Thread(Exec);
+            thread.Start();
+            thread.Join();
+
+            // // Get the Metadata
+            // ParseMetadata();
+
+            // // Get the Environment Variables
+            // ParseEnvironmentVariables();
+
+            // // Get the detected MAC and IP addresses
+            // ParseHostMacAndIpLists();
+
+            // // Get the license files
+            // ParseLicenseFiles();
+
+            // // Get the main RLM statistics table
+            // ParseRlmStatistics();
+
+            // // Get the statistics for each ISV server
+            // ParseIsvStatistics();
+
+            // // Get and parse each of the debug log sections
+            // ParseDebugLogs();
+
+            // // Get the RLM instances from the log file
+            // ParseRlmInstances();
+
+            // Return the parsed log data and clear the member variables
+            var finishedLog = _log;
+            _log = null;
+            _data = null;
+            return finishedLog;
+        }
+
+        private void Exec()
         {
             // Get the Metadata
             ParseMetadata();
@@ -85,7 +180,7 @@ namespace API.Factories
         /// </summary>
         private void ParseEnvironmentVariables()
         {
-            var varLines = HelperMethods.GetLinesBetween("Environment:", "RLM hostid list:", _data);
+            var varLines = _utilities.GetLinesBetween("Environment:", "RLM hostid list:", _data);
             var envVariables = new Dictionary<string, string>();
 
             foreach (var pair in varLines)
@@ -102,7 +197,7 @@ namespace API.Factories
         /// </summary>
         private void ParseHostMacAndIpLists()
         {
-            var line = HelperMethods.GetLinesBetween("RLM hostid list:", "License files:", _data);
+            var line = _utilities.GetLinesBetween("RLM hostid list:", "License files:", _data);
             var list = line[0].Split(" ");
 
             var isMac = new Regex("[A-Fa-f0-9]{12}");
@@ -110,7 +205,7 @@ namespace API.Factories
 
             var macList = list.ToList()
                 .Where(x => isMac.IsMatch(x))
-                .Select(x => HelperMethods.MakeMac(x))
+                .Select(x => _utilities.MakeMac(x))
                 .ToList();
 
             var ipList = list.ToList()
@@ -127,14 +222,14 @@ namespace API.Factories
         /// </summary>
         private void ParseLicenseFiles()
         {
-            var licenseList = HelperMethods.GetLinesBetween("LICENSE FILE:", "RLM Options", _data, true);
+            var licenseList = _utilities.GetLinesBetween("LICENSE FILE:", "RLM Options", _data, true);
 
             var licenseData = GetLicenseData(licenseList);
 
             var licenses = new List<LicenseFile>();
             foreach (var data in licenseData)
             {
-                var license = LicenseFileFactory.Parse(data);
+                var license = _licenseFileFactory.Parse(data);
                 licenses.Add(license);
             }
 
@@ -193,9 +288,9 @@ namespace API.Factories
         /// </summary>
         private void ParseRlmStatistics()
         {
-            var rlmStatisticData = HelperMethods.GetLinesBetween("Status for \"rlm\"", "=============", _data, true);
+            var rlmStatisticData = _utilities.GetLinesBetween("Status for \"rlm\"", "=============", _data, true);
 
-            var rlmStatistics = RlmStatisticsTableFactory.Parse(rlmStatisticData);
+            var rlmStatistics = _rlmStatisticsTableFactory.Parse(rlmStatisticData);
 
             _log.RlmStatistics = rlmStatistics;
         }
@@ -208,15 +303,16 @@ namespace API.Factories
             var isvStatistics = new List<IsvStatistics>();
 
             // Get the ISV details from the main log data
-            var relevantData = HelperMethods.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
+            var relevantData = _utilities.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
 
             // Break the full ISV details section into subsections for each ISV server
-            var isvSections = HelperMethods.GetSubsections("ISV .+ status on", "ISV .+ status on", relevantData);
+            var isvSections = _utilities.GetSubsections("ISV .+ status on", "ISV .+ status on", relevantData);
 
             // Build an ISV Statistics object from each subsection
             foreach (var section in isvSections)
             {
-                var isv = IsvStatisticsFactory.Parse(section.ToArray());
+                // var isv = IsvStatisticsFactory.Parse(section.ToArray());
+                var isv = _isvStatisticsFactory.Parse(section.ToArray());
                 isvStatistics.Add(isv);
             }
 
@@ -232,14 +328,14 @@ namespace API.Factories
             var isvDebugLogs = new List<DebugLog>();
 
             // Get all the debug logs from the file
-            var debugLogSection = HelperMethods.GetLinesBetween("^rlm debug log file contents", "^RLM processes running on this machine", _data, true);
+            var debugLogSection = _utilities.GetLinesBetween("^rlm debug log file contents", "^RLM processes running on this machine", _data, true);
 
             // Split each debug log section into its own collection
-            var logSections = HelperMethods.GetSubsections("debug log file contents", "END .+ debug log file contents", debugLogSection);
+            var logSections = _utilities.GetSubsections("debug log file contents", "END .+ debug log file contents", debugLogSection);
 
             foreach (var logSection in logSections)
             {
-                var debugLog = new DebugLogFactory().Parse(logSection.ToArray());
+                var debugLog = _debugLogFactory.Parse(logSection.ToArray());
 
                 if (logSection.ToArray()[0].Contains("rlm debug log"))
                 {
@@ -262,14 +358,14 @@ namespace API.Factories
             var instances = new List<RlmInstance>();
 
             // Get the RLM instances section, this should run through the end of the file
-            var rlmInstanceSection = HelperMethods.GetLinesBetween("^RLM processes running on this machine", null, _data);
+            var rlmInstanceSection = _utilities.GetLinesBetween("^RLM processes running on this machine", null, _data);
 
             // Break this into subsections for each instance of RLM detected
-            var rlmInstances = HelperMethods.GetSubsections("RLM Version", "RLM Version", rlmInstanceSection);
+            var rlmInstances = _utilities.GetSubsections("RLM Version", "RLM Version", rlmInstanceSection);
 
             foreach (var rlmInstance in rlmInstances)
             {
-                var instance = RlmInstanceFactory.Parse(rlmInstance.ToArray());
+                var instance = _rlmInstanceFactory.Parse(rlmInstance.ToArray());
                 instances.Add(instance);
             }
 

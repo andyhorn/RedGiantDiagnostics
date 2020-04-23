@@ -7,11 +7,25 @@ using API.Models;
 
 namespace API.Factories
 {
-    public static class RlmStatisticsTableFactory
+    public interface IRlmStatisticsTableFactory
     {
-        public static RlmStatisticsTable New { get => new RlmStatisticsTable(); }
+        RlmStatisticsTable New { get; }
+        RlmStatisticsTable Parse(string[] data);
+    }
 
-        public static RlmStatisticsTable Parse(string[] data)
+    public class RlmStatisticsTableFactory : IRlmStatisticsTableFactory
+    {
+        private IUtilities _utilities;
+        private IServerStatusFactory _serverStatusFactory;
+        public RlmStatisticsTable New { get => new RlmStatisticsTable(); }
+
+        public RlmStatisticsTableFactory(IUtilities utilities, IServerStatusFactory serverStatusFactory)
+        {
+            _utilities = utilities;
+            _serverStatusFactory = serverStatusFactory;
+        }
+        
+        public RlmStatisticsTable Parse(string[] data)
         {
             var table = New;
 
@@ -24,10 +38,10 @@ namespace API.Factories
             return table;
         }
 
-        private static IEnumerable<ServerStatus> GetServers(string[] data)
+        private IEnumerable<ServerStatus> GetServers(string[] data)
         {
             // Get the table section
-            var dataLines = HelperMethods.GetLinesBetween("ISV Servers", "=========", data);
+            var dataLines = _utilities.GetLinesBetween("ISV Servers", "=========", data);
 
             // Remove the column header line
             dataLines = dataLines.TakeLast(dataLines.Length - 1).ToArray();
@@ -36,35 +50,35 @@ namespace API.Factories
 
             foreach (var serverData in dataLines)
             {
-                var server = ServerStatusFactory.Parse(serverData);
+                var server = _serverStatusFactory.Parse(serverData);
                 servers.Add(server);
             }
 
             return servers;
         }
 
-        private static int[] GetConnections(string[] data)
+        private int[] GetConnections(string[] data)
         {
             var connections = StatisticsParsers.GetColumnValues("Connections:", data);
             return connections;
         }
 
-        private static int[] GetMessages(string[] data)
+        private int[] GetMessages(string[] data)
         {
             var messages = StatisticsParsers.GetColumnValues("Messages:", data);
             return messages;
         }
 
-        private static DateTime[] GetStartTimes(string[] data)
+        private DateTime[] GetStartTimes(string[] data)
         {
             var times = StatisticsParsers.ParseTableDates(data);
             return times;
         }
 
-        private static string GetServerName(string[] data)
+        private string GetServerName(string[] data)
         {
             // This should almost always result in "rlm"
-            var name = HelperMethods.GetLineValue("Status for \"rlm\"", 2, data);
+            var name = _utilities.GetLineValue("Status for \"rlm\"", 2, data);
 
             name = name.Replace("\"", "");
 

@@ -5,11 +5,21 @@ using API.Helpers;
 
 namespace API.Factories
 {
-    public static class ProductLicenseFactory
+    public interface IProductLicenseFactory
     {
-        public static ProductLicense New { get => new ProductLicense(); }
+        ProductLicense New { get; }
+        ProductLicense Parse(string[] data);
+    }
+    public class ProductLicenseFactory : IProductLicenseFactory
+    {
+        private IUtilities _utilities;
+        public ProductLicense New { get => new ProductLicense(); }
 
-        public static ProductLicense Parse(string[] data)
+        public ProductLicenseFactory(IUtilities utilities)
+        {
+            _utilities = utilities;
+        }
+        public ProductLicense Parse(string[] data)
         {
             var product = New;
 
@@ -21,9 +31,9 @@ namespace API.Factories
             return product;
         }
 
-        private static DateTime? GetProductIssueDate(string[] data)
+        private DateTime? GetProductIssueDate(string[] data)
         {
-            var issueDate = HelperMethods.GetLineValue("start=", 1, data);
+            var issueDate = _utilities.GetLineValue("start=", 1, data);
 
             if (issueDate == null || issueDate.Length == 0)
             {
@@ -35,30 +45,30 @@ namespace API.Factories
                 issueDate = issueDate.Substring("start=".Length);
             } 
 
-            var date = HelperMethods.GetDateTimeFrom(issueDate);
+            var date = _utilities.GetDateTimeFrom(issueDate);
 
             return date;
         }
 
-        private static DateTime? GetProductExpirationDate(string[] data)
+        private DateTime? GetProductExpirationDate(string[] data)
         {
-            var expirationDate = HelperMethods.GetLineValue("LICENSE", 4, data);
+            var expirationDate = _utilities.GetLineValue("LICENSE", 4, data);
 
-            var date = HelperMethods.GetDateTimeFrom(expirationDate);
+            var date = _utilities.GetDateTimeFrom(expirationDate);
 
             return date;
         }
 
-        private static string GetProductName(string[] data)
+        private string GetProductName(string[] data)
         {
-            var name = HelperMethods.GetLineValue("LICENSE", 2, data);
+            var name = _utilities.GetLineValue("LICENSE", 2, data);
 
             return name;
         }
 
-        private static int GetProductSeats(string[] data)
+        private int GetProductSeats(string[] data)
         {
-            var seats = HelperMethods.GetLineValue("LICENSE", 5, data);
+            var seats = _utilities.GetLineValue("LICENSE", 5, data);
             int num = 0;
 
             if (seats == "uncounted")

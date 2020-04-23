@@ -1,6 +1,8 @@
 using System.Linq;
 using API.Entities;
 using API.Factories;
+using API.Helpers;
+using FakeItEasy;
 using NUnit.Framework;
 
 namespace api.test
@@ -8,11 +10,13 @@ namespace api.test
     public class DebugLogFactoryTests
     {
         private IDebugLogFactory _factory;
+        private IUtilities _utilities;
 
         [SetUp]
         public void Setup()
         {
-            _factory = new DebugLogFactory();
+            _utilities = A.Fake<IUtilities>();
+            _factory = new DebugLogFactory(_utilities);
         }
 
         [Test]
@@ -69,28 +73,6 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(DebugLog), result);
             Assert.AreEqual(filename, result.Filename);
-        }
-
-        [Test]
-        public void DebugLogFactory_Parse_LogLinesIgnoresOutsideBarriers()
-        {
-            // Arrange
-            const string pass = "PASS";
-            string[] logLines = new string[]
-            {
-                "==========================",
-                pass,
-                "=========================="
-            };
-
-            // Act
-            var result = _factory.Parse(logLines);
-
-            // Assert
-            Assert.IsInstanceOf(typeof(DebugLog), result);
-
-            var containsPass = result.Lines.ToList().Any(x => x.Contains(pass));
-            Assert.IsTrue(containsPass);
         }
     }
 }

@@ -6,13 +6,25 @@ using API.Models;
 
 namespace API.Factories
 {
-    public static class LicensePoolFactory
+    public interface ILicensePoolFactory
     {
-        public static LicensePool New() => new LicensePool();
+        LicensePool New { get; }
+        LicensePool Parse (string[] data);
+    }
 
-        public static LicensePool Parse(string[] data)
+    public class LicensePoolFactory : ILicensePoolFactory
+    {
+        private IUtilities _utilities;
+        public LicensePool New { get => new LicensePool(); }
+
+        public LicensePoolFactory(IUtilities utilities)
         {
-            var pool = New();
+            _utilities = utilities;
+        }
+
+        public LicensePool Parse(string[] data)
+        {
+            var pool = New;
 
             pool.Product = GetProductName(data);
             pool.TotalSeats = GetTotalSeats(data);
@@ -22,12 +34,12 @@ namespace API.Factories
             return pool;
         }
 
-        private static IEnumerable<string> GetCheckedOutToList(string[] data)
+        private IEnumerable<string> GetCheckedOutToList(string[] data)
         {
             var collection = new List<string>();
             
             var checkoutLines = 
-                HelperMethods.GetLinesBetween("Usage for pool", null, data)
+                _utilities.GetLinesBetween("Usage for pool", null, data)
                 .Where(x => !x.Contains("======="));
 
             foreach (var checkoutLine in checkoutLines)
@@ -39,7 +51,7 @@ namespace API.Factories
             return collection;
         }
 
-        private static string GetCheckout(string data)
+        private string GetCheckout(string data)
         {
             var columns = data.Split(":");
             var user = columns[0];
@@ -50,27 +62,27 @@ namespace API.Factories
             return value;
         }
 
-        private static int GetInUseSeats(string[] data)
+        private int GetInUseSeats(string[] data)
         {
-            var inUse = HelperMethods.GetLineValue("Pool", 7, data);
+            var inUse = _utilities.GetLineValue("Pool", 7, data);
             inUse = inUse.Substring("inuse:".Length);
 
             var inUseSeats = int.Parse(inUse);
             return inUseSeats;
         }
 
-        private static int GetTotalSeats(string[] data)
+        private int GetTotalSeats(string[] data)
         {
-            var total = HelperMethods.GetLineValue("Pool", 6, data);
+            var total = _utilities.GetLineValue("Pool", 6, data);
             total = total.Substring("Soft:".Length);
 
             var totalSeats = int.Parse(total);
             return totalSeats;
         }
 
-        private static string GetProductName(string[] data)
+        private string GetProductName(string[] data)
         {
-            var name = HelperMethods.GetLineValue("Pool", 2, data);
+            var name = _utilities.GetLineValue("Pool", 2, data);
             return name;
         }
     }

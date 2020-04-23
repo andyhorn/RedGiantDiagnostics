@@ -5,10 +5,21 @@ using API.Models;
 
 namespace API.Factories
 {
+    public interface IDebugLogFactory
+    {
+        DebugLog New { get; }
+        DebugLog Parse(string[] data);
+    }
     public class DebugLogFactory : IDebugLogFactory
     {
+        private IUtilities _utilities;
         public DebugLog New => new DebugLog();
 
+        public DebugLogFactory(IUtilities utilities)
+        {
+            _utilities = utilities;
+        }
+        
         public DebugLog Parse(string[] data)
         {
             if (data == null || data.Length == 0)
@@ -26,7 +37,7 @@ namespace API.Factories
 
         private IEnumerable<string> GetLogLines(string[] data)
         {
-            var lines = HelperMethods.GetLinesBetween("====", "====", data);
+            var lines = _utilities.GetLinesBetween("====", "====", data);
             return lines;
         }
 

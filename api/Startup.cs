@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
 using API.Factories;
+using API.Helpers;
 using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,23 +30,7 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Set up the Logs Database Settings for Dependency Injection
-            services.AddSingleton<ILogsDatabaseSettings>(service => service.GetRequiredService<IOptions<LogsDatabaseSettings>>().Value);
-
-            // DI the Logs Repository
-            services.AddScoped<ILogsRepository, LogsRepository>();
-
-            // DI the Logs Service
-            services.AddScoped<ILogsService, LogsService>();
-
-            // DI the Logs MongoDB Context
-            services.AddScoped<IDataContext, DataContext>();
-
-            // DI the ILogFactory interface
-            services.AddScoped<ILogFactory, LogFactory>();
-
-            // DI the IFileService interface
-            services.AddScoped<IFileService, FileService>();
+            services.SetupDependencyInjection();
             
             services.AddControllers();
         }

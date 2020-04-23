@@ -4,13 +4,19 @@ using API.Models;
 
 namespace API.Factories
 {
-    public static class ServerStatusFactory
+    public interface IServerStatusFactory
     {
-        public static ServerStatus GetServer() => new ServerStatus();
+        ServerStatus New { get; }
+        ServerStatus Parse(string data);
+    }
 
-        public static ServerStatus Parse(string data)
+    public class ServerStatusFactory : IServerStatusFactory
+    {
+        public ServerStatus New { get => new ServerStatus(); }
+
+        public ServerStatus Parse(string data)
         {
-            var server = GetServer();
+            var server = New;
 
             var columns = data
                 .Split(" ")                                 // Split the line by spaces

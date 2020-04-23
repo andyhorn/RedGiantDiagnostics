@@ -6,15 +6,27 @@ using API.Models;
 
 namespace API.Factories
 {
-    public static class RlmInstanceFactory
+    public interface IRlmInstanceFactory
     {
-        public static RlmInstance New => new RlmInstance();
+        RlmInstance New { get; }
+        RlmInstance Parse(string[] data);
+    }
 
-        public static RlmInstance Parse(string[] data)
+    public class RlmInstanceFactory : IRlmInstanceFactory
+    {
+        private IUtilities _utilities;
+        public RlmInstance New => new RlmInstance();
+
+        public RlmInstanceFactory(IUtilities utilities)
+        {
+            _utilities = utilities;
+        }
+        
+        public RlmInstance Parse(string[] data)
         {
             var rlm = New;
 
-            rlm.Version = HelperMethods.GetLineValue("RLM Version:", 2, data);
+            rlm.Version = _utilities.GetLineValue("RLM Version:", 2, data);
             rlm.Command = GetAfter("Command:", ":", data);
             rlm.WorkingDirectory = GetAfter("Working Directory:", ":", data);
             rlm.PID = GetNumberFrom("PID:", data);
@@ -27,7 +39,7 @@ namespace API.Factories
             return rlm;
         }
 
-        private static IEnumerable<int> GetAlternativePorts(string[] data)
+        private IEnumerable<int> GetAlternativePorts(string[] data)
         {
             var list = new List<int>();
 
@@ -43,7 +55,7 @@ namespace API.Factories
             return list;
         }
 
-        private static int GetNumberFrom(string header, string[] data)
+        private int GetNumberFrom(string header, string[] data)
         {
             int value = 0;
 
@@ -54,7 +66,7 @@ namespace API.Factories
             return value;
         }
 
-        private static bool IsCurrentInstance(string[] data)
+        private bool IsCurrentInstance(string[] data)
         {
             for (var i = data.Length - 1; i >= 0; i--)
             {
@@ -67,13 +79,13 @@ namespace API.Factories
             return false;
         }
 
-        private static IEnumerable<string> GetIsvServers(string[] data)
+        private IEnumerable<string> GetIsvServers(string[] data)
         {
             var servers = GetAfter("ISV servers:", ":", data).Split(" ").ToList();
             return servers;
         }
 
-        private static string GetAfter(string searchTerm, string separator, string[] data)
+        private string GetAfter(string searchTerm, string separator, string[] data)
         {
             string value = string.Empty;
 

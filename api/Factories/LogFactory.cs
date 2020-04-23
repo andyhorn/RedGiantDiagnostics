@@ -5,9 +5,22 @@ using API.Models;
 
 namespace API.Factories
 {
+    public interface ILogFactory
+    {
+        LogFile New { get; }
+        LogFile Parse(string data);
+    }
+
     public class LogFactory : ILogFactory
     {
-        public LogFile New() => new LogFile();
+        private ILogParserFactory _logParserFactory;
+        public LogFile New { get => new LogFile(); }
+
+
+        public LogFactory(ILogParserFactory logParserFactory)
+        {
+            _logParserFactory = logParserFactory;
+        }
 
         public LogFile Parse(string rawData)
         {
@@ -16,16 +29,19 @@ namespace API.Factories
 
             // Instantiate a new log parser with a new LogFile and
             // the cleansed data
-            var parser = new LogParser(New(), data);
+            var parser = _logParserFactory.New;
+
+            // Run the parse, which will take place on a background thread
+            var log = parser.Parse(New, data);
 
             // Start the log parser's Parse method on a new thread
             // and wait for it to complete
-            var parseThread = new Thread(parser.Parse);
-            parseThread.Start();
-            parseThread.Join();
+            // var parseThread = new Thread(parser.Parse);
+            // parseThread.Start();
+            // parseThread.Join();
 
             // Retrieve the parsed log from the log parser
-            var log = parser.Log;
+            // var log = parser.Log;
 
             // Return the LogFile
             return log;

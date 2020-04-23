@@ -4,14 +4,24 @@ using System.Text.RegularExpressions;
 
 namespace API.Helpers
 {
-    public static class HelperMethods
+    public interface IUtilities
+    {
+        DateTime? GetDateTimeFrom(string dateString);
+        string GetLineValue(string searchTerm, int word, string[] data);
+        string MakeMac(string mac);
+        string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false);
+        IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data);
+    }
+
+
+    public class Utilities : IUtilities
     {
         /// <summary>
         /// Parses a DateTime object from a datetime-like string
         /// </summary>
         /// <param name="dateString">A datetime-like string.</param>
         /// <returns>A new DateTime object representing the string, or null.</returns>
-        public static DateTime? GetDateTimeFrom(string dateString)
+        public DateTime? GetDateTimeFrom(string dateString)
         {
             if (dateString == null || dateString.Length == 0)
             {
@@ -34,7 +44,7 @@ namespace API.Helpers
         /// <param name="word">The index to return, once the line is split into separate words.</param>
         /// <param name="data">The array of strings to search through.</param>
         /// <returns>The string from the desired index of the line.</returns>
-        public static string GetLineValue(string searchTerm, int word, string[] data)
+        public string GetLineValue(string searchTerm, int word, string[] data)
         {
             // Create an empty string to store the value
             string value = string.Empty;
@@ -72,7 +82,7 @@ namespace API.Helpers
         /// </summary>
         /// <param name="mac"></param>
         /// <returns></returns>
-        public static string MakeMac(string mac)
+        public string MakeMac(string mac)
         {
             // Create an empty string to store the new MAC address
             string newMac = string.Empty;
@@ -108,7 +118,7 @@ namespace API.Helpers
         /// <param name="inclusive">A flag indicating whether the lines containing
         /// the begin and end markers should be included in the final collection.</param>
         /// <returns>A string array containing all lines between the two markers.</returns>
-        public static string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false)
+        public string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false)
         {
             List<string> lines = new List<string>();
 
@@ -166,7 +176,7 @@ namespace API.Helpers
         /// <param name="endMarker">A term used to indicate the ending of a sub-section.</param>
         /// <param name="data">The parent string array from which to collect.</param>
         /// <returns>A 2-D enumerable of strings, each of which contains a sub-section from the parent collection.</returns>
-        public static IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data)
+        public IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data)
         {
             var beginRe = new Regex(beginMarker);
             var endRe = new Regex(endMarker);

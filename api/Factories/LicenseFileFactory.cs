@@ -1,95 +1,70 @@
 using System.Collections.Generic;
 using API.Entities;
+using API.Helpers;
 using API.Models;
 
 namespace API.Factories
 {
-    public static class LicenseFileFactory
+    public interface ILicenseFileFactory
     {
-        public static LicenseFile New() => new LicenseFile();
+        LicenseFile New { get; }
+        LicenseFile Parse(string[] data);
+    }
 
-        public static LicenseFile Parse(string[] data)
+    public class LicenseFileFactory : ILicenseFileFactory
+    {
+        private IUtilities _utilities;
+        private IProductLicenseFactory _productLicenseFactory;
+        public LicenseFile New { get => new LicenseFile(); }
+
+        public LicenseFileFactory(IUtilities utilities, IProductLicenseFactory productLicenseFactory)
         {
-            var licenseFile = New();
+            _utilities = utilities;
+            _productLicenseFactory = productLicenseFactory;
+        }
 
-            licenseFile.Name = GetLicenseName(data);
-            licenseFile.UUID = GetLicenseUuid(data);
-            licenseFile.HostAddress = GetLicenseHostAddress(data);
+        public LicenseFile Parse(string[] data)
+        {
+            var licenseFile = New;
+
+            // licenseFile.Name = GetLicenseName(data);
+            licenseFile.Name = _utilities.GetLineValue("LICENSE FILE", 2, data);
+            // licenseFile.UUID = GetLicenseUuid(data);
+            licenseFile.UUID = _utilities.GetLineValue("license uuid", 3, data);
+            // licenseFile.HostAddress = GetLicenseHostAddress(data);
+            licenseFile.HostAddress = _utilities.GetLineValue("HOST", 1, data);
             licenseFile.HostMac = GetLicenseHostMac(data);
-            licenseFile.HostPort = GetLicenseHostPort(data);
-            licenseFile.IsvName = GetLicenseIsvName(data);
+            // licenseFile.HostPort = GetLicenseHostPort(data);
+            licenseFile.HostPort = _utilities.GetLineValue("HOST", 3, data);
+            // licenseFile.IsvName = GetLicenseIsvName(data);
+            licenseFile.IsvName = _utilities.GetLineValue("ISV", 1, data);
             licenseFile.IsvPort = GetLicenseIsvPort(data);
             licenseFile.ProductLicenses = GetLicenseProducts(data);
 
             return licenseFile;
         }
 
-        private static string GetLicenseName(string[] data)
-        {
-            string name = string.Empty;
-
-            name = GetLineValue("LICENSE FILE", 2, data);
-
-            return name;
-        }
-
-        private static string GetLicenseUuid(string[] data)
-        {
-            string uuid = string.Empty;
-
-            uuid = GetLineValue("license uuid", 3, data);
-
-            return uuid;
-        }
-
-        private static string GetLicenseHostAddress(string[] data)
-        {
-            string address = string.Empty;
-
-            address = GetLineValue("HOST", 1, data);
-
-            return address;
-        }
-
-        private static string GetLicenseHostMac(string[] data)
+        private string GetLicenseHostMac(string[] data)
         {
             string mac = string.Empty;
 
-            mac = GetLineValue("HOST", 2, data);
+            mac = _utilities.GetLineValue("HOST", 2, data);
 
             if (mac.Contains("ether="))
             {
                 mac = mac.Substring("ether=".Length);
             }
 
-            mac = MakeMacAddress(mac);
+            mac = _utilities.MakeMac(mac);
 
             return mac;
         }
 
-        private static string GetLicenseHostPort(string[] data)
-        {
-            string port = string.Empty;
-
-            port = GetLineValue("HOST", 3, data);
-
-            return port;
-        }
-
-        private static string GetLicenseIsvName(string[] data)
-        {
-            string isvName = string.Empty;
-
-            isvName = GetLineValue("ISV", 1, data);
-
-            return isvName;
-        }
-
-        private static string GetLicenseIsvPort(string[] data)
+        private string GetLicenseIsvPort(string[] data)
         {
             string isvPort = string.Empty;
 
-            isvPort = GetLineValue("ISV", 2, data);
+            isvPort = _utilities.GetLineValue("ISV", 2, data);
 
             if (isvPort.Contains("port="))
                 isvPort = isvPort.Substring("port=".Length);
@@ -97,7 +72,7 @@ namespace API.Factories
             return isvPort;
         }
 
-        private static IEnumerable<ProductLicense> GetLicenseProducts(string[] data)
+        private IEnumerable<ProductLicense> GetLicenseProducts(string[] data)
         {
             var productData = new List<string[]>();
             var productLicenses = new List<ProductLicense>();
@@ -125,52 +100,11 @@ namespace API.Factories
 
             foreach (var product in productData)
             {
-                var newProductLicense = ProductLicenseFactory.Parse(product);
+                var newProductLicense = _productLicenseFactory.Parse(product);
                 productLicenses.Add(newProductLicense);
             }
 
             return productLicenses;
-        }
-
-        private static string GetLineValue(string searchTerm, int section, string[] data)
-        {
-            string value = string.Empty;
-
-            foreach (var line in data)
-            {
-                if (line.Contains(searchTerm))
-                {
-                    var sections = line.Split(" ");
-
-                    if (section < sections.Length)
-                        value = sections[section].Trim();
-
-                    break;
-                }
-            }
-
-            return value;
-        }
-
-        private static string MakeMacAddress(string mac)
-        {
-            mac = mac.Replace(":", "");
-            mac = mac.Replace("-", "");
-            mac = mac.Replace(".", "");
-
-            string newMac = string.Empty;
-
-            for (var i = 0; i < mac.Length; i++)
-            {
-                if (i % 2 == 0 && i > 1)
-                {
-                    newMac += ":";
-                }
-
-                newMac += mac[i].ToString().ToUpper();
-            }
-
-            return newMac;
         }
     }
 }
