@@ -26,3 +26,7 @@ services:
     environment:
       # Set the environment to "Development" instead of "Production"
       ASPNETCORE_ENVIRONMENT: Development
+
+  database:
+    ports:
+      - "27017-27019:27017-27019"
