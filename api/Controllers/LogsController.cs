@@ -171,8 +171,7 @@ namespace API.Controllers
             {
                 throw new FileNotFoundException();
             }
-
-            // var data = await FileService.ReadFormFileAsync(form);
+            
             var data = await _fileService.ReadFormFileAsync(form);
 
             if (data == null)

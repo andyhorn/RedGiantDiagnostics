@@ -5,12 +5,17 @@ using API.Models;
 
 namespace API.Factories
 {
-    public static class DebugLogFactory
+    public class DebugLogFactory : IDebugLogFactory
     {
-        public static DebugLog New => new DebugLog();
+        public DebugLog New => new DebugLog();
 
-        public static DebugLog Parse(string[] data)
+        public DebugLog Parse(string[] data)
         {
+            if (data == null || data.Length == 0)
+            {
+                return null;
+            }
+
             var log = New;
 
             log.Filename = GetLogFilename(data);
@@ -19,18 +24,23 @@ namespace API.Factories
             return log;
         }
 
-        private static IEnumerable<string> GetLogLines(string[] data)
+        private IEnumerable<string> GetLogLines(string[] data)
         {
             var lines = HelperMethods.GetLinesBetween("====", "====", data);
             return lines;
         }
 
-        private static string GetLogFilename(string[] data)
+        private string GetLogFilename(string[] data)
         {
             string name = string.Empty;
 
             for (var i = 0; i < data.Length; i++)
             {
+                if (string.IsNullOrWhiteSpace(data[i]))
+                {
+                    continue;
+                }
+                
                 // If the current line contains "debug log file contents", this line
                 // should also contain the log's filename
                 if (data[i].Contains("debug log file contents"))

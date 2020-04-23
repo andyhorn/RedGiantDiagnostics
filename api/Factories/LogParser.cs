@@ -239,7 +239,7 @@ namespace API.Factories
 
             foreach (var logSection in logSections)
             {
-                var debugLog = DebugLogFactory.Parse(logSection.ToArray());
+                var debugLog = new DebugLogFactory().Parse(logSection.ToArray());
 
                 if (logSection.ToArray()[0].Contains("rlm debug log"))
                 {
