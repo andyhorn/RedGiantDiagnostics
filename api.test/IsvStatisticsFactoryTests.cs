@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using API.Entities;
 using API.Factories;
@@ -79,6 +80,64 @@ namespace api.test
             Assert.IsNotNull(result);
             Assert.IsInstanceOf(typeof(IsvStatistics), result);
             Assert.AreEqual(serverName, result.ServerName);
+        }
+
+        [Test]
+        public void IsvStatisticsFactory_Parse_NoLicensePoolData_ReturnsEmptyCollection()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            string[] emptyList = new string[0];
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .Returns(emptyList);
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(null);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.IsEmpty(result.LicensePools);
+        }
+
+        [Test]
+        public void IsvStatisticsFactory_Parse_NoLicensePoolSections_ReturnsEmptyCollection()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            var emptyCollection = new List<List<string>>();
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .Returns(data);
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(emptyCollection);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.IsEmpty(result.LicensePools);
+        }
+
+        [Test]
+        public void IsvStatisticsFactory_Parse_NullLicensePoolNotAddedToList()
+        {
+            // Arrange
+            var dummyData = A.CollectionOfDummy<string>(5).ToArray();
+            var dummyDummyData = new List<List<string>>();
+            dummyDummyData.Add(A.CollectionOfDummy<string>(5).ToList());
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .Returns(dummyData);
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(dummyDummyData);
+            A.CallTo(() => _licensePoolFactory.Parse(A<string[]>.Ignored))
+                .Returns(null);
+            
+            // Act
+            var result = _factory.Parse(dummyData);
+
+            // Assert
+            Assert.IsEmpty(result.LicensePools);
         }
     }
 }

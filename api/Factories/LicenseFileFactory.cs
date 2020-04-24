@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using API.Entities;
 using API.Helpers;
 using API.Models;
@@ -46,9 +47,13 @@ namespace API.Factories
 
         private string GetLicenseHostMac(string[] data)
         {
-            string mac = string.Empty;
+            var mac = _utilities.GetLineValue("HOST", 2, data);
 
-            mac = _utilities.GetLineValue("HOST", 2, data);
+            // Validate data
+            if (string.IsNullOrWhiteSpace(mac))
+            {
+                return string.Empty;
+            }
 
             if (mac.Contains("ether="))
             {
@@ -64,43 +69,32 @@ namespace API.Factories
         {
             string isvPort = string.Empty;
 
-            isvPort = _utilities.GetLineValue("ISV", 2, data);
+            // Get the string containing the isv port number
+            var result = _utilities.GetLineValue("ISV", 2, data);
 
-            if (isvPort.Contains("port="))
-                isvPort = isvPort.Substring("port=".Length);
+            // Validate result
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                return isvPort;
+            }
+
+            // Remove the "port=" header
+            if (result.Contains("port="))
+                result = result.Substring("port=".Length);
+
+            isvPort = result;
 
             return isvPort;
         }
 
         private IEnumerable<ProductLicense> GetLicenseProducts(string[] data)
         {
-            var productData = new List<string[]>();
+            var productList = _utilities.GetSubsections("[0-9]+-seat license", "[0-9]+-seat license", data);
             var productLicenses = new List<ProductLicense>();
-
-            for (var i = 0; i < data.Length; i++)
+            
+            foreach (var product in productList)
             {
-                if (data[i].Contains("LICENSE") && !data[i].Contains("FILE:"))
-                {
-                    var section = new List<string>();
-
-                    for (var j = i; j < data.Length; j++)
-                    {
-                        section.Add(data[j]);
-
-                        if (data[j].Contains("sig="))
-                        {
-                            i = j;
-                            break;
-                        }
-                    }
-
-                    productData.Add(section.ToArray());
-                }
-            }
-
-            foreach (var product in productData)
-            {
-                var newProductLicense = _productLicenseFactory.Parse(product);
+                var newProductLicense = _productLicenseFactory.Parse(product.ToArray());
                 productLicenses.Add(newProductLicense);
             }
 

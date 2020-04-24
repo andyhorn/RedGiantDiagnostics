@@ -55,14 +55,28 @@ namespace API.Factories
             // Get the license pool section from the log file
             var poolData = _utilities.GetLinesBetween("License pool status", "ISV", data).ToList();
 
+            // Validate data
+            if (poolData == null || poolData.Count == 0)
+            {
+                return licensePools;
+            }
+
             // Break the license pools into their own subsections
             var licensePoolSections = _utilities.GetSubsections("Pool", "Pool", poolData.ToArray());
+
+            // Validate data
+            if (licensePoolSections == null || licensePoolSections.Count() == 0)
+            {
+                return licensePools;
+            }
 
             // Build LicensePool objects from each subsection of the file
             foreach (var section in licensePoolSections)
             {
                 var licensePool = _licensePoolFactory.Parse(section.ToArray());
-                licensePools.Add(licensePool);
+
+                if (licensePool != null)
+                    licensePools.Add(licensePool);
             }
 
             return licensePools;
