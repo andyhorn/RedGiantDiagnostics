@@ -89,13 +89,22 @@ namespace API.Factories
 
         private IEnumerable<ProductLicense> GetLicenseProducts(string[] data)
         {
-            var productList = _utilities.GetSubsections("[0-9]+-seat license", "[0-9]+-seat license", data);
             var productLicenses = new List<ProductLicense>();
+            var productList = _utilities.GetSubsections("[0-9]+-seat license", "[0-9]+-seat license", data);
             
+            // Validate data
+            if (productList == null || productList.Count() == 0)
+            {
+                return productLicenses;
+            }
+
             foreach (var product in productList)
             {
                 var newProductLicense = _productLicenseFactory.Parse(product.ToArray());
-                productLicenses.Add(newProductLicense);
+
+                // Validate data
+                if (newProductLicense != null)
+                    productLicenses.Add(newProductLicense);
             }
 
             return productLicenses;

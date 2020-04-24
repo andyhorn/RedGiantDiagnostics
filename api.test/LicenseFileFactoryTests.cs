@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using API.Entities;
 using API.Factories;
@@ -119,6 +120,61 @@ namespace api.test
             Assert.AreEqual(isvLineWithNoPortHeader, result.IsvPort);
         }
 
-        
+        [Test]
+        public void LicenseFileFactory_Parse_GetLicenseProducts_NullSubsectionsReturnsEmptyCollection()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(null);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.IsEmpty(result.ProductLicenses);
+        }
+
+        [Test]
+        public void LicenseFileFactory_Parse_GetLicenseProducts_EmptySubsectionsReturnsEmptyCollection()
+        {
+            // Arrange
+            var emptyCollection = new List<List<string>>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(emptyCollection);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.IsEmpty(result.ProductLicenses);
+        }
+
+        [Test]
+        public void LicenseFileFactory_Parse_GetLicenseProducts_NullProductLicensesNotAddedToList()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            var dummyCollection = A.CollectionOfDummy<string>(5).ToList();
+            var list = new List<List<string>>();
+            list.Add(dummyCollection);
+            list.Add(dummyCollection);
+            var returnList = new List<ProductLicense>();
+            returnList.Add(null);
+            returnList.Add(A.Fake<ProductLicense>());
+
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .Returns(list);
+
+            A.CallTo(() => _productLicenseFactory.Parse(A<string[]>.Ignored))
+                .ReturnsNextFromSequence(returnList.ToArray());
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(1, result.ProductLicenses.Count());
+        }
     }
 }
