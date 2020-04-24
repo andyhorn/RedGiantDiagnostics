@@ -1,6 +1,8 @@
+using System.Linq;
 using API.Entities;
 using API.Factories;
 using API.Helpers;
+using API.Models;
 using FakeItEasy;
 using NUnit.Framework;
 
@@ -9,16 +11,18 @@ namespace api.test
     public class IsvStatisticsFactoryTests
     {
         private IIsvStatisticsFactory _factory;
-        private API.Helpers.IUtilities _utilities;
+        private IUtilities _utilities;
+        private IStatisticsParser _statisticsParsers;
         private ILicensePoolFactory _licensePoolFactory;
 
         [SetUp]
         public void Setup()
         {
             _utilities = A.Fake<IUtilities>();
+            _statisticsParsers = A.Fake<IStatisticsParser>();
             _licensePoolFactory = A.Fake<ILicensePoolFactory>();
 
-            _factory = new IsvStatisticsFactory(_utilities, _licensePoolFactory);
+            _factory = new IsvStatisticsFactory(_utilities, _licensePoolFactory, _statisticsParsers);
         }
 
         [Test]
@@ -64,25 +68,17 @@ namespace api.test
         {
             // Arrange
             const string serverName = "SERVER_NAME";
-            string[] data = new string[]
-            {
-                $"ISV {serverName} status on such-and-such machine"
-            };
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(serverName);
 
             // Act
             var result = _factory.Parse(data);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf(typeof(DebugLog), result);
+            Assert.IsInstanceOf(typeof(IsvStatistics), result);
             Assert.AreEqual(serverName, result.ServerName);
-        }
-
-        [Test]
-        public void IsvStatisticsFactory_Parse_ParsesLicensePools()
-        {
-            // TODO: Create IsvStatisticsFactory license pool test once
-            // license pool factory is completed
         }
     }
 }

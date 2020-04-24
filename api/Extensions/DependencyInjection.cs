@@ -31,6 +31,7 @@ namespace API
         private static void InjectHelpers(IServiceCollection services)
         {
             services.AddScoped<IUtilities, Utilities>();
+            services.AddScoped<IStatisticsParser, StatisticsParser>();
         }
 
         private static void InjectServices(IServiceCollection services)

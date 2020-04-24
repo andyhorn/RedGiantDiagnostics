@@ -17,12 +17,14 @@ namespace API.Factories
     {
         private IUtilities _utilities;
         private IServerStatusFactory _serverStatusFactory;
+        private IStatisticsParser _statisticsParsers;
         public RlmStatisticsTable New { get => new RlmStatisticsTable(); }
 
-        public RlmStatisticsTableFactory(IUtilities utilities, IServerStatusFactory serverStatusFactory)
+        public RlmStatisticsTableFactory(IUtilities utilities, IServerStatusFactory serverStatusFactory, IStatisticsParser statisticsParsers)
         {
             _utilities = utilities;
             _serverStatusFactory = serverStatusFactory;
+            _statisticsParsers = statisticsParsers;
         }
         
         public RlmStatisticsTable Parse(string[] data)
@@ -59,19 +61,19 @@ namespace API.Factories
 
         private int[] GetConnections(string[] data)
         {
-            var connections = StatisticsParsers.GetColumnValues("Connections:", data);
+            var connections = _statisticsParsers.GetColumnValues("Connections:", data);
             return connections;
         }
 
         private int[] GetMessages(string[] data)
         {
-            var messages = StatisticsParsers.GetColumnValues("Messages:", data);
+            var messages = _statisticsParsers.GetColumnValues("Messages:", data);
             return messages;
         }
 
         private DateTime[] GetStartTimes(string[] data)
         {
-            var times = StatisticsParsers.ParseTableDates(data);
+            var times = _statisticsParsers.ParseTableDates(data);
             return times;
         }
 

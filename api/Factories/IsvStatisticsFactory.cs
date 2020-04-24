@@ -16,12 +16,14 @@ namespace API.Factories
     {
         private IUtilities _utilities;
         private ILicensePoolFactory _licensePoolFactory;
+        private IStatisticsParser _statisticsParsers;
         public IsvStatistics New { get => new IsvStatistics(); }
 
-        public IsvStatisticsFactory(IUtilities utilities, ILicensePoolFactory licensePoolFactory)
+        public IsvStatisticsFactory(IUtilities utilities, ILicensePoolFactory licensePoolFactory, IStatisticsParser statisticsParsers)
         {
             _utilities = utilities;
             _licensePoolFactory = licensePoolFactory;
+            _statisticsParsers = statisticsParsers;
         }
 
         public IsvStatistics Parse(string[] data)
@@ -34,12 +36,12 @@ namespace API.Factories
             var isvStatistics = New;
 
             isvStatistics.ServerName = GetServerName(data);
-            isvStatistics.StartTimes = StatisticsParsers.ParseTableDates(data);
-            isvStatistics.Checkouts = StatisticsParsers.GetColumnValues("Checkouts:", data);
-            isvStatistics.Connections = StatisticsParsers.GetColumnValues("Connections:", data);
-            isvStatistics.Denials = StatisticsParsers.GetColumnValues("Denials:", data);
-            isvStatistics.LicenseRemovals = StatisticsParsers.GetColumnValues("License removals:", data);
-            isvStatistics.Messages = StatisticsParsers.GetColumnValues("Messages:", data);
+            isvStatistics.StartTimes = _statisticsParsers.ParseTableDates(data);
+            isvStatistics.Checkouts = _statisticsParsers.GetColumnValues("Checkouts:", data);
+            isvStatistics.Connections = _statisticsParsers.GetColumnValues("Connections:", data);
+            isvStatistics.Denials = _statisticsParsers.GetColumnValues("Denials:", data);
+            isvStatistics.LicenseRemovals = _statisticsParsers.GetColumnValues("License removals:", data);
+            isvStatistics.Messages = _statisticsParsers.GetColumnValues("Messages:", data);
 
             isvStatistics.LicensePools = GetLicensePools(data);
 

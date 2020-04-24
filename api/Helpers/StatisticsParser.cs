@@ -1,17 +1,39 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace API.Helpers
 {
-    public static class StatisticsParsers
+    public interface IStatisticsParser
     {
-        public static DateTime[] ParseTableDates(string[] data)
+        DateTime[] ParseTableDates(string[] data);
+        int[] GetColumnValues(string rowHeader, string[] data);
+    }
+
+    public class StatisticsParser : IStatisticsParser
+    {
+        public DateTime[] ParseTableDates(string[] data)
         {
+            var times = new List<DateTime>();
+
+            if (data == null || data.Length == 0)
+            {
+                return times.ToArray();
+            }
+
+            // If the data doesn't contain the line we're looking for, 
+            // return an empty DateTime array
+            if (!ListContains(data, "Start time"))
+            {
+                return times.ToArray();
+            }
+
             // Find the "Start time" line, split it into a string array,
             // and remove any empty/whitespace cells
-            var dataLine = data.ToList()
-                .Where(x => x.Contains("Start time"))       // Find the "Start time" row
-                .ToList()[0].Split(" ")                     // Get the string value, split on spaces
+            var dataLine = data
+                .ToList()
+                .FirstOrDefault(x => x.Contains("Start time"))
+                .Split(" ")                                 // Get the string value, split on spaces
                 .Where(x => !string.IsNullOrWhiteSpace(x))  // Remove empty/whitespace cells
                 .ToArray();                                 // Convert to a string array
 
@@ -39,18 +61,32 @@ namespace API.Helpers
             DateTime.TryParse(recent, out recentTime);
 
             // Package the DateTime objects into an array and return
-            var times = new DateTime[3]
-            {
-                sinceStartTime,
-                sinceMidnightTime,
-                recentTime
-            };
+            times.Add(sinceStartTime);
+            times.Add(sinceMidnightTime);
+            times.Add(recentTime);
 
-            return times;
+            return times.ToArray();
         }
 
-        public static int[] GetColumnValues(string rowHeader, string[] data)
+        private bool ListContains(string[] list, string searchTerm)
         {
+            return list.ToList().Any(x => x.Contains(searchTerm));
+        }
+
+        public int[] GetColumnValues(string rowHeader, string[] data)
+        {
+            var values = new int[3]
+            {
+                0,
+                0,
+                0
+            };
+
+            if (data == null || data.Length == 0 || string.IsNullOrWhiteSpace(rowHeader))
+            {
+                return values;
+            }
+
             var dataLine = data
                 .Where(x => x.Contains(rowHeader))  // Find the desired row
                 .ToList()[0]                        // Get the string value
@@ -59,19 +95,26 @@ namespace API.Helpers
                 .Where(x => !string.IsNullOrWhiteSpace(x))  // Remove empty/whitespace cells
                 .ToArray();                         // Convert to string array
 
-            var startColumn = dataLine[0];      // Get the start column value
-            var midnightColumn = dataLine[3];   // Get the midnight column value
-            var recentColumn = dataLine[6];     // Get the recent column value
-
-            // Package the parsed integer values into an array and return
-            var columnValues = new int[3]
+            // Try to parse the three columns
+            if (dataLine.Length > 0)
             {
-                int.Parse(startColumn),
-                int.Parse(midnightColumn),
-                int.Parse(recentColumn)
-            };
+                // Get the "Start" column value
+                int.TryParse(dataLine[0], out values[0]);
+            }
 
-            return columnValues;
+            if (dataLine.Length > 3)
+            {
+                // Get the "Midnight" column value
+                int.TryParse(dataLine[3], out values[1]);
+            }
+
+            if (dataLine.Length > 6)
+            {
+                // Get the "Recent" column value
+                int.TryParse(dataLine[6], out values[2]);
+            }
+
+            return values;
         }
     }
 }
