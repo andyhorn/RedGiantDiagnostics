@@ -24,6 +24,12 @@ namespace API.Factories
 
         public LogFile Parse(string rawData)
         {
+            // Validate the incoming data
+            if (string.IsNullOrWhiteSpace(rawData))
+            {
+                return null;
+            }
+
             // Prepare the raw data for parsing
             string[] data = PrepareData(rawData);
 
@@ -33,15 +39,6 @@ namespace API.Factories
 
             // Run the parse, which will take place on a background thread
             var log = parser.Parse(New, data);
-
-            // Start the log parser's Parse method on a new thread
-            // and wait for it to complete
-            // var parseThread = new Thread(parser.Parse);
-            // parseThread.Start();
-            // parseThread.Join();
-
-            // Retrieve the parsed log from the log parser
-            // var log = parser.Log;
 
             // Return the LogFile
             return log;
