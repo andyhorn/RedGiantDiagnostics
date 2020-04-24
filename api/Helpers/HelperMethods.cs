@@ -46,6 +46,12 @@ namespace API.Helpers
         /// <returns>The string from the desired index of the line.</returns>
         public string GetLineValue(string searchTerm, int word, string[] data)
         {
+            // Validate incoming data
+            if (string.IsNullOrWhiteSpace(searchTerm) || data == null || data.Length == 0)
+            {
+                return null;
+            }
+
             // Create an empty string to store the value
             string value = string.Empty;
 
@@ -84,6 +90,12 @@ namespace API.Helpers
         /// <returns></returns>
         public string MakeMac(string mac)
         {
+            // Validate the input
+            if (string.IsNullOrWhiteSpace(mac))
+            {
+                return null;
+            }
+            
             // Create an empty string to store the new MAC address
             string newMac = string.Empty;
 
@@ -92,6 +104,7 @@ namespace API.Helpers
             mac = mac.Replace("-", "");
             mac = mac.Replace(".", "");
             mac = mac.Replace(" ", "");
+            mac = mac.Replace("_", "");
 
             // Loop through the original MAC length (should be 12 characters)
             for (var i = 0; i < mac.Length; i++)
@@ -120,6 +133,12 @@ namespace API.Helpers
         /// <returns>A string array containing all lines between the two markers.</returns>
         public string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false)
         {
+            // Validate input
+            if (string.IsNullOrWhiteSpace(begin) || data == null || data.Length == 0)
+            {
+                return null;
+            }
+
             List<string> lines = new List<string>();
 
             // Convert the beginning and ending markers into 
@@ -178,6 +197,13 @@ namespace API.Helpers
         /// <returns>A 2-D enumerable of strings, each of which contains a sub-section from the parent collection.</returns>
         public IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data)
         {
+            // Validate arguments
+            if (string.IsNullOrWhiteSpace(beginMarker) || string.IsNullOrWhiteSpace(endMarker) || data == null || data.Length == 0)
+            {
+                return null;
+            }
+
+            // Convert search markers into regex objects
             var beginRe = new Regex(beginMarker);
             var endRe = new Regex(endMarker);
 
@@ -190,6 +216,7 @@ namespace API.Helpers
                 // begin the inner for-loop to gather the subsection data
                 if (beginRe.IsMatch(data[outer]))
                 {
+                    bool endFound = false;
                     var subCollection = new List<string>();
                     subCollection.Add(data[outer]);
 
@@ -198,6 +225,7 @@ namespace API.Helpers
                     {
                         if (endRe.IsMatch(data[inner]))
                         {
+                            endFound = true;
                             // If we find the ending marker, we will advance the outer 
                             // for-loop to the current position and break the inner loop
 
@@ -218,6 +246,13 @@ namespace API.Helpers
 
                     // Add this subsection to the master collection
                     masterCollection.Add(subCollection);
+
+                    // If no end marker was found, we have gathered everything from the beginning marker
+                    // through the end of the data array; Exit the outer loop now
+                    if (!endFound)
+                    {
+                        break;
+                    }
                 }
             }
 
