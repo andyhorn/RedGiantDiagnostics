@@ -33,6 +33,32 @@ namespace api.test
         }
 
         [Test]
+        public void LicensePoolFactory_Parse_NullDataArray_ReturnsNull()
+        {
+            // Arrange
+            string[] nullDataArray = null;
+
+            // Act
+            var result = _factory.Parse(nullDataArray);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_EmptyDataArray_ReturnsNull()
+        {
+            // Arrange
+            string[] emptyDataArray = new string[0];
+
+            // Act
+            var result = _factory.Parse(emptyDataArray);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
         public void LicensePoolFactory_Parse_NullPoolUsageLinesReturnsEmptyCollection()
         {
             // Arrange
@@ -151,6 +177,182 @@ namespace api.test
             Assert.IsTrue(result.CheckedOutTo.ToList()[0].Contains(valueOne));
             Assert.IsTrue(result.CheckedOutTo.ToList()[0].Contains(valueTwo));
             Assert.IsTrue(result.CheckedOutTo.ToList()[0].Contains(valueThree));
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetInUseSeats_NullLineValueReturnsZero()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(null);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.InUse);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetInUseSeats_EmptyLineValueReturnsZero()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(string.Empty);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.InUse);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetInUseSeats_NonIntegerValueReturnsZero()
+        {
+            // Arrange
+            const string notAnInt = "helloworld!";
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(notAnInt);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.InUse);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetInUseSeats_NoInUseHeaderReturnsValue()
+        {
+            // Arrange
+            const string returnValue = "100";
+            int returnInt = int.Parse(returnValue);
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(returnValue);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(returnInt, result.InUse);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetInUseSeats_ReturnsValue()
+        {
+            // Arrange
+            const int returnInt = 100;
+            string returnString = $"inuse:{returnInt}";
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(returnString);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(returnInt, result.InUse);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetTotalSeats_NullLineValue_ReturnsZero()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(null);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.TotalSeats);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetTotalSeats_EmptyLineValue_ReturnsZero()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(string.Empty);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.TotalSeats);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetTotalSeats_NonIntegerString_ReturnsZero()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string nonInt = "NotAnInteger";
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(nonInt);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(0, result.TotalSeats);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetTotalSeats_NoSoftHeader_ReturnsValue()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const int returnInt = 5;
+            string returnString = returnInt.ToString();
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(returnString);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(returnInt, result.TotalSeats);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetTotalSeats_SoftHeader_ReturnsValue()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const int returnInt = 5;
+            string returnString = $"Soft:{returnInt}";
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(returnString);
+
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.AreEqual(returnInt, result.TotalSeats);
+        }
+
+        [Test]
+        public void LicensePoolFactory_Parse_GetProductName_NullLineValue_ReturnsEmptyString()
+        {
+            // Arrange
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            string returnString = null;
+            A.CallTo(() => _utilities.GetLineValue(A<string>.Ignored, A<int>.Ignored, A<string[]>.Ignored))
+                .Returns(returnString);
+            
+            // Act
+            var result = _factory.Parse(data);
+
+            // Assert
+            Assert.IsEmpty(result.Product);
         }
     }
 }
