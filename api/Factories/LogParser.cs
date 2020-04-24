@@ -74,8 +74,6 @@ namespace API.Factories
             IRlmInstanceFactory rlmInstanceFactory
         )
         {
-            // _log = log;
-            // _data = data;
             _utilities = utilities;
             _debugLogFactory = debugLogFactory;
             _isvStatisticsFactory = isvStatisticsFactory;
@@ -91,6 +89,22 @@ namespace API.Factories
         /// </summary>
         public LogFile Parse(LogFile log, string[] data)
         {
+            // Validate the incoming data
+            if (log == null)
+            {
+                throw new ArgumentNullException("log");
+            }
+
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            if (data.Length == 0)
+            {
+                throw new ArgumentOutOfRangeException("data", "data cannot contain 0 items");
+            }
+
             // Store the data and log file
             _data = data;
             _log = log;
@@ -99,30 +113,6 @@ namespace API.Factories
             var thread = new Thread(Exec);
             thread.Start();
             thread.Join();
-
-            // // Get the Metadata
-            // ParseMetadata();
-
-            // // Get the Environment Variables
-            // ParseEnvironmentVariables();
-
-            // // Get the detected MAC and IP addresses
-            // ParseHostMacAndIpLists();
-
-            // // Get the license files
-            // ParseLicenseFiles();
-
-            // // Get the main RLM statistics table
-            // ParseRlmStatistics();
-
-            // // Get the statistics for each ISV server
-            // ParseIsvStatistics();
-
-            // // Get and parse each of the debug log sections
-            // ParseDebugLogs();
-
-            // // Get the RLM instances from the log file
-            // ParseRlmInstances();
 
             // Return the parsed log data and clear the member variables
             var finishedLog = _log;
@@ -163,12 +153,24 @@ namespace API.Factories
         /// </summary>
         private void ParseMetadata()
         {
-            string date = _data[0].Split(" ")[4];
-            string time = _data[0].Split(" ")[5];
-            string rlmVersion = _data[1].Split(" ")[2];
-            string hostname = _data[5].Split(" ")[1];
+            // Get the metadata section
+            var data = _utilities.GetLinesBetween("RLM Server Diagnostics at", "Environment:", _data, true);
 
-            var logDate = DateTime.Parse($"{date} {time}");
+            // Validate the metadata section
+            if (data == null || data.Length == 0)
+            {
+                return;
+            }
+
+            var date = _utilities.GetLineValue("RLM Server Diagnostics", 4, data);
+
+            var time = _utilities.GetLineValue("RLM Server Diagnostics", 5, data);
+
+            var rlmVersion = _utilities.GetLineValue("RLM version", 2, data);
+
+            var hostname = _utilities.GetLineValue("Hostname:", 1, data);
+            
+            var logDate = _utilities.GetDateTimeFrom($"{date} {time}");
 
             _log.Date = logDate;
             _log.RlmVersion = rlmVersion;
@@ -181,12 +183,21 @@ namespace API.Factories
         private void ParseEnvironmentVariables()
         {
             var varLines = _utilities.GetLinesBetween("Environment:", "RLM hostid list:", _data);
+
+            // Validate the environment variables section
+            if (varLines == null || varLines.Length == 0)
+            {
+                return;
+            }
+
             var envVariables = new Dictionary<string, string>();
 
             foreach (var pair in varLines)
             {
                 var parts = pair.Split("=");
-                envVariables.Add(parts[0], parts[1]);
+
+                if (parts.Length == 2)
+                    envVariables.Add(parts[0], parts[1]);
             }
 
             _log.EnvironmentVariables = envVariables;
@@ -198,6 +209,13 @@ namespace API.Factories
         private void ParseHostMacAndIpLists()
         {
             var line = _utilities.GetLinesBetween("RLM hostid list:", "License files:", _data);
+
+            // Validate the hostid list
+            if (line == null || line.Length == 0)
+            {
+                return;
+            }
+
             var list = line[0].Split(" ");
 
             var isMac = new Regex("[A-Fa-f0-9]{12}");
@@ -222,15 +240,32 @@ namespace API.Factories
         /// </summary>
         private void ParseLicenseFiles()
         {
+            // Get the license files section
             var licenseList = _utilities.GetLinesBetween("LICENSE FILE:", "RLM Options", _data, true);
 
-            var licenseData = GetLicenseData(licenseList);
+            // Validate the license list section
+            if (licenseList == null || licenseList.Length == 0)
+            {
+                return;
+            }
+
+            // Break the section into subsections for each license file
+            var licenseData = _utilities.GetSubsections("LICENSE FILE:", "LICENSE FILE:", licenseList);
+
+            // Validate the license subsections
+            if (licenseData == null || licenseData.Count() == 0)
+            {
+                return;
+            }
 
             var licenses = new List<LicenseFile>();
             foreach (var data in licenseData)
             {
-                var license = _licenseFileFactory.Parse(data);
-                licenses.Add(license);
+                var license = _licenseFileFactory.Parse(data.ToArray());
+                
+                // Validate the license
+                if (license != null)
+                    licenses.Add(license);
             }
 
             _log.Licenses = licenses;
