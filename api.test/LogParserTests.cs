@@ -598,6 +598,32 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseRlmStatistics_HandlesNullLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("Status for \"rlm\"") && end.Contains("========"))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsNull(result.RlmStatistics);
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange

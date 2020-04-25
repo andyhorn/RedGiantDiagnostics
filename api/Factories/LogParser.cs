@@ -325,6 +325,12 @@ namespace API.Factories
         {
             var rlmStatisticData = _utilities.GetLinesBetween("Status for \"rlm\"", "=============", _data, true);
 
+            // Validate the data
+            if (rlmStatisticData == null || rlmStatisticData.Count() == 0)
+            {
+                return;
+            }
+
             var rlmStatistics = _rlmStatisticsTableFactory.Parse(rlmStatisticData);
 
             _log.RlmStatistics = rlmStatistics;
