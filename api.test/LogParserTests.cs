@@ -159,6 +159,303 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseEnvironmentVariables_HandlesNullLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool hitEnvironmentVariables = false;
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("Environment:") && end.Contains("RLM hostid list:"))
+                        hitEnvironmentVariables = true;
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(hitEnvironmentVariables);
+            Assert.IsEmpty(result.EnvironmentVariables);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseEnvironmentVariables_HandlesSplitFail()
+        {
+            // Arrange
+            string[] returnArray = new string[] { "datadatadata", "datadatadata" };
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool hitEnvironmentVariables = false;
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("Environment:") && end.Contains("RLM hostid list:"))
+                    {
+                        hitEnvironmentVariables = true;
+                        return returnArray;
+                    }
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(hitEnvironmentVariables);
+            Assert.IsEmpty(result.EnvironmentVariables);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseEnvironmentVariables_ParsesCorrectly()
+        {
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(10).ToArray();
+
+            const string keyOne = "KeyOne";
+            const string keyTwo = "KeyTwo";
+            const string valueOne = "ValueOne";
+            const string valueTwo = "ValueTwo";
+
+            var returnArray = new string[]
+            {
+                $"{keyOne}={valueOne}",
+                $"{keyTwo}={valueTwo}"
+            };
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("Environment:") && end.Contains("RLM hostid list"))
+                    {
+                        return returnArray;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.AreEqual(valueOne, result.EnvironmentVariables[keyOne.ToString()]);
+            Assert.AreEqual(valueTwo, result.EnvironmentVariables[keyTwo.ToString()]);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseHostMacAndIpList_HandlesNullData()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("RLM hostid list") && end.Contains("License files"))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.HostIpList);
+            Assert.IsEmpty(result.HostMacList);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseHostIpAndMacList_HandlesInvalidLineData()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string invalidDataLine = "InvalidDataInvalidDataInvalidData";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("RLM hostid list") && end.Contains("License files"))
+                    {
+                        enteredFunction = true;
+                        return new string[] { invalidDataLine };
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.HostMacList);
+            Assert.IsEmpty(result.HostIpList);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseHostIpAndMacList_ParsesMac()
+        {
+            // Arrange
+            const string rawMacOne = "1234567890ab";
+            const string rawMacTwo = "ba0987654321";
+            const string formattedMacOne = "12:34:56:78:90:AB";
+            const string formattedMacTwo = "BA:09:87:65:43:21";
+            string[] macList = new string[] { $"{rawMacOne} {rawMacTwo}" };
+
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("RLM hostid list") && end.Contains("License files"))
+                    {
+                        enteredFunction = true;
+                        return macList;
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _utilities.MakeMac(A<string>.Ignored))
+                .ReturnsLazily((string input) => {
+                    switch (input)
+                    {
+                        case rawMacOne:
+                            return formattedMacOne;
+                        case rawMacTwo:
+                            return formattedMacTwo;
+                        default:
+                            return null;
+                    }
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.AreEqual(formattedMacOne, result.HostMacList.ElementAt(0));
+            Assert.AreEqual(formattedMacTwo, result.HostMacList.ElementAt(1));
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseHostIpAndMacList_ParsesIps()
+        {
+            // Arrange
+            bool enteredFunction = false;
+
+            const string rawIpOne = "ip=123.456.789";
+            const string rawIpTwo = "ip=1.1.1";
+            const string cleanIpOne = "123.456.789";
+            const string cleanIpTwo = "1.1.1";
+            string[] ipList = new string[] { $"{rawIpOne} {rawIpTwo}" };
+
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("RLM hostid list") && end.Contains("License files"))
+                    {
+                        enteredFunction = true;
+                        return ipList;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.AreEqual(cleanIpOne, result.HostIpList.ElementAt(0));
+            Assert.AreEqual(cleanIpTwo, result.HostIpList.ElementAt(1));
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseLicenseFiles_HandlesNullLicenseLines()
+        {
+            // Arrange
+            bool enteredFunction = false;
+            bool wentTooFar = false;
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("RLM Options"))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("LICENSE FILE"))
+                    {
+                        wentTooFar = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsFalse(wentTooFar);
+            Assert.IsEmpty(result.Licenses);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseLicenseFiles_HandlesEmptyLicenseSection()
+        {
+            // Arrange
+            bool enteredFunction = false;
+            bool wentTooFar = false;
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("RLM Options"))
+                    {
+                        enteredFunction = true;
+                        return new string[0];
+                    }
+
+                    return null;
+                });
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("LICENSE FILE"))
+                    {
+                        wentTooFar = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsFalse(wentTooFar);
+            Assert.IsEmpty(result.Licenses);
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange

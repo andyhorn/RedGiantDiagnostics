@@ -340,8 +340,20 @@ namespace API.Factories
             // Get the ISV details from the main log data
             var relevantData = _utilities.GetLinesBetween("ISV Servers", "rlm debug log file contents", _data);
 
+            // Validate the data
+            if (relevantData == null || relevantData.Count() == 0)
+            {
+                return;
+            }
+
             // Break the full ISV details section into subsections for each ISV server
             var isvSections = _utilities.GetSubsections("ISV .+ status on", "ISV .+ status on", relevantData);
+
+            // Validate the data
+            if (isvSections == null || isvSections.Count() == 0)
+            {
+                return;
+            }
 
             // Build an ISV Statistics object from each subsection
             foreach (var section in isvSections)
@@ -365,8 +377,20 @@ namespace API.Factories
             // Get all the debug logs from the file
             var debugLogSection = _utilities.GetLinesBetween("^rlm debug log file contents", "^RLM processes running on this machine", _data, true);
 
+            // Validate the data
+            if (debugLogSection == null || debugLogSection.Count() == 0)
+            {
+                return;
+            }
+
             // Split each debug log section into its own collection
             var logSections = _utilities.GetSubsections("debug log file contents", "END .+ debug log file contents", debugLogSection);
+
+            // Validate the data
+            if (logSections == null || logSections.Count() == 0)
+            {
+                return;
+            }
 
             foreach (var logSection in logSections)
             {
@@ -395,8 +419,20 @@ namespace API.Factories
             // Get the RLM instances section, this should run through the end of the file
             var rlmInstanceSection = _utilities.GetLinesBetween("^RLM processes running on this machine", null, _data);
 
+            // Validate the data
+            if (rlmInstanceSection == null || rlmInstanceSection.Count() == 0)
+            {
+                return;
+            }
+
             // Break this into subsections for each instance of RLM detected
             var rlmInstances = _utilities.GetSubsections("RLM Version", "RLM Version", rlmInstanceSection);
+
+            // Validate the data
+            if (rlmInstances == null || rlmInstances.Count() == 0)
+            {
+                return;
+            }
 
             foreach (var rlmInstance in rlmInstances)
             {
