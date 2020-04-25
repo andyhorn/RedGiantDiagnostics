@@ -456,6 +456,148 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseLicenseFiles_HandlesNullSubsections()
+        {
+            // Arrange
+            bool enteredFunction = false;
+            bool wentTooFar = false;
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("RLM Options"))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("LICENSE FILE"))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _licenseFileFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => wentTooFar = true)
+                .Returns(null);
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsFalse(wentTooFar);
+            Assert.IsEmpty(result.Licenses);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseLicenseFiles_NullLicenseFilesNotAdded()
+        {
+            // Arrange
+            bool enteredFunction = false;
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            var sections = new List<List<string>>();
+            sections.Add(new List<string>() { "TESTTESTTEST" });
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("RLM Options"))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("LICENSE FILE"))
+                    {
+                        return sections;
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _licenseFileFactory.Parse(A<string[]>.Ignored))
+                .ReturnsLazily((string[] data) => {
+                    if (data[0].Contains("TESTTESTTEST"))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.Licenses);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseLicenseFiles_AddsLicenseFiles()
+        {
+            // Arrange
+            bool enteredFunction = false;
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            var subsectionList = new List<List<string>>();
+            var subsection = new List<string>() { "TestTestTest" };
+            subsectionList.Add(subsection);
+            subsectionList.Add(subsection);
+            int length = subsectionList.Count;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("RLM Options"))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains("LICENSE FILE") && end.Contains("LICENSE FILE"))
+                    {
+                        return subsectionList;
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _licenseFileFactory.Parse(A<string[]>.Ignored))
+                .ReturnsLazily((string[] data) => {
+                    if (data[0].Contains("TestTestTest"))
+                    {
+                        enteredFunction = true;
+                        return A.Fake<LicenseFile>();
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.AreEqual(length, result.Licenses.Count());
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange
