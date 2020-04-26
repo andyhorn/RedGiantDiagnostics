@@ -112,8 +112,8 @@ namespace api.test
 
             // Assert
             Assert.IsNull(result.Date);
-            Assert.IsEmpty(result.RlmVersion);
-            Assert.IsEmpty(result.Hostname);
+            Assert.IsNull(result.RlmVersion);
+            Assert.IsNull(result.Hostname);
         }
 
         [Test]

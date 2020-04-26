@@ -218,8 +218,13 @@ namespace API.Factories
 
             var list = line[0].Split(" ");
 
+            if (list.Length < 2)
+            {
+                return;
+            }
+
             var isMac = new Regex("[A-Fa-f0-9]{12}");
-            var isIp = new Regex("(?<=ip=)(([0-9]{1,3}.){4})");
+            var isIp = new Regex("(?<=ip=)(([0-9]{1,3}\\.?){3})");
 
             var macList = list.ToList()
                 .Where(x => isMac.IsMatch(x))
