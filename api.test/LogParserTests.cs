@@ -863,6 +863,341 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseDebugLogs_HandlesNullLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "^rlm debug log file contents";
+            const string endSearch = "^RLM processes running on this machine";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && end.Contains(endSearch))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_HandlesEmptyLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "^rlm debug log file contents";
+            const string endSearch = "^RLM processes running on this machine";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && end.Contains(endSearch))
+                    {
+                        enteredFunction = true;
+                        return new string[0];
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_HandlesNullSubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_HandlesEmptySubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        enteredFunction = true;
+                        return new List<List<string>>().ToArray();
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_NullDebugLogsNotAdded()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(A.CollectionOfDummy<string>(5).ToList());
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _debugLogFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(null);
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_AddsRlmLog()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "rlm debug log"});
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _debugLogFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(A.Fake<DebugLog>());
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNotNull(result.RlmLog);
+            Assert.IsInstanceOf(typeof(DebugLog), result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_AddsIsvLogs()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "TestTestTest"});
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _debugLogFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(A.Fake<DebugLog>());
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsNotEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+            Assert.IsInstanceOf(typeof(DebugLog), result.IsvLogs.ElementAt(0));
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseDebugLogs_AddsBothLogs()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "^rlm debug log file contents";
+            const string endSearchOne = "^RLM processes running on this machine";
+            const string beginSearchTwo = "debug log file contents";
+            const string endSearchTwo = "debug log file contents";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(endSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "rlm debug log"});
+                        list.Add(new List<string>() { "TestTestTest" });
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _debugLogFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(A.Fake<DebugLog>());
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsNotEmpty(result.IsvLogs);
+            Assert.IsNotNull(result.RlmLog);
+            Assert.IsInstanceOf(typeof(DebugLog), result.RlmLog);
+            Assert.IsInstanceOf(typeof(DebugLog), result.IsvLogs.ElementAt(0));
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange

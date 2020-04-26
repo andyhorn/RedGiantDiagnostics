@@ -403,6 +403,9 @@ namespace API.Factories
             {
                 var debugLog = _debugLogFactory.Parse(logSection.ToArray());
 
+                if (debugLog == null)
+                    continue;
+
                 if (logSection.ToArray()[0].Contains("rlm debug log"))
                 {
                     _log.RlmLog = debugLog;
