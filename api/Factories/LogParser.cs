@@ -364,9 +364,10 @@ namespace API.Factories
             // Build an ISV Statistics object from each subsection
             foreach (var section in isvSections)
             {
-                // var isv = IsvStatisticsFactory.Parse(section.ToArray());
                 var isv = _isvStatisticsFactory.Parse(section.ToArray());
-                isvStatistics.Add(isv);
+
+                if (isv != null)
+                    isvStatistics.Add(isv);
             }
 
             _log.IsvStatistics = isvStatistics;

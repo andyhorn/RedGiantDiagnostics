@@ -624,6 +624,245 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseIsvStatistics_HandlesNullLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "ISV Servers";
+            const string endSearch = "rlm debug log file contents";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && end.Contains(endSearch))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvStatistics);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseIsvStatistics_HandlesEmptyLinesCollection()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "ISV Servers";
+            const string endSearch = "rlm debug log file contents";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && end.Contains(endSearch))
+                    {
+                        enteredFunction = true;
+                        return new string[0];
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvStatistics);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseIsvStatistics_HandlesNullSubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "ISV Servers";
+            const string endSearchOne = "rlm debug log file contents";
+            const string beginSearchTwo = "ISV .+ status on";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(beginSearchTwo))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvStatistics);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseIsvStatistics_HandlesEmptySubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "ISV Servers";
+            const string endSearchOne = "rlm debug log file contents";
+            const string beginSearchTwo = "ISV .+ status on";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(beginSearchTwo))
+                    {
+                        enteredFunction = true;
+                        return new List<List<string>>().ToArray();
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvStatistics);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseIsvStatistics_NullStatisticsAreNotAdded()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "ISV Servers";
+            const string endSearchOne = "rlm debug log file contents";
+            const string beginSearchTwo = "ISV .+ status on";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(beginSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "TestTestTest" });
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _isvStatisticsFactory.Parse(A<string[]>.Ignored))
+                .ReturnsLazily((string[] data) => {
+                    if (data[0] == "TestTestTest")
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvStatistics);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseIsvStatistics_AddsStatisticsObject()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string beginSearchOne = "ISV Servers";
+            const string endSearchOne = "rlm debug log file contents";
+            const string beginSearchTwo = "ISV .+ status on";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearchOne) && end.Contains(endSearchOne))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(beginSearchTwo) && end.Contains(beginSearchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "TestTestTest" });
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _isvStatisticsFactory.Parse(A<string[]>.Ignored))
+                .ReturnsLazily((string[] data) => {
+                    if (data[0] == "TestTestTest")
+                    {
+                        enteredFunction = true;
+                        return A.Fake<IsvStatistics>();
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.AreEqual(1, result.IsvStatistics.Count());
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange
