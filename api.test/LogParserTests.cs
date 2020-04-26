@@ -1198,6 +1198,230 @@ namespace api.test
         }
 
         [Test]
+        public void LogParser_Parse_ParseRlmInstances_HandlesNullLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "^RLM processes running on this machine";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && string.IsNullOrWhiteSpace(end))
+                    {
+                        enteredFunction = true;
+                        return null;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.RlmInstances);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseRlmInstances_HandlesEmptyLines()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            const string beginSearch = "^RLM processes running on this machine";
+            bool enteredFunction = false;
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(beginSearch) && string.IsNullOrWhiteSpace(end))
+                    {
+                        enteredFunction = true;
+                        return new string[0];
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.RlmInstances);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseRlmInstances_HandlesNullSubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string searchOne = "^RLM processes running on this machine";
+            const string searchTwo = "RLM Version";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(searchOne) && string.IsNullOrWhiteSpace(end))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(searchTwo) && end.Contains(searchTwo))
+                    {
+                        enteredFunction = true;
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseRlmInstances_HandlesEmptySubsections()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string searchOne = "^RLM processes running on this machine";
+            const string searchTwo = "RLM Version";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(searchOne) && string.IsNullOrWhiteSpace(end))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(searchTwo) && end.Contains(searchTwo))
+                    {
+                        enteredFunction = true;
+                        var list = new List<List<string>>();
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.IsvLogs);
+            Assert.IsNull(result.RlmLog);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseRlmInstances_NullRlmInstancesNotAdded()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string searchOne = "^RLM processes running on this machine";
+            const string searchTwo = "RLM Version";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(searchOne) && string.IsNullOrWhiteSpace(end))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(searchTwo) && end.Contains(searchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "TestTestTest" });
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _rlmInstanceFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(null);
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsEmpty(result.RlmInstances);
+        }
+
+        [Test]
+        public void LogParser_Parse_ParseRlmInstances_AddsRlmInstances()
+        {
+            // Arrange
+            var log = A.Fake<LogFile>();
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+            bool enteredFunction = false;
+            const string searchOne = "^RLM processes running on this machine";
+            const string searchTwo = "RLM Version";
+
+            A.CallTo(() => _utilities.GetLinesBetween(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored, A<bool>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data, bool inclusive) => {
+                    if (begin.Contains(searchOne) && string.IsNullOrWhiteSpace(end))
+                    {
+                        return A.CollectionOfDummy<string>(5).ToArray();
+                    }
+
+                    return null;
+                });
+            
+            A.CallTo(() => _utilities.GetSubsections(A<string>.Ignored, A<string>.Ignored, A<string[]>.Ignored))
+                .ReturnsLazily((string begin, string end, string[] data) => {
+                    if (begin.Contains(searchTwo) && end.Contains(searchTwo))
+                    {
+                        var list = new List<List<string>>();
+                        list.Add(new List<string>() { "TestTestTest" });
+                        return list.ToArray();
+                    }
+
+                    return null;
+                });
+
+            A.CallTo(() => _rlmInstanceFactory.Parse(A<string[]>.Ignored))
+                .Invokes(() => enteredFunction = true)
+                .Returns(A.Fake<RlmInstance>());
+
+            // Act
+            var result = _logParser.Parse(log, data);
+
+            // Assert
+            Assert.IsTrue(enteredFunction);
+            Assert.IsNotEmpty(result.RlmInstances);
+        }
+
+        [Test]
         public void LogParser_Parse_EntersNewThread()
         {
             // Arrange

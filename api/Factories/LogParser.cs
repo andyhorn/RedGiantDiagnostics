@@ -447,7 +447,9 @@ namespace API.Factories
             foreach (var rlmInstance in rlmInstances)
             {
                 var instance = _rlmInstanceFactory.Parse(rlmInstance.ToArray());
-                instances.Add(instance);
+
+                if (instance != null)
+                    instances.Add(instance);
             }
 
             _log.RlmInstances = instances;
