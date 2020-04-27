@@ -11,6 +11,7 @@ namespace API.Helpers
         string MakeMac(string mac);
         string[] GetLinesBetween(string begin, string end, string[] data, bool inclusive = false);
         IEnumerable<IEnumerable<string>> GetSubsections(string beginMarker, string endMarker, string[] data);
+        string GetAfter(string lineIdentifier, string separator, string[] data);
     }
 
 
@@ -257,6 +258,32 @@ namespace API.Helpers
             }
 
             return masterCollection;
+        }
+
+        public string GetAfter(string lineIdentifier, string separator, string[] data)
+        {
+            if (string.IsNullOrWhiteSpace(lineIdentifier) || string.IsNullOrWhiteSpace(separator) || data == null || data.Length == 0)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                var line = data[i];
+
+                if (line.Contains(lineIdentifier))
+                {
+                    if (line.Contains(separator))
+                    {
+                        var cutIndex = line.IndexOf(separator) + separator.Length;
+                        line = line.Substring(cutIndex);
+                    }
+
+                    return line;
+                }
+            }
+
+            return null;
         }
     }
 }

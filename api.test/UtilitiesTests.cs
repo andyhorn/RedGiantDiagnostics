@@ -670,5 +670,123 @@ namespace api.test
             }
             Assert.IsTrue(subsectionsCorrectLength);
         }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_NullLineIdentifier_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(null, A.Dummy<string>(), A.CollectionOfDummy<string>(1).ToArray());
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_EmptyLineIdentifier_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(string.Empty, A.Dummy<string>(), A.CollectionOfDummy<string>(1).ToArray());
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_NullSeparator_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(A.Dummy<string>(), null, A.CollectionOfDummy<string>(1).ToArray());
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_EmptySeparator_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(A.Dummy<string>(), string.Empty, A.CollectionOfDummy<string>(5).ToArray());
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_NullData_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(A.Dummy<string>(), A.Dummy<string>(), null);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_EmptyData_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            var result = _utilities.GetAfter(A.Dummy<string>(), A.Dummy<string>(), new string[0]);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_NoMatch_ReturnsNull()
+        {
+            // Arrange
+            const string searchTerm = "NoMatchForMe";
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            // Act
+            var result = _utilities.GetAfter(searchTerm, A.Dummy<string>(), data);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_NoSeparatorMatch_ReturnsFullLine()
+        {
+            // Arrange
+            string searchTerm = A.Dummy<string>();
+            const string separator = "NoMatchForMe";
+            var data = A.CollectionOfDummy<string>(5).ToArray();
+
+            // Act
+            var result = _utilities.GetAfter(searchTerm, separator, data);
+
+            // Assert
+            Assert.AreEqual(searchTerm, result);
+        }
+
+        [Test]
+        public void UtilitiesTests_GetAfter_ReturnsPortionAfterSeparator()
+        {
+            // Arrange
+            const string searchTerm = "SearchTerm";
+            const string separator = ":";
+            const string returnValue = "ReturnMe";
+            string line = searchTerm + separator + returnValue;
+            string[] data = new string[] { line };
+
+            // Act
+            var result = _utilities.GetAfter(searchTerm, separator, data);
+
+            // Assert
+            Assert.AreEqual(returnValue, result);
+        }
     }
 }

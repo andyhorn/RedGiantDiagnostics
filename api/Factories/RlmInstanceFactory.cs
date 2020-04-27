@@ -24,6 +24,11 @@ namespace API.Factories
         
         public RlmInstance Parse(string[] data)
         {
+            if (data == null || data.Length == 0)
+            {
+                return null;
+            }
+            
             var rlm = New;
 
             rlm.Version = _utilities.GetLineValue("RLM Version:", 2, data);
