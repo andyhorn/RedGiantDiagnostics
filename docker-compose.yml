@@ -17,6 +17,7 @@ services:
     depends_on: 
       # Wait for the database before building
       - database
+      - identity
     restart: "unless-stopped"
     # Pull sensitive information from an environment file
     env_file: api.env
@@ -27,6 +28,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       # Set the host for the database connection
       DB_HOST: database
+      DB_IDENTITY: identity
 
   # Vue.js frontend
   web:
@@ -55,6 +57,13 @@ services:
     container_name: rg-database
     image: mongo
     restart: "unless-stopped"
+    env_file: database.env
+
+  # PostgreSQL Database for Identity
+  identity:
+    container_name: rg-identity
+    image: postgres
+    restart: 'unless-stopped'
     env_file: database.env
 
 volumes:

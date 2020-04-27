@@ -30,3 +30,7 @@ services:
   database:
     ports:
       - "27017-27019:27017-27019"
+
+  identity:
+    ports:
+      - "4321:4321"
