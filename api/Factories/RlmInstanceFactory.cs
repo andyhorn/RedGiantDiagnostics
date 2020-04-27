@@ -28,12 +28,12 @@ namespace API.Factories
             {
                 return null;
             }
-            
+
             var rlm = New;
 
             rlm.Version = _utilities.GetLineValue("RLM Version:", 2, data);
-            rlm.Command = GetAfter("Command:", ":", data);
-            rlm.WorkingDirectory = GetAfter("Working Directory:", ":", data);
+            rlm.Command = _utilities.GetAfter("Command:", ":", data);
+            rlm.WorkingDirectory = _utilities.GetAfter("Working Directory:", ":", data);
             rlm.PID = GetNumberFrom("PID:", data);
             rlm.Port = GetNumberFrom("Main TCP/IP port:", data);
             rlm.WebPort = GetNumberFrom("Web interface", data);
@@ -48,13 +48,20 @@ namespace API.Factories
         {
             var list = new List<int>();
 
-            var numbers = GetAfter("Alternate", ":", data).Split(" ");
+            var numbers = _utilities.GetAfter("Alternate", ":", data);
+            
+            if (string.IsNullOrWhiteSpace(numbers))
+            {
+                return list;
+            }
 
-            foreach (var number in numbers)
+            foreach (var number in numbers.Split(" "))
             {
                 int value = 0;
-                int.TryParse(number, out value);
-                list.Add(value);
+                if (int.TryParse(number, out value))
+                {
+                    list.Add(value);
+                }
             }
 
             return list;
@@ -64,7 +71,7 @@ namespace API.Factories
         {
             int value = 0;
 
-            var line = GetAfter(header, ":", data);
+            var line = _utilities.GetAfter(header, ":", data);
 
             int.TryParse(line, out value);
 
@@ -86,27 +93,16 @@ namespace API.Factories
 
         private IEnumerable<string> GetIsvServers(string[] data)
         {
-            var servers = GetAfter("ISV servers:", ":", data).Split(" ").ToList();
-            return servers;
-        }
-
-        private string GetAfter(string searchTerm, string separator, string[] data)
-        {
-            string value = string.Empty;
-
-            for (var i = 0; i < data.Length; i++)
+            var line = _utilities.GetAfter("ISV servers:", ":", data);
+            
+            if (string.IsNullOrWhiteSpace(line))
             {
-                if (data[i].Contains(searchTerm))
-                {
-                    var line = data[i];
-                    var index = line.IndexOf(separator) + separator.Length;
-                    value = line.Substring(index).Trim();
-
-                    break;
-                }
+                return new string[0];
             }
 
-            return value;
+            var servers = line.Split(" ");
+
+            return servers;
         }
     }
 }
