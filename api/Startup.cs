@@ -9,6 +9,7 @@ using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,10 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.SetupDependencyInjection();
+
+            services.SetupIdentityDatabaseConnection();
+
+            services.SetupIdentity();
             
             services.AddControllers();
         }
