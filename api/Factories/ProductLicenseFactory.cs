@@ -21,6 +21,11 @@ namespace API.Factories
         }
         public ProductLicense Parse(string[] data)
         {
+            if (data == null || data.Length == 0)
+            {
+                return null;
+            }
+
             var product = New;
 
             product.IssueDate = GetProductIssueDate(data);
@@ -35,7 +40,7 @@ namespace API.Factories
         {
             var issueDate = _utilities.GetLineValue("start=", 1, data);
 
-            if (issueDate == null || issueDate.Length == 0)
+            if (string.IsNullOrWhiteSpace(issueDate))
             {
                 return null;
             }
@@ -54,6 +59,11 @@ namespace API.Factories
         {
             var expirationDate = _utilities.GetLineValue("LICENSE", 4, data);
 
+            if (string.IsNullOrWhiteSpace(expirationDate))
+            {
+                return null;
+            }
+
             var date = _utilities.GetDateTimeFrom(expirationDate);
 
             return date;
@@ -71,13 +81,13 @@ namespace API.Factories
             var seats = _utilities.GetLineValue("LICENSE", 5, data);
             int num = 0;
 
-            if (seats == "uncounted")
+            if (!string.IsNullOrWhiteSpace(seats) && seats.Equals("uncounted"))
             {
                 num = -1;
             }
             else
             {
-                num = int.Parse(seats);
+                int.TryParse(seats, out num);
             }
 
             return num;
