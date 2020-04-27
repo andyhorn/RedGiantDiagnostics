@@ -21,6 +21,7 @@ namespace API.Contracts
             public const string CreateUser = "";
             public const string UpdateUser = "{id}";
             public const string DeleteUser = "{id}";
+            public const string Login = "login";
         }
     }
 }

@@ -29,28 +29,35 @@ namespace API.Controllers
 
         [HttpGet]
         [Route(Contracts.Routes.Identity.GetUserById)]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserByIdAsync(string id)
         {
             throw new NotImplementedException();
         }
 
         [HttpPost]
         [Route(Contracts.Routes.Identity.CreateUser)]
-        public async Task<IActionResult> CreateUser([FromBody]RegisterUserRequest request)
+        public async Task<IActionResult> CreateUserAsync([FromBody]RegisterUserRequest request)
         {
             throw new NotImplementedException();
         }
 
         [HttpPut]
         [Route(Contracts.Routes.Identity.UpdateUser)]
-        public async Task<IActionResult> UpdateUser([FromBody]UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUserAsync(string id, [FromBody]UpdateUserRequest request)
         {
             throw new NotImplementedException();
         }
 
         [HttpDelete]
         [Route(Contracts.Routes.Identity.DeleteUser)]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUserAsync(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route(Contracts.Routes.Identity.Login)]
+        public async Task<IActionResult> LoginAsync([FromBody]UserLoginRequest request)
         {
             throw new NotImplementedException();
         }

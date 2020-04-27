@@ -22,7 +22,7 @@ namespace API.Services
             throw new System.NotImplementedException();
         }
 
-        public Task DeleteUserAsync(string id)
+        public void DeleteUserAsync(string id)
         {
             throw new System.NotImplementedException();
         }
@@ -37,7 +37,17 @@ namespace API.Services
             throw new System.NotImplementedException();
         }
 
-        public Task UpdateUserAsync(IdentityUser update)
+        public Task<IdentityUser> GetUserByEmailAsync(string email)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void UpdateUserAsync(IdentityUser update)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string Login(string email, string password)
         {
             throw new System.NotImplementedException();
         }
