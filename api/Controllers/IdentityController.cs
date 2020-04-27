@@ -29,35 +29,92 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.GetUserById)]
         public async Task<IActionResult> GetUserByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
+            var user = await _identityService.GetUserByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(user);
         }
 
         [HttpPost]
         [Route(Contracts.Routes.Identity.CreateUser)]
         public async Task<IActionResult> CreateUserAsync([FromBody]RegisterUserRequest request)
         {
-            throw new NotImplementedException();
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = await _identityService.CreateUserAsync(request.Email, request.Password);
+
+            return Created(user.Id, user);
         }
 
         [HttpPut]
         [Route(Contracts.Routes.Identity.UpdateUser)]
         public async Task<IActionResult> UpdateUserAsync(string id, [FromBody]UpdateUserRequest request)
         {
-            throw new NotImplementedException();
+            var user = await _identityService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                user = user.Update(request);
+                _identityService.UpdateUserAsync(user);
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(500);
+            }
+            
+            return Ok();
         }
 
         [HttpDelete]
         [Route(Contracts.Routes.Identity.DeleteUser)]
         public async Task<IActionResult> DeleteUserAsync(string id)
         {
-            throw new NotImplementedException();
+            var user = await _identityService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                _identityService.DeleteUserAsync(id);
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(500);
+            }
+
+            return NoContent();
         }
 
         [HttpPost]
         [Route(Contracts.Routes.Identity.Login)]
-        public async Task<IActionResult> LoginAsync([FromBody]UserLoginRequest request)
+        public IActionResult Login([FromBody]UserLoginRequest request)
         {
-            throw new NotImplementedException();
+            var token = _identityService.Login(request.Email, request.Password);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized();
+            }
+
+            return Ok(token);
         }
     }
 }

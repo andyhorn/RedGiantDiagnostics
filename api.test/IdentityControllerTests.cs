@@ -109,7 +109,7 @@ namespace api.test
             // Arrange
 
             // Act
-            var result = _controller.CreateUserAsync(null);
+            var result = await _controller.CreateUserAsync(null);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -169,7 +169,7 @@ namespace api.test
                 .DoesNothing();
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Fake<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);
@@ -186,7 +186,7 @@ namespace api.test
                 .Throws(new Exception());
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Fake<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -201,7 +201,7 @@ namespace api.test
                 .Returns((IdentityUser)null);
 
             // Act
-            var result = await _controller.DeleteUserAsync(A<string>.Ignored);
+            var result = await _controller.DeleteUserAsync(A.Dummy<string>());
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -243,42 +243,42 @@ namespace api.test
         }
 
         [Test]
-        public async Task IdentityController_Login_ReturnsOkResult()
+        public void IdentityController_Login_ReturnsOkResult()
         {
             // Arrange
             A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
 
             // Act
-            var result = await _controller.LoginAsync(A.Fake<UserLoginRequest>());
+            var result = _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
-            Assert.IsInstanceOf(typeof(OkResult), result);
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
         }
 
         [Test]
-        public async Task IdentityController_Login_OkResultContainsToken()
+        public void IdentityController_Login_OkResultContainsToken()
         {
             // Arrange
             A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
 
             // Act
-            var result = await _controller.LoginAsync(A.Fake<UserLoginRequest>());
+            var result = _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsNotNull((string)(result as OkObjectResult).Value);
         }
 
         [Test]
-        public async Task IdentityController_Login_InvalidLoginReturnsUnauthorized()
+        public void IdentityController_Login_InvalidLoginReturnsUnauthorized()
         {
             // Arrange
             A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
                 .Returns(null);
 
             // Act
-            var result = await _controller.LoginAsync(A.Fake<UserLoginRequest>());
+            var result = _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(UnauthorizedResult), result);
