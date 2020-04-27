@@ -38,6 +38,8 @@ namespace API
         {
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ILogsService, LogsService>();
+            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<ITokenService, TokenService>();
         }
 
         private static void InjectFactories(IServiceCollection services)
