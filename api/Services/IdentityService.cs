@@ -6,6 +6,16 @@ namespace API.Services
 {
     public class IdentityService : IIdentityService
     {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public IdentityService(UserManager<IdentityUser> user, SignInManager<IdentityUser> signIn, RoleManager<IdentityRole> role)
+        {
+            _userManager = user;
+            _signInManager = signIn;
+            _roleManager = role;
+        }
         public Task<IdentityUser> CreateUserAsync(string email, string password)
         {
             throw new System.NotImplementedException();

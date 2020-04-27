@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +17,10 @@ namespace API.Controllers
             _tokenService = token;
         }
 
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok("hello world!");
+            var userList = await _identityService.GetAllUsersAsync();
+            return Ok(userList);
         }
     }
 }
