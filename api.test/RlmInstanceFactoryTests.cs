@@ -203,7 +203,7 @@ namespace api.test
             var result = _factory.Parse(data);
 
             // Assert
-            Assert.AreEqual(shouldReturn, result.Port);
+            Assert.AreEqual(shouldReturn, result.WebPort);
         }
 
         [Test]
