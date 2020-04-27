@@ -11,12 +11,10 @@ namespace API.Controllers
     public class IdentityController : ControllerBase
     {
         private IIdentityService _identityService;
-        private ITokenService _tokenService;
 
-        public IdentityController(IIdentityService identity, ITokenService token)
+        public IdentityController(IIdentityService identity)
         {
             _identityService = identity;
-            _tokenService = token;
         }
 
         [HttpGet]

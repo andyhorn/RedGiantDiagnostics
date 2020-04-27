@@ -15,15 +15,13 @@ namespace api.test
     public class IdentityControllerTests
     {
         private IIdentityService _identityService;
-        private ITokenService _tokenService;
         private IdentityController _controller;
 
         [SetUp]
         public void Setup()
         {
             _identityService = A.Fake<IIdentityService>();
-            _tokenService = A.Fake<ITokenService>();
-            _controller = new IdentityController(_identityService, _tokenService);
+            _controller = new IdentityController(_identityService);
         }
 
         [Test]
