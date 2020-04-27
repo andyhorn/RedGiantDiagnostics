@@ -29,6 +29,11 @@ namespace API.Factories
         
         public RlmStatisticsTable Parse(string[] data)
         {
+            if (data == null || data.Length == 0)
+            {
+                return null;
+            }
+
             var table = New;
 
             table.ServerName = GetServerName(data);
@@ -45,15 +50,27 @@ namespace API.Factories
             // Get the table section
             var dataLines = _utilities.GetLinesBetween("ISV Servers", "=========", data);
 
-            // Remove the column header line
-            dataLines = dataLines.TakeLast(dataLines.Length - 1).ToArray();
+            if (dataLines == null || dataLines.Length == 0)
+            {
+                return new List<ServerStatus>();
+            }
+
+            // Remove the column header line if present
+            if (dataLines[0].Contains("Name") && dataLines[0].Contains("port"))
+            {
+                dataLines = dataLines.TakeLast(dataLines.Length - 1).ToArray();
+            }
 
             var servers = new List<ServerStatus>();
 
             foreach (var serverData in dataLines)
             {
                 var server = _serverStatusFactory.Parse(serverData);
-                servers.Add(server);
+
+                if (server != null)
+                {
+                    servers.Add(server);
+                }
             }
 
             return servers;
@@ -82,7 +99,14 @@ namespace API.Factories
             // This should almost always result in "rlm"
             var name = _utilities.GetLineValue("Status for \"rlm\"", 2, data);
 
-            name = name.Replace("\"", "");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
+            else if (name.Contains("\""))
+            {
+                name = name.Replace("\"", "");
+            }
 
             return name;
         }
