@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
@@ -26,9 +27,9 @@ namespace API.Services
             throw new System.NotImplementedException();
         }
 
-        public Task<IEnumerable<IdentityUser>> GetAllUsersAsync()
+        public async Task<IEnumerable<IdentityUser>> GetAllUsersAsync()
         {
-            throw new System.NotImplementedException();
+            return await _userManager.Users.ToListAsync();
         }
 
         public Task<IdentityUser> GetUserByIdAsync(string id)

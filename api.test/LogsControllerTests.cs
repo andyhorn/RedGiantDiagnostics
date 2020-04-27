@@ -8,7 +8,6 @@ using API.Services;
 using API.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using API.Contracts.Requests;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using API.Entities;
@@ -195,7 +194,7 @@ namespace api.test
                 .Returns(A.Fake<LogFile>());
 
             // Act
-            var result = await _logsController.Update(A.Dummy<string>(), A.Fake<LogUpdateRequest>());
+            var result = await _logsController.Update(A.Dummy<string>(), A.Fake<LogFile>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
@@ -216,7 +215,7 @@ namespace api.test
             const string nullId = null;
 
             // Act
-            var result = await _logsController.Update(nullId, A.Fake<LogUpdateRequest>());
+            var result = await _logsController.Update(nullId, A.Fake<LogFile>());
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -232,7 +231,7 @@ namespace api.test
         {
             // Arrange
             const string id = "validIdString";
-            LogUpdateRequest nullUpdateRequest = null;
+            LogFile nullUpdateRequest = null;
 
             // Act
             var result = await _logsController.Update(id, nullUpdateRequest);

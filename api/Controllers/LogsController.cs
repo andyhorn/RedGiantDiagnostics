@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using API.Contracts;
-using API.Contracts.Requests;
 using API.Entities;
 using API.Models;
 using API.Services;
@@ -73,7 +72,7 @@ namespace API.Controllers
 
         [HttpPut]
         [Route(Routes.Logs.Update)]
-        public async Task<IActionResult> Update(string id, [FromBody]LogUpdateRequest update)
+        public async Task<IActionResult> Update(string id, [FromBody]LogFile update)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -85,7 +84,7 @@ namespace API.Controllers
                 return BadRequest();
             }
 
-            var result = await _logsService.UpdateAsync(update.Log);
+            var result = await _logsService.UpdateAsync(update);
             return Ok(result);
         }
 

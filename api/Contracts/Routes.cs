@@ -13,5 +13,14 @@ namespace API.Contracts
             public const string Save = "save";
             public const string Upload = "upload";
         }
+
+        public static class Identity
+        {
+            public const string GetAllUsers = "";
+            public const string GetUserById = "{id}";
+            public const string CreateUser = "";
+            public const string UpdateUser = "{id}";
+            public const string DeleteUser = "{id}";
+        }
     }
 }
