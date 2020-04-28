@@ -36,6 +36,8 @@ namespace API
             services.SetupIdentityDatabaseConnection();
 
             services.SetupIdentity();
+
+            services.SetupAuthentication();
             
             services.AddControllers();
 
