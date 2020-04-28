@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Controllers;
+using API.Exceptions;
 using API.Services;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
@@ -247,7 +248,7 @@ namespace api.test
                 .Returns(A.Fake<IdentityUser>());
 
             A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
-                .DoesNothing();
+                .Invokes(() => {});
 
             // Act
             var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
@@ -257,14 +258,14 @@ namespace api.test
         }
 
         [Test]
-        public async Task IdentityController_UpdateUser_HandlesException_ReturnsServerError()
+        public async Task IdentityController_UpdateUser_UpdateException_ReturnsServerError()
         {
             // Arrange
             A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
             A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
-                .Throws(new Exception());
+                .Throws(new ActionFailedException());
 
             // Act
             var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
@@ -290,8 +291,10 @@ namespace api.test
         public async Task IdentityController_DeleteUser_InvalidIdReturnsNotFound()
         {
             // Arrange
-            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
-                .Returns((IdentityUser)null);
+            // A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+            //     .Returns((IdentityUser)null);
+            A.CallTo(() => _identityService.DeleteUserAsync(A<string>.Ignored))
+                .Throws(new ResourceNotFoundException());
 
             // Act
             var result = await _controller.DeleteUserAsync(A.Dummy<string>());
@@ -326,7 +329,7 @@ namespace api.test
                 .Returns(A.Fake<IdentityUser>());
 
             A.CallTo(() => _identityService.DeleteUserAsync(A<string>.Ignored))
-                .DoesNothing();
+                .Invokes(() => {});
 
             // Act
             var result = await _controller.DeleteUserAsync(A.Dummy<string>());
@@ -336,55 +339,55 @@ namespace api.test
         }
 
         [Test]
-        public void IdentityController_Login_InvalidModelStateReturnsBadRequest()
+        public async Task IdentityController_Login_InvalidModelStateReturnsBadRequest()
         {
             // Arrange
             _controller.ModelState.AddModelError(string.Empty, "Test Error");
 
             // Act
-            var result = _controller.Login(A.Fake<UserLoginRequest>());
+            var result = await _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
         [Test]
-        public void IdentityController_Login_ReturnsOkResult()
+        public async Task IdentityController_Login_ReturnsOkResult()
         {
             // Arrange
-            A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
 
             // Act
-            var result = _controller.Login(A.Fake<UserLoginRequest>());
+            var result = await _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
         }
 
         [Test]
-        public void IdentityController_Login_OkResultContainsToken()
+        public async Task IdentityController_Login_OkResultContainsToken()
         {
             // Arrange
-            A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
 
             // Act
-            var result = _controller.Login(A.Fake<UserLoginRequest>());
+            var result = await _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsNotNull((string)(result as OkObjectResult).Value);
         }
 
         [Test]
-        public void IdentityController_Login_InvalidLoginReturnsUnauthorized()
+        public async Task IdentityController_Login_InvalidLoginReturnsUnauthorized()
         {
             // Arrange
-            A.CallTo(() => _identityService.Login(A<string>.Ignored, A<string>.Ignored))
-                .Returns(null);
+            A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+                .Returns((string)null);
 
             // Act
-            var result = _controller.Login(A.Fake<UserLoginRequest>());
+            var result = await _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(UnauthorizedResult), result);

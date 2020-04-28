@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace API.Services
 {
     public class TokenService : ITokenService
@@ -12,7 +14,7 @@ namespace API.Services
             throw new System.NotImplementedException();
         }
 
-        public string MakeToken()
+        public string MakeToken(IdentityUser user)
         {
             throw new System.NotImplementedException();
         }

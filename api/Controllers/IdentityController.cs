@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -97,10 +98,11 @@ namespace API.Controllers
                 return NotFound();
             }
 
+            user = user.Update(request);
+
             try
             {
-                user = user.Update(request);
-                _identityService.UpdateUserAsync(user);
+                await _identityService.UpdateUserAsync(user);
             }
             catch (Exception)
             {
@@ -119,15 +121,13 @@ namespace API.Controllers
                 return BadRequest("ID is required.");
             }
 
-            var user = await _identityService.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                _identityService.DeleteUserAsync(id);
+                await _identityService.DeleteUserAsync(id);
+            }
+            catch (ResourceNotFoundException)
+            {
+                return NotFound();
             }
             catch (Exception)
             {
@@ -139,14 +139,22 @@ namespace API.Controllers
 
         [HttpPost]
         [Route(Contracts.Routes.Identity.Login)]
-        public IActionResult Login([FromBody]UserLoginRequest request)
+        public async Task<IActionResult> Login([FromBody]UserLoginRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var token = _identityService.Login(request.Email, request.Password);
+            string token = string.Empty;
+            try
+            {
+                token = await _identityService.LoginAsync(request.Email, request.Password);
+            }
+            catch (ArgumentException)
+            {
+                return Unauthorized();
+            }
 
             if (string.IsNullOrEmpty(token))
             {
