@@ -164,7 +164,7 @@ namespace API.Services
                 throw new ArgumentException();
             }
 
-            var token = _tokenService.MakeToken(user);
+            var token = await _tokenService.MakeToken(user);
             return token;
         }
     }

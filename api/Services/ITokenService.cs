@@ -1,11 +1,11 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
 namespace API.Services
 {
     public interface ITokenService
     {
-        string MakeToken(IdentityUser user);
-        bool AuthenticateToken(string token);
+        Task<string> MakeToken(IdentityUser user);
         string GetUserId(string token);
     }
 }
