@@ -129,9 +129,9 @@ namespace API.Factories
             }
 
             // If the header exists, remove it
-            if (total.Contains("Soft:"))
+            if (total.Contains("soft:") || total.Contains("Soft:"))
             {
-                total = total.Substring("Soft:".Length);
+                total = total.Substring("soft:".Length);
             }
 
             // Try to parse the integer

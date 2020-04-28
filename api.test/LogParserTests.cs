@@ -350,10 +350,10 @@ namespace api.test
             // Arrange
             bool enteredFunction = false;
 
-            const string rawIpOne = "ip=123.456.789";
-            const string rawIpTwo = "ip=1.1.1";
-            const string cleanIpOne = "123.456.789";
-            const string cleanIpTwo = "1.1.1";
+            const string rawIpOne = "ip=123.456.789.098";
+            const string rawIpTwo = "ip=1.1.1.1";
+            const string cleanIpOne = "123.456.789.098";
+            const string cleanIpTwo = "1.1.1.1";
             string[] ipList = new string[] { $"{rawIpOne} {rawIpTwo}" };
 
             var log = A.Fake<LogFile>();

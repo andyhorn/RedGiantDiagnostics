@@ -224,7 +224,7 @@ namespace API.Factories
             }
 
             var isMac = new Regex("[A-Fa-f0-9]{12}");
-            var isIp = new Regex("(?<=ip=)(([0-9]{1,3}\\.?){3})");
+            var isIp = new Regex("(?<=ip=)([0-9]{1,3}\\.){3}([0-9]{1,3})");
 
             var macList = list.ToList()
                 .Where(x => isMac.IsMatch(x))
