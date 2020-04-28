@@ -44,6 +44,25 @@ namespace API.Controllers
             return Ok(user);
         }
 
+        [HttpGet]
+        [Route(Contracts.Routes.Identity.GetUserByEmail)]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email address is required.");
+            }
+
+            var user = await _identityService.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
         [HttpPost]
         [Route(Contracts.Routes.Identity.CreateUser)]
         public async Task<IActionResult> CreateUserAsync([FromBody]RegisterUserRequest request)

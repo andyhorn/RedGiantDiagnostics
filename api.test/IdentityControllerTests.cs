@@ -104,6 +104,61 @@ namespace api.test
         }
 
         [Test]
+        public async Task IdentityController_GetUserByEmail_EmptyEmailReturnsBadRequest()
+        {
+            // Arrange
+
+            // Act
+            var result = await _controller.GetUserByEmail(string.Empty);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_GetUserByEmail_InvalidEmailReturnsNotFound()
+        {
+            // Arrange
+            A.CallTo(() => _identityService.GetUserByEmailAsync(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // Act
+            var result = await _controller.GetUserByEmail(A.Dummy<string>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_GetUserByEmail_ValidEmailReturnsOk()
+        {
+            // Arrange
+            A.CallTo(() => _identityService.GetUserByEmailAsync(A<string>.Ignored))
+                .Returns(A.Fake<IdentityUser>());
+
+            // Act
+            var result = await _controller.GetUserByEmail(A.Dummy<string>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_GetUserByEmail_OkResultContainsUserObject()
+        {
+            // Arrange
+            A.CallTo(() => _identityService.GetUserByEmailAsync(A<string>.Ignored))
+                .Returns(A.Fake<IdentityUser>());
+
+            // Act
+            var result = await _controller.GetUserByEmail(A.Dummy<string>());
+
+            // Assert
+            var data = (result as OkObjectResult).Value;
+            Assert.IsInstanceOf(typeof(IdentityUser), data);
+        }
+
+        [Test]
         public async Task IdentityController_CreateUser_NullBodyReturnsBadRequest()
         {
             // Arrange
