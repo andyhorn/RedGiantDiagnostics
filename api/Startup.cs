@@ -38,6 +38,8 @@ namespace API
             services.SetupIdentity();
             
             services.AddControllers();
+
+            services.AddMvcCore().AddDataAnnotations();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

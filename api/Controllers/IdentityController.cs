@@ -48,7 +48,7 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.CreateUser)]
         public async Task<IActionResult> CreateUserAsync([FromBody]RegisterUserRequest request)
         {
-            if (request == null || !ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
@@ -62,6 +62,16 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.UpdateUser)]
         public async Task<IActionResult> UpdateUserAsync(string id, [FromBody]UpdateUserRequest request)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = await _identityService.GetUserByIdAsync(id);
             if (user == null)
             {
@@ -85,6 +95,11 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.DeleteUser)]
         public async Task<IActionResult> DeleteUserAsync(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required.");
+            }
+
             var user = await _identityService.GetUserByIdAsync(id);
             if (user == null)
             {
@@ -107,6 +122,11 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.Login)]
         public IActionResult Login([FromBody]UserLoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var token = _identityService.Login(request.Email, request.Password);
 
             if (string.IsNullOrEmpty(token))

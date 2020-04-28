@@ -107,6 +107,7 @@ namespace api.test
         public async Task IdentityController_CreateUser_NullBodyReturnsBadRequest()
         {
             // Arrange
+            _controller.ModelState.AddModelError(string.Empty, "Request body cannot be empty.");
 
             // Act
             var result = await _controller.CreateUserAsync(null);
@@ -142,6 +143,31 @@ namespace api.test
             // Assert
             var data = (result as CreatedResult).Location;
             Assert.IsNotNull(data);
+        }
+
+        [Test]
+        public async Task IdentityController_UpdateUser_NullOrEmptyIdReturnsBadRequest()
+        {
+            // Arrange
+
+            // Act
+            var result = await _controller.UpdateUserAsync(string.Empty, A.Fake<UpdateUserRequest>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_UpdateUser_InvalidModelStateReturnsBadRequest()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError(string.Empty, "Test Error");
+
+            // Act
+            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
         [Test]
@@ -194,6 +220,18 @@ namespace api.test
         }
 
         [Test]
+        public async Task IdentityController_DeleteUser_EmptyIdReturnsBadRequest()
+        {
+            // Arrange
+
+            // Act
+            var result = await _controller.DeleteUserAsync(string.Empty);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
         public async Task IdentityController_DeleteUser_InvalidIdReturnsNotFound()
         {
             // Arrange
@@ -240,6 +278,19 @@ namespace api.test
 
             // Assert
             Assert.IsInstanceOf(typeof(NoContentResult), result);
+        }
+
+        [Test]
+        public void IdentityController_Login_InvalidModelStateReturnsBadRequest()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError(string.Empty, "Test Error");
+
+            // Act
+            var result = _controller.Login(A.Fake<UserLoginRequest>());
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
         [Test]
