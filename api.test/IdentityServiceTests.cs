@@ -670,7 +670,7 @@ namespace api.test
             IdentityUser user = null;
 
             // Act and Assert
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserRoles(user));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserRolesAsync(user));
         }
 
         [Test]
@@ -685,10 +685,44 @@ namespace api.test
                 .Returns(roles);
 
             // Act
-            var result = await _identityService.GetUserRoles(user);
+            var result = await _identityService.GetUserRolesAsync(user);
 
             // Assert
             Assert.AreEqual(numRoles, result.Count());
+        }
+
+        [Test]
+        public async Task IdentityService_GetUserRoles_NoRolesReturnsEmptyList()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var roles = new List<string>();
+
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
+
+            // Act
+            var result = await _identityService.GetUserRolesAsync(user);
+
+            // Assert
+            Assert.IsEmpty(result);
+        }
+
+        [Test]
+        public async Task IdentityService_GetUserRoles_NullRolesReturnsEmptyList()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            List<string> roles = null;
+
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
+
+            // Act
+            var result = await _identityService.GetUserRolesAsync(user);
+
+            // Assert
+            Assert.IsEmpty(result);
         }
     }
 }
