@@ -210,17 +210,6 @@ namespace api.test
             Assert.IsInstanceOf(typeof(IdentityUser), result);
         }
 
-        // [Test]
-        // public void IdentityService_UpdateUserAsync_InvalidUser_ThrowsException()
-        // {
-        //     // Arrange
-        //     A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
-        //         .Returns((IdentityUser)null);
-
-        //     // Act and Assert
-        //     Assert.ThrowsAsync<ResourceNotFoundException>(() => _identityService.UpdateUserAsync(A.Fake<IdentityUser>()));
-        // }
-
         [Test]
         public void IdentityService_UpdateUserAsync_UpdateError_ThrowsException()
         {
@@ -318,6 +307,62 @@ namespace api.test
 
             // Assert
             Assert.IsNotEmpty(result);
+        }
+
+        [Test]
+        public void IdentityService_GetUserFromToken_EmptyTokenStringThrowsException()
+        {
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserFromToken(string.Empty));
+        }
+
+        [Test]
+        public void IdentityService_GetUserFromToken_InvalidTokenThrowsException()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(string.Empty);
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentException>(() => _identityService.GetUserFromToken(token));
+        }
+
+        [Test]
+        public async Task IdentityService_GetUserFromToken_NullUserReturnsNull()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+            var userId = A.Dummy<string>();
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
+            A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // Act
+            var result = await _identityService.GetUserFromToken(token);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task IdentityService_GetUserFromToken_ValidTokenWithUserId_ReturnsUserObject()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+            var userId = A.Dummy<string>();
+            var user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
+            A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
+                .Returns(user);
+
+            // Act
+            var result = await _identityService.GetUserFromToken(token);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(IdentityUser), result);
         }
     }
 }

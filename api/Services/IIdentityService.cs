@@ -13,5 +13,6 @@ namespace API.Services
         Task UpdateUserAsync(IdentityUser update);
         Task<IdentityUser> CreateUserAsync(string email, string password);
         Task<string> LoginAsync(string email, string password);
+        Task<IdentityUser> GetUserFromToken(string jwt);
     }
 }

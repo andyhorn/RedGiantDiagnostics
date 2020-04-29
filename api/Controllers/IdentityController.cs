@@ -73,9 +73,15 @@ namespace API.Controllers
                 return BadRequest();
             }
 
-            var user = await _identityService.CreateUserAsync(request.Email, request.Password);
-
-            return Created(user.Id, user);
+            try
+            {
+                var user = await _identityService.CreateUserAsync(request.Email, request.Password);
+                return Created(user.Id, user);
+            }
+            catch (ActionFailedException e)
+            {
+                return BadRequest(e.Errors);
+            }
         }
 
         [HttpPut]
@@ -161,7 +167,12 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            return Ok(token);
+            var user = await _identityService.GetUserFromToken(token);
+            var userId = user.Id;
+
+            var response = new TokenResponse(userId, token);
+
+            return Ok(response);
         }
     }
 }

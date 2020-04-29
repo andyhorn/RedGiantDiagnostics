@@ -29,7 +29,7 @@ namespace API.Services
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(jwt);
             var userId = token.Claims.FirstOrDefault(x => x.Type == Contracts.Claims.UserId);
-            return userId.Value;
+            return userId.Value ?? string.Empty;
         }
 
         public async Task<string> MakeToken(IdentityUser user)

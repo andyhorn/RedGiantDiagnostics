@@ -173,6 +173,38 @@ namespace api.test
         }
 
         [Test]
+        public async Task IdentityController_CreateUser_InvalidRegistrationReturnsBadRequest()
+        {
+            // Arrange
+            var request = A.Dummy<RegisterUserRequest>();
+            var ex = A.Fake<ActionFailedException>();
+            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+                .ThrowsAsync(ex);
+
+            // Act
+            var result = await _controller.CreateUserAsync(request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_CreateUser_InvalidRegistrationReturnsListOfErrors()
+        {
+            // Arrange
+            var request = A.Dummy<RegisterUserRequest>();
+            var ex = A.Fake<ActionFailedException>();
+            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+                .ThrowsAsync(ex);
+
+            // Act
+            var result = await _controller.CreateUserAsync(request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(IEnumerable<string>), (result as BadRequestObjectResult).Value);
+        }
+
+        [Test]
         public async Task IdentityController_CreateUser_ValidRequestReturnsCreatedResult()
         {
             // Arrange
@@ -357,6 +389,8 @@ namespace api.test
             // Arrange
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns(A.Dummy<IdentityUser>());
 
             // Act
             var result = await _controller.Login(A.Fake<UserLoginRequest>());
@@ -366,17 +400,19 @@ namespace api.test
         }
 
         [Test]
-        public async Task IdentityController_Login_OkResultContainsToken()
+        public async Task IdentityController_Login_OkResultContainsTokenResponse()
         {
             // Arrange
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(A.Dummy<string>());
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns(A.Dummy<IdentityUser>());
 
             // Act
             var result = await _controller.Login(A.Fake<UserLoginRequest>());
 
             // Assert
-            Assert.IsNotNull((string)(result as OkObjectResult).Value);
+            Assert.IsInstanceOf(typeof(TokenResponse), (result as OkObjectResult).Value);
         }
 
         [Test]

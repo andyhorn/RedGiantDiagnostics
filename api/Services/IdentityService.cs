@@ -45,14 +45,15 @@ namespace API.Services
             // Create the new user object
             var user = new IdentityUser
             {
-                Email = email
+                Email = email,
+                UserName = email
             };
 
             // Create the object in the database
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
-                throw new ActionFailedException();
+                throw new ActionFailedException(result.Errors.Select(x => x.Description));
             }
 
             // Return the new user object
@@ -166,6 +167,24 @@ namespace API.Services
 
             var token = await _tokenService.MakeToken(user);
             return token;
+        }
+
+        public async Task<IdentityUser> GetUserFromToken(string jwt)
+        {
+            if (string.IsNullOrEmpty(jwt))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var userId = _tokenService.GetUserId(jwt);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("invalid token");
+            }
+
+            var user = await GetUserByIdAsync(userId);
+            return user;
         }
     }
 }
