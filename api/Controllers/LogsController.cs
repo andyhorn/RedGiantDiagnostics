@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using API.Contracts;
@@ -29,7 +30,8 @@ namespace API.Controllers
         public async Task<IActionResult> Get()
         {
             var list = await _logsService.GetAllLogsAsync();
-            return Ok(list);
+            var logSummaries = list.Select(x => new LogSummaryResponse(x));
+            return Ok(logSummaries);
         }
 
         [HttpGet]
@@ -67,7 +69,9 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            return Ok(logs);
+            var summaries = logs.Select(x => new LogSummaryResponse(x));
+
+            return Ok(summaries);
         }
 
         [HttpPut]
@@ -135,7 +139,7 @@ namespace API.Controllers
                 return StatusCode(500);
             }
 
-            return Created(result.Id, result);
+            return Created(result.Id, new LogSummaryResponse(result));
         }
 
         [HttpPost]
