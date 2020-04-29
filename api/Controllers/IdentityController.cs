@@ -76,7 +76,17 @@ namespace API.Controllers
             try
             {
                 var user = await _identityService.CreateUserAsync(request.Email, request.Password);
-                return Created(user.Id, user);
+                var response = new UserRegistrationResponse
+                {
+                    UserId = user.Id,
+                    Token = await _identityService.LoginAsync(request.Email, request.Password)
+                };
+
+                return Created(user.Id, response);
+            }
+            catch (ResourceConflictException)
+            {
+                return Conflict();
             }
             catch (ActionFailedException e)
             {
