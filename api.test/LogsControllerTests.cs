@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using API.Entities;
+using API.Contracts;
 
 namespace api.test
 {
@@ -51,7 +52,7 @@ namespace api.test
         {
             // Arrange
             const int numLogs = 5;
-            var fakeCollection = A.CollectionOfFake<LogFile>(numLogs).ToList();
+            var fakeCollection = A.CollectionOfDummy<LogFile>(numLogs).ToList();
             A.CallTo(() => _logsService.GetAllLogsAsync())
                 .Returns(fakeCollection);
 
@@ -62,9 +63,9 @@ namespace api.test
             Assert.IsInstanceOf(typeof(OkObjectResult), result);
 
             var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<LogFile>;
+            var data = okResult.Value as IEnumerable<LogSummaryResponse>;
 
-            Assert.AreEqual(numLogs, data.Count);
+            Assert.AreEqual(numLogs, data.Count());
         }
 
         [Test]
@@ -125,7 +126,24 @@ namespace api.test
         }
 
         [Test]
-        public async Task LogsController_GetForUser_ReturnsList()
+        public async Task LogsController_GetForUser_ReturnsOkObjectResult()
+        {
+            // Arrange
+            var logs = A.CollectionOfDummy<LogFile>(5).ToList();
+            var userId = A.Dummy<string>();
+
+            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
+                .Returns(logs);
+
+            // Act
+            var result = await _logsController.GetForUser(userId);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+        }
+
+        [Test]
+        public async Task LogsController_GetForUser_ReturnsListOfLogSummary()
         {
             // Arrange
             const int numLogs = 5;
@@ -136,16 +154,9 @@ namespace api.test
             var result = await _logsController.GetForUser(A.Dummy<string>());
 
             // Assert
-            Assert.IsInstanceOf(typeof(OkObjectResult), result);
-
             var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<LogFile>;
-
-            Assert.IsInstanceOf(typeof(List<LogFile>), data);
-            Assert.AreEqual(numLogs, data.Count);
-
-            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
+            
+            Assert.IsInstanceOf(typeof(IEnumerable<LogSummaryResponse>), okResult.Value);
         }
 
         [Test]
@@ -158,18 +169,11 @@ namespace api.test
 
             // Act
             var result = await _logsController.GetForUser(A.Dummy<string>());
+            var okResult = result as OkObjectResult;
+            var data = okResult.Value as IEnumerable<LogSummaryResponse>;
 
             // Assert
-            Assert.IsInstanceOf(typeof(OkObjectResult), result);
-
-            var okResult = result as OkObjectResult;
-            var data = okResult.Value as List<LogFile>;
-
-            Assert.IsInstanceOf(typeof(List<LogFile>), data);
             Assert.IsEmpty(data);
-
-            A.CallTo(() => _logsService.GetForUserAsync(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
         }
 
         [Test]
