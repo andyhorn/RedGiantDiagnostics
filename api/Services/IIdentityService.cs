@@ -14,5 +14,12 @@ namespace API.Services
         Task<IdentityUser> CreateUserAsync(string email, string password);
         Task<string> LoginAsync(string email, string password);
         Task<IdentityUser> GetUserFromToken(string jwt);
+        Task<bool> RoleExistsAsync(string role);
+        Task<IdentityRole> GetRoleAsync(string role);
+        Task CreateRoleAsync(string role);
+        Task DeleteRoleAsync(string role);
+        Task AddRoleToUserAsync(IdentityUser user, string role);
+        Task RemoveRoleFromUserAsync(IdentityUser user, string role);
+        Task<IEnumerable<string>> GetUserRolesAsync(IdentityUser user);
     }
 }

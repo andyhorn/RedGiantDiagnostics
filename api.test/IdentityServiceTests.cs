@@ -364,5 +364,331 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(IdentityUser), result);
         }
+
+        [Test]
+        public void IdentityService_RoleExistsAsync_EmptyStringThrowsException()
+        {
+            // Arrange
+            string role = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.RoleExistsAsync(role));
+        }
+
+        [Test]
+        public async Task IdentityService_RoleExistsAsync_NoRoleReturnsFalse()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _identityService.RoleExistsAsync(role);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task IdentityService_RoleExistsAsync_ExistingRoleReturnsTrue()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+
+            // Act
+            var result = await _identityService.RoleExistsAsync(role);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void IdentityService_GetRoleAsync_EmptyStringThrowsException()
+        {
+            // Arrange
+            var role = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetRoleAsync(role));
+        }
+
+        [Test]
+        public async Task IdentityService_GetRoleAsync_NoMatchReturnsNull()
+        {
+            // Arrange
+            var role = string.Empty;
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _identityService.GetRoleAsync(role);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task IdentityService_GetRolesAsync_MatchingRoleReturnsIdentityRole()
+        {
+            // Arrange
+            var roleName = string.Empty;
+            var role = A.Fake<IdentityRole>();
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored))
+                .Returns(role);
+
+            // Act
+            var result = await _identityService.GetRoleAsync(roleName);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(IdentityRole), result);
+        }
+
+        [Test]
+        public void IdentityService_CreateRoleAsync_EmptyStringThrowsException()
+        {
+            // Arrange
+            var role = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.CreateRoleAsync(role));
+        }
+
+        [Test]
+        public async Task IdentityService_CreateRoleAsync_ExistingRoleFailsSilently()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+
+            // Act
+            await _identityService.CreateRoleAsync(role);
+
+            // Assert
+            A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task IdentityService_CreateRoleAsync_NoExistingRoleCreatesRole()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+            bool created = false;
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+            A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.Ignored))
+                .Invokes(() => created = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.CreateRoleAsync(role);
+
+            // Assert
+            Assert.IsTrue(created);
+        }
+
+        [Test]
+        public async Task IdentityService_DeleteRoleAsync_NoExistingRoleFailsSilently()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            await _identityService.DeleteRoleAsync(role);
+
+            // Assert
+            A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _roleManager.DeleteAsync(A<IdentityRole>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task IdentityService_DeleteRoleAsync_MatchingRoleDeletes()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+            var fakeRole = A.Fake<IdentityRole>();
+            bool deleted = false;
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored))
+                .Returns(fakeRole);
+            A.CallTo(() => _roleManager.DeleteAsync(A<IdentityRole>.Ignored))
+                .Invokes(() => deleted = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.DeleteRoleAsync(role);
+
+            // Assert
+            Assert.IsTrue(deleted);
+        }
+
+        [Test]
+        public void IdentityService_AddRoleToUser_NullUserThrowsException()
+        {
+            // Arrange
+            var role = A.Dummy<string>();
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.AddRoleToUserAsync(null, role));
+        }
+
+        [Test]
+        public void IdentityService_AddRoleToUser_NullRoleThrowsException()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.AddRoleToUserAsync(user, null));
+        }
+
+        [Test]
+        public void IdentityService_AddRoleToUser_InvalidRoleNameThrowsException()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var role = A.Dummy<string>();
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentException>(() => _identityService.AddRoleToUserAsync(user, role));
+        }
+
+        [Test]
+        public async Task IdentityService_AddRoleToUser_AddsRoleToUserObject()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var roleName = A.Dummy<string>();
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+
+            A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.AddRoleToUserAsync(user, roleName);
+
+            // Assert
+            Assert.Pass();
+        }
+
+        [Test]
+        public void IdentityService_RemoveRoleFromUserAsync_NullUserThrowsException()
+        {
+            // Arrange
+            IdentityUser user = null;
+            var role = A.Dummy<string>();
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.RemoveRoleFromUserAsync(user, role));
+        }
+
+        [Test]
+        public void IdentityService_RemoveRoleFromUserAsync_NullRoleThrowsException()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var role = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.RemoveRoleFromUserAsync(user, role));
+        }
+
+        [Test]
+        public async Task IdentityService_RemoveRoleFromUserAsync_NoMatchingRole_FailsSilently()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var role = "TEST_ROLE";
+            var roleList = new List<string>()
+            {
+                "STANDARD_USER"
+            };
+
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roleList);
+
+            // Act
+            await _identityService.RemoveRoleFromUserAsync(user, role);
+
+            // Assert
+            A.CallTo(() => _userManager.RemoveFromRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Test]
+        public async Task IdentityServivce_RemoveRoleFromUserAsync_MatchingRole_RemovesRole()
+        {
+            // Arrange
+            var user = A.Fake<IdentityUser>();
+            var role = "TEST_ROLE";
+            var roleList = new List<string>()
+            {
+                "STANDARD_USER",
+                role
+            };
+            var removed = false;
+
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roleList);
+
+            A.CallTo(() => _userManager.RemoveFromRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Invokes(() => removed = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.RemoveRoleFromUserAsync(user, role);
+
+            // Assert
+            Assert.IsTrue(removed);
+        }
+
+        [Test]
+        public void IdentityService_GetUserRoles_NullUserObject_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = null;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserRoles(user));
+        }
+
+        [Test]
+        public async Task IdentityService_GetUserRoles_ReturnsListOfString()
+        {
+            // Arrange
+            const int numRoles = 3;
+            var user = A.Fake<IdentityUser>();
+            var roles = A.CollectionOfDummy<string>(3).ToList();
+
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
+
+            // Act
+            var result = await _identityService.GetUserRoles(user);
+
+            // Assert
+            Assert.AreEqual(numRoles, result.Count());
+        }
     }
 }

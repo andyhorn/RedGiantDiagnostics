@@ -186,5 +186,40 @@ namespace API.Services
             var user = await GetUserByIdAsync(userId);
             return user;
         }
+
+        public async Task<bool> RoleExistsAsync(string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IdentityRole> GetRoleAsync(string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task CreateRoleAsync(string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteRoleAsync(string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddRoleToUserAsync(IdentityUser user, string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveRoleFromUserAsync(IdentityUser user, string role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<string>> GetUserRolesAsync(IdentityUser user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
