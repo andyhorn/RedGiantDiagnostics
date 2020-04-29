@@ -419,7 +419,7 @@ namespace api.test
         public async Task IdentityService_GetRoleAsync_NoMatchReturnsNull()
         {
             // Arrange
-            var role = string.Empty;
+            var role = A.Dummy<string>();
 
             A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
                 .Returns(false);
@@ -435,7 +435,7 @@ namespace api.test
         public async Task IdentityService_GetRolesAsync_MatchingRoleReturnsIdentityRole()
         {
             // Arrange
-            var roleName = string.Empty;
+            var roleName = A.Dummy<string>();
             var role = A.Fake<IdentityRole>();
 
             A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
@@ -648,6 +648,9 @@ namespace api.test
                 role
             };
             var removed = false;
+
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
 
             A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
                 .Returns(roleList);

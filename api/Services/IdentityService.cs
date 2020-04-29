@@ -189,37 +189,162 @@ namespace API.Services
 
         public async Task<bool> RoleExistsAsync(string role)
         {
-            throw new NotImplementedException();
+            // Validate the role name
+            if (string.IsNullOrEmpty(role))
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Use the role manager to check if a role exists
+            // with the given name - return the result
+            var exists = await _roleManager.RoleExistsAsync(role);
+            return exists;
         }
 
-        public async Task<IdentityRole> GetRoleAsync(string role)
+        public async Task<IdentityRole> GetRoleAsync(string name)
         {
-            throw new NotImplementedException();
+            // Validate the role name
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Check if the role exists - if it doesn't, return null
+            var exists = await RoleExistsAsync(name);
+            if (!exists)
+            {
+                return null;
+            }
+
+            // Retrieve and return the role
+            var role = await _roleManager.FindByNameAsync(name);
+            return role;
         }
 
-        public async Task CreateRoleAsync(string role)
+        public async Task CreateRoleAsync(string name)
         {
-            throw new NotImplementedException();
+            // Validate the role name
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException();
+            }
+
+            // If the role already exists, do nothing
+            var exists = await RoleExistsAsync(name);
+            if (exists)
+            {
+                return;
+            }
+
+            // Create a new role with the given name
+            var role = new IdentityRole()
+            {
+                Name = name
+            };
+
+            // Add the role to the store
+            await _roleManager.CreateAsync(role);
         }
 
-        public async Task DeleteRoleAsync(string role)
+        public async Task DeleteRoleAsync(string name)
         {
-            throw new NotImplementedException();
+            // Validate the role name
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Check if the role exists - if it doesn't exist,
+            // don't do anything
+            var exists = await RoleExistsAsync(name);
+            if (!exists)
+            {
+                return;
+            }
+
+            // Retrieve the role from the store
+            var role = await GetRoleAsync(name);
+
+            // Use the role manager to delete the role
+            await _roleManager.DeleteAsync(role);
         }
 
-        public async Task AddRoleToUserAsync(IdentityUser user, string role)
+        public async Task AddRoleToUserAsync(IdentityUser user, string name)
         {
-            throw new NotImplementedException();
+            // Validate the user object
+            if (user == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Validate the role name
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Check if the role exists - If it doesn't exist,
+            // throw an exception
+            var exists = await RoleExistsAsync(name);
+            if (!exists)
+            {
+                throw new ArgumentException("role does not exist");
+            }
+
+            // Add the user to the role
+            await _userManager.AddToRoleAsync(user, name);
         }
 
-        public async Task RemoveRoleFromUserAsync(IdentityUser user, string role)
+        public async Task RemoveRoleFromUserAsync(IdentityUser user, string name)
         {
-            throw new NotImplementedException();
+            // Validate the user object
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            // Validate the role name
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            // Check if the role exists - if it doesn't exist, do nothing
+            var exists = await RoleExistsAsync(name);
+            if (!exists)
+            {
+                return;
+            }
+
+            // Retrieve the user's current roles
+            var currentRoles = await GetUserRolesAsync(user);
+
+            // Remove the user from the role, if applicable
+            if (currentRoles.Contains(name))
+            {
+                await _userManager.RemoveFromRoleAsync(user, name);
+            }
         }
 
         public async Task<IEnumerable<string>> GetUserRolesAsync(IdentityUser user)
         {
-            throw new NotImplementedException();
+            // Validate the user object
+            if (user == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Retrieve the list of roles
+            var list = await _userManager.GetRolesAsync(user);
+
+            // Validate the list object
+            if (list == null)
+            {
+                list = new List<string>();
+            }
+
+            // Return the list
+            return list;
         }
     }
 }
