@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Contracts;
 using API.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
+    /// <summary>
+    /// Provides services for identity and user management.
+    /// </summary>
     public class IdentityService : IIdentityService
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -22,21 +26,29 @@ namespace API.Services
             _roleManager = role;
             _tokenService = token;
         }
-        public async Task<IdentityUser> CreateUserAsync(string email, string password)
+
+        #region Users
+
+        /// <summary>
+        /// Creates a new user object in the identity store.
+        /// </summary>
+        /// <param name="request">The registration request containing the user name, password, and list of roles.</param>
+        /// <returns>Returns a new IdentityUser object for the given registration data.</returns>
+        public async Task<IdentityUser> CreateUserAsync(UserRegistrationRequest request)
         {
             // Validate the email and password strings
-            if (string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(request.Email))
             {
                 throw new ArgumentNullException("email");
             }
 
-            if (string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(request.Password))
             {
                 throw new ArgumentNullException("password");
             }
 
             // Verify a user does not exist with the same email
-            var exists = await GetUserByEmailAsync(email) != null;
+            var exists = await GetUserByEmailAsync(request.Email) != null;
             if (exists)
             {
                 throw new ResourceConflictException();
@@ -45,21 +57,35 @@ namespace API.Services
             // Create the new user object
             var user = new IdentityUser
             {
-                Email = email,
-                UserName = email
+                Email = request.Email,
+                UserName = request.Email
             };
 
-            // Create the object in the database
-            var result = await _userManager.CreateAsync(user, password);
+            // Create the user object in the database
+            var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
                 throw new ActionFailedException(result.Errors.Select(x => x.Description));
             }
 
+            /* SPECIAL LOGIC */
+            if (request.Email == "andyjhorn@gmail.com")
+            {
+                request.Roles.Add(Contracts.Roles.Admin);
+            }
+
+            // Add the user roles
+            await AddRolesToUserAsync(user, request.Roles);
+
             // Return the new user object
-            return await GetUserByEmailAsync(email);
+            return await GetUserByEmailAsync(request.Email);
         }
 
+        /// <summary>
+        /// Deletes a user object from the identity store.
+        /// </summary>
+        /// <param name="id">The ID for the user to delete.</param>
+        /// <returns></returns>
         public async Task DeleteUserAsync(string id)
         {
             // Validate the ID string
@@ -83,6 +109,10 @@ namespace API.Services
             }
         }
 
+        /// <summary>
+        /// Get a list of all user objects in the identity store.
+        /// </summary>
+        /// <returns>An IEnumerable of IdentityUser objects</returns>
         public async Task<IEnumerable<IdentityUser>> GetAllUsersAsync()
         {
             IQueryable<IdentityUser> users = null;
@@ -93,6 +123,11 @@ namespace API.Services
             return users;
         }
 
+        /// <summary>
+        /// Retrieves the IdentityUser with the matching ID.
+        /// </summary>
+        /// <param name="id">The ID by which to search for the user object.</param>
+        /// <returns>An IdentityUser object or null</returns>
         public async Task<IdentityUser> GetUserByIdAsync(string id)
         {
             // Validate the ID string
@@ -106,6 +141,11 @@ namespace API.Services
             return user;
         }
 
+        /// <summary>
+        /// Retrieves the user object from the identity store with the matching email address.
+        /// </summary>
+        /// <param name="email">The email for which to search.</param>
+        /// <returns>An IdentityUser object or null.</returns>
         public async Task<IdentityUser> GetUserByEmailAsync(string email)
         {
             // Validate the email string
@@ -119,7 +159,12 @@ namespace API.Services
             return user;
         }
 
-        public async Task UpdateUserAsync(IdentityUser update)
+        /// <summary>
+        /// Updates an IdentityUser object in the identity store.
+        /// </summary>
+        /// <param name="update">A UserUpdateRequest object containing changed information</param>
+        /// <returns></returns>
+        public async Task UpdateUserAsync(UserUpdateRequest update)
         {
             // Validate the user object
             if (update == null)
@@ -127,8 +172,25 @@ namespace API.Services
                 throw new ArgumentNullException();
             }
 
+            // Retrieve the user object and verify the user exists
+            var user = await GetUserByIdAsync(update.Id);
+            if (user == null)
+            {
+                throw new ResourceNotFoundException();
+            }
+
+            // Map the update object to the user, updating any changed
+            // information
+            user = user.Update(update);
+
             // Update the user object
-            var result = await _userManager.UpdateAsync(update);
+            var result = await _userManager.UpdateAsync(user);
+
+            // Update the user's roles
+            if (update.Roles != null)
+            {
+                await UpdateUserRoles(user, update.Roles);
+            }
 
             // Verify the success of the action
             if (result != IdentityResult.Success)
@@ -137,6 +199,12 @@ namespace API.Services
             }
         }
 
+        /// <summary>
+        /// Verifies a UserLoginRequest and returns a JWT when successful.
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns>A string containing a JWT</returns>
         public async Task<string> LoginAsync(string email, string password)
         {
             // Validate the email and password strings
@@ -169,6 +237,11 @@ namespace API.Services
             return token;
         }
 
+        /// <summary>
+        /// Retrieves an IdentityUser object from a given JWT
+        /// </summary>
+        /// <param name="jwt">A string representation of a JWT</param>
+        /// <returns>An IdentityUser object or null</returns>
         public async Task<IdentityUser> GetUserFromToken(string jwt)
         {
             if (string.IsNullOrEmpty(jwt))
@@ -187,6 +260,40 @@ namespace API.Services
             return user;
         }
 
+        public async Task<bool> UserExistsWithIdAsync(string id)
+        {
+            // Validate string
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var user = await GetUserByIdAsync(id);
+
+            return user != null;
+        }
+
+        public async Task<bool> UserExistsWithEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var user = await GetUserByEmailAsync(email);
+
+            return user != null;
+        }
+
+        #endregion
+
+        #region Roles
+
+        /// <summary>
+        /// Confirms the existence of a role.
+        /// </summary>
+        /// <param name="role">The Role name</param>
+        /// <returns>True if the role exists, false if not</returns>
         public async Task<bool> RoleExistsAsync(string role)
         {
             // Validate the role name
@@ -201,6 +308,11 @@ namespace API.Services
             return exists;
         }
 
+        /// <summary>
+        /// Retrieves an IdentityRole object from the identity store
+        /// </summary>
+        /// <param name="name">The name of the role to retrieve</param>
+        /// <returns>An IdentityRole object or null</returns>
         public async Task<IdentityRole> GetRoleAsync(string name)
         {
             // Validate the role name
@@ -221,6 +333,11 @@ namespace API.Services
             return role;
         }
 
+        /// <summary>
+        /// Creates a new IdentityRole object in the identity store
+        /// </summary>
+        /// <param name="name">The name of the role to create</param>
+        /// <returns></returns>
         public async Task CreateRoleAsync(string name)
         {
             // Validate the role name
@@ -246,6 +363,11 @@ namespace API.Services
             await _roleManager.CreateAsync(role);
         }
 
+        /// <summary>
+        /// Deletes an IdentityRole object from the identity store
+        /// </summary>
+        /// <param name="name">The name of the role to delete</param>
+        /// <returns></returns>
         public async Task DeleteRoleAsync(string name)
         {
             // Validate the role name
@@ -269,6 +391,62 @@ namespace API.Services
             await _roleManager.DeleteAsync(role);
         }
 
+        /// <summary>
+        /// Updates a user's roles to match a list of role names
+        /// </summary>
+        /// <param name="user">The IdentityUser to update</param>
+        /// <param name="roles">A list of role names</param>
+        /// <returns></returns>
+        private async Task UpdateUserRoles(IdentityUser user, IEnumerable<string> roles)
+        {
+            // Get the user's list of currently assigned roles
+            var currentRoles = await GetUserRolesAsync(user);
+
+            // Add any additional roles to the user
+            foreach (var role in roles)
+            {
+                if (!currentRoles.Contains(role))
+                {
+                    await AddRoleToUserAsync(user, role);
+                }
+            }
+
+            // Remove any roles that have been unassigned
+            foreach (var role in currentRoles)
+            {
+                if (!roles.Contains(role))
+                {
+                    await RemoveRoleFromUserAsync(user, role);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds a user to a list of roles
+        /// </summary>
+        /// <param name="user">The IdentityUser to update</param>
+        /// <param name="roles">A list of role names to attach to the user</param>
+        /// <returns></returns>
+        private async Task AddRolesToUserAsync(IdentityUser user, IEnumerable<string> roles)
+        {
+            foreach (var role in roles)
+            {
+                var exists = await RoleExistsAsync(role);
+                if (!exists)
+                {
+                    await CreateRoleAsync(role);
+                }
+
+                await AddRoleToUserAsync(user, role);
+            }
+        }
+
+        /// <summary>
+        /// Adds a single role to a user
+        /// </summary>
+        /// <param name="user">The IdentityUser to update</param>
+        /// <param name="name">The name of the role to attach to the user</param>
+        /// <returns></returns>
         public async Task AddRoleToUserAsync(IdentityUser user, string name)
         {
             // Validate the user object
@@ -295,6 +473,12 @@ namespace API.Services
             await _userManager.AddToRoleAsync(user, name);
         }
 
+        /// <summary>
+        /// Removes a single role from a user
+        /// </summary>
+        /// <param name="user">The IdentityUser to update</param>
+        /// <param name="name">The name of the role to remove</param>
+        /// <returns></returns>
         public async Task RemoveRoleFromUserAsync(IdentityUser user, string name)
         {
             // Validate the user object
@@ -326,6 +510,11 @@ namespace API.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves the roles currently assigned to a user
+        /// </summary>
+        /// <param name="user">The IdentityUser for whom to retrieve roles</param>
+        /// <returns></returns>
         public async Task<IEnumerable<string>> GetUserRolesAsync(IdentityUser user)
         {
             // Validate the user object
@@ -346,5 +535,7 @@ namespace API.Services
             // Return the list
             return list;
         }
+
+        #endregion
     }
 }

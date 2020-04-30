@@ -1,12 +1,15 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Exceptions;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize(Roles = Contracts.Roles.Admin)]
     [ApiController]
     [Route(Contracts.Routes.Controller)]
     public class IdentityController : ControllerBase
@@ -26,6 +29,7 @@ namespace API.Controllers
             return Ok(userList);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [Route(Contracts.Routes.Identity.GetUserById)]
         public async Task<IActionResult> GetUserByIdAsync(string id)
@@ -33,6 +37,11 @@ namespace API.Controllers
             if (string.IsNullOrEmpty(id))
             {
                 return BadRequest();
+            }
+
+            if (!(await IsAdminOrCurrentUser(id)))
+            {
+                return Unauthorized();
             }
 
             var user = await _identityService.GetUserByIdAsync(id);
@@ -64,9 +73,10 @@ namespace API.Controllers
             return Ok(user);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route(Contracts.Routes.Identity.CreateUser)]
-        public async Task<IActionResult> CreateUserAsync([FromBody]RegisterUserRequest request)
+        public async Task<IActionResult> CreateUserAsync([FromBody]UserRegistrationRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -75,7 +85,7 @@ namespace API.Controllers
 
             try
             {
-                var user = await _identityService.CreateUserAsync(request.Email, request.Password);
+                var user = await _identityService.CreateUserAsync(request);
                 var response = new UserRegistrationResponse
                 {
                     UserId = user.Id,
@@ -94,31 +104,45 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates a user's identity information. Users can update their own information;
+        /// Administrators can update anyone's information.
+        /// </summary>
+        /// <param name="request">A UserUpdateRequest object containing the new values.</param>
+        /// <returns></returns>
+        [AllowAnonymous]
         [HttpPut]
         [Route(Contracts.Routes.Identity.UpdateUser)]
-        public async Task<IActionResult> UpdateUserAsync(string id, [FromBody]UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUserAsync([FromBody]UserUpdateRequest request)
         {
-            if (string.IsNullOrEmpty(id))
+            // Authenticate the request
+            if (!(await IsAdminOrCurrentUser(request.Id)))
             {
-                return BadRequest("ID is required.");
+                return Unauthorized();
             }
 
+            // Verify the model state
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var user = await _identityService.GetUserByIdAsync(id);
-            if (user == null)
+            // Verify the user exists with the specified ID
+            var exists = await _identityService.GetUserByIdAsync(request.Id) != null;
+            if (!exists)
             {
                 return NotFound();
             }
+            // var user = await _identityService.GetUserByIdAsync(request.Id);
+            // if (user == null)
+            // {
+            //     return NotFound();
+            // }
 
-            user = user.Update(request);
-
+            // Update the user data
             try
             {
-                await _identityService.UpdateUserAsync(user);
+                await _identityService.UpdateUserAsync(request);
             }
             catch (Exception)
             {
@@ -153,6 +177,7 @@ namespace API.Controllers
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route(Contracts.Routes.Identity.Login)]
         public async Task<IActionResult> Login([FromBody]UserLoginRequest request)
@@ -183,6 +208,29 @@ namespace API.Controllers
             var response = new TokenResponse(userId, token);
 
             return Ok(response);
+        }
+
+        private async Task<bool> IsCurrentUser(string id)
+        {
+            var currentUser = await HttpContext.CurrentUser(_identityService);
+            return currentUser.Id == id;
+        }
+
+        private async Task<bool> IsAdministrator()
+        {
+            var currentUser = await HttpContext.CurrentUser(_identityService);
+            if (currentUser == null)
+            {
+                return false;
+            }
+
+            var roles = await _identityService.GetUserRolesAsync(currentUser);
+            return roles.Contains(Contracts.Roles.Admin);
+        }
+
+        private async Task<bool> IsAdminOrCurrentUser(string id)
+        {
+            return await IsAdministrator() || await IsCurrentUser(id);
         }
     }
 }

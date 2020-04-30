@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Contracts;
 using API.Exceptions;
 using API.Services;
 using FakeItEasy;
@@ -37,24 +38,73 @@ namespace api.test
         [Test]
         public void IdentityService_CreateUserAsync_EmptyEmailThrowsException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.CreateUserAsync(string.Empty, A.Dummy<string>()));
+            // Arrange
+            var request = new UserRegistrationRequest()
+            {
+                Email = string.Empty,
+                Password = A.Dummy<string>()
+            };
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.CreateUserAsync(request));
         }
 
         [Test]
         public void IdentityService_CreateUserAsync_EmptyPasswordThrowsException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.CreateUserAsync(A.Dummy<string>(), string.Empty));
+            // Arrange
+            var request = new UserRegistrationRequest()
+            {
+                Email = A.Dummy<string>(),
+                Password = string.Empty
+            };
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.CreateUserAsync(request));
         }
 
         [Test]
         public void IdentityService_CreateUserAsync_ExistingUser_ThrowsException()
         {
             // Arrange
+            var request = A.Dummy<UserRegistrationRequest>();
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
             // Act
-            Assert.ThrowsAsync<ResourceConflictException>(() => _identityService.CreateUserAsync(A.Dummy<string>(), A.Dummy<string>()));
+            Assert.ThrowsAsync<ResourceConflictException>(() => _identityService.CreateUserAsync(request));
+        }
+
+        [Test]
+        public async Task IdentityService_CreateUserAsync_CreatesNewRoles()
+        {
+            // Arrange
+            var request = A.Dummy<UserRegistrationRequest>();
+            bool created = false;
+            bool[] roleExistsResults = new bool[] { false, false, true };
+
+            // UserExists will return false
+            A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // User creation returns success
+            A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.Ignored, A<string>.Ignored))   
+                .Returns(IdentityResult.Success);
+            
+            // RoleExists will return false
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .ReturnsNextFromSequence(roleExistsResults);
+
+            // Role creation will succeed
+            A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.Ignored))
+                .Invokes(() => created = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.CreateUserAsync(request);
+
+            // Assert
+            Assert.IsTrue(created);
         }
 
         [Test]
@@ -62,20 +112,31 @@ namespace api.test
         {
             // Arrange
             var identityResult = IdentityResult.Success;
-            
+            var request = A.Dummy<UserRegistrationRequest>();
             IdentityUser[] identityUserResults = new IdentityUser[]
             {
                 null,
                 A.Fake<IdentityUser>()
             };
 
+            // User doesn't exist on first check, but exists after creation
             A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
                 .ReturnsNextFromSequence(identityUserResults);
+
+            // IdentityRole exists
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+
+            // User creation succeeds
             A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .Returns(identityResult);
 
+            // Adding user to role succeeds
+            A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Returns(IdentityResult.Success);
+
             // Act
-            var result = await _identityService.CreateUserAsync(A.Dummy<string>(), A.Dummy<string>());
+            var result = await _identityService.CreateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(IdentityUser), result);
@@ -85,20 +146,22 @@ namespace api.test
         public void IdentityService_DeleteUserAsync_EmptyIdThrowsException()
         {
             // Arrange
+            string id = string.Empty;
 
             // Act
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.DeleteUserAsync(string.Empty));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.DeleteUserAsync(id));
         }
 
         [Test]
         public void IdentityService_DeleteUserAsync_InvalidId_ThrowsNotFoundException()
         {
             // Arrange
+            string id = A.Dummy<string>();
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
-            Assert.ThrowsAsync<ResourceNotFoundException>(() => _identityService.DeleteUserAsync(A.Dummy<string>()));
+            Assert.ThrowsAsync<ResourceNotFoundException>(() => _identityService.DeleteUserAsync(id));
         }
 
         [Test]
@@ -106,6 +169,7 @@ namespace api.test
         {
             // Arrange
             bool deleted = false;
+            string id = A.Dummy<string>();
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
             A.CallTo(() => _userManager.DeleteAsync(A<IdentityUser>.Ignored))
@@ -113,7 +177,7 @@ namespace api.test
                 .Returns(IdentityResult.Success);
 
             // Act
-            await _identityService.DeleteUserAsync(A.Dummy<string>());
+            await _identityService.DeleteUserAsync(id);
 
             // Assert
             Assert.IsTrue(deleted);
@@ -143,20 +207,22 @@ namespace api.test
         public void IdentityService_GetUserById_EmptyIdThrowsException()
         {
             // Arrange
+            string id = string.Empty;
 
             // Act
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserByIdAsync(string.Empty));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserByIdAsync(id));
         }
 
         [Test]
         public async Task IdentityService_GetUserById_InvalidId_ReturnsNull()
         {
             // Arrange
+            string id = A.Dummy<string>();
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
-            var result = await _identityService.GetUserByIdAsync(A.Dummy<string>());
+            var result = await _identityService.GetUserByIdAsync(id);
 
             // Assert
             Assert.IsNull(result);
@@ -166,11 +232,12 @@ namespace api.test
         public async Task IdentityService_GetUserById_ValidId_ReturnsIdentityUser()
         {
             // Arrange
+            string id = A.Dummy<string>();
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
             // Act
-            var result = await _identityService.GetUserByIdAsync(A.Dummy<string>());
+            var result = await _identityService.GetUserByIdAsync(id);
 
             // Assert
             Assert.IsInstanceOf(typeof(IdentityUser), result);
@@ -179,18 +246,23 @@ namespace api.test
         [Test]
         public void IdentityService_GetUserByEmailAsync_EmptyEmailThrowsException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserByEmailAsync(string.Empty));
+            // Arrange
+            string id = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.GetUserByEmailAsync(id));
         }
 
         [Test]
         public async Task IdentityService_GetUserByEmailAsync_InvalidEmail_ReturnsNull()
         {
             // Arrange
+            string email = A.Dummy<string>();
             A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
-            var result = await _identityService.GetUserByEmailAsync(A.Dummy<string>());
+            var result = await _identityService.GetUserByEmailAsync(email);
 
             // Assert
             Assert.IsNull(result);
@@ -214,6 +286,7 @@ namespace api.test
         public void IdentityService_UpdateUserAsync_UpdateError_ThrowsException()
         {
             // Arrange
+            var update = A.Dummy<UserUpdateRequest>();
             var error = new IdentityError();
             var identityResult = IdentityResult.Failed(error);
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
@@ -222,13 +295,14 @@ namespace api.test
                 .Returns(identityResult);
 
             // Act and Assert
-            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.UpdateUserAsync(A.Fake<IdentityUser>()));
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.UpdateUserAsync(update));
         }
 
         [Test]
         public async Task IdentityService_UpdateUserAsync_ValidParameters_Succeeds()
         {
             // Arrange
+            var update = A.Dummy<UserUpdateRequest>();
             bool updated = false;
             A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
@@ -237,7 +311,7 @@ namespace api.test
                 .Returns(IdentityResult.Success);
 
             // Act
-            await _identityService.UpdateUserAsync(A.Fake<IdentityUser>());
+            await _identityService.UpdateUserAsync(update);
 
             // Assert
             Assert.IsTrue(updated);
@@ -363,6 +437,86 @@ namespace api.test
 
             // Assert
             Assert.IsInstanceOf(typeof(IdentityUser), result);
+        }
+
+        [Test]
+        public void IdentityService_UserExistsWithIdAsync_EmptyStringThrowsException()
+        {
+            // Arrange
+            string id = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.UserExistsWithIdAsync(id));
+        }
+
+        [Test]
+        public async Task IdentityService_UserExistsWithIdAsync_NoUserReturnsFalse()
+        {
+            // Arrange
+            string id = A.Dummy<string>();
+            A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // Act
+            var result = await _identityService.UserExistsWithIdAsync(id);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task IdentityService_UserExistsWithIdAsync_MatchingUserReturnsTrue()
+        {
+            // Arrange
+            string id = A.Dummy<string>();
+            A.CallTo(() => _userManager.FindByIdAsync(A<string>.Ignored))
+                .Returns(A.Fake<IdentityUser>());
+
+            // Act
+            var result = await _identityService.UserExistsWithIdAsync(id);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void IdentityService_UserExistsWithEmailAsync_EmptyStringThrowsException()
+        {
+            // Arrange
+            string email = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.UserExistsWithEmailAsync(email));
+        }
+
+        [Test]
+        public async Task IdentityService_UserExistsWithEmailAsync_NoMatchReturnsFalse()
+        {
+            // Arrange
+            string email = A.Dummy<string>();
+            A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // Act
+            var result = await _identityService.UserExistsWithEmailAsync(email);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task IdentityService_UserExistsWithEmailAsync_MatchingUserReturnsTrue()
+        {
+            // Arrange
+            string email = A.Dummy<string>();
+            A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
+                .Returns(A.Fake<IdentityUser>());
+
+            // Act
+            var result = await _identityService.UserExistsWithEmailAsync(email);
+
+            // Assert
+            Assert.IsTrue(result);
         }
 
         [Test]

@@ -7,6 +7,7 @@ using API.Controllers;
 using API.Exceptions;
 using API.Services;
 using FakeItEasy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
@@ -176,9 +177,9 @@ namespace api.test
         public async Task IdentityController_CreateUser_InvalidRegistrationReturnsBadRequest()
         {
             // Arrange
-            var request = A.Dummy<RegisterUserRequest>();
+            var request = A.Dummy<UserRegistrationRequest>();
             var ex = A.Fake<ActionFailedException>();
-            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
                 .ThrowsAsync(ex);
 
             // Act
@@ -192,9 +193,9 @@ namespace api.test
         public async Task IdentityController_CreateUser_InvalidRegistrationReturnsListOfErrors()
         {
             // Arrange
-            var request = A.Dummy<RegisterUserRequest>();
+            var request = A.Dummy<UserRegistrationRequest>();
             var ex = A.Fake<ActionFailedException>();
-            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
                 .ThrowsAsync(ex);
 
             // Act
@@ -208,11 +209,11 @@ namespace api.test
         public async Task IdentityController_CreateUser_ValidRequestReturnsCreatedResult()
         {
             // Arrange
-            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
             // Act
-            var result = await _controller.CreateUserAsync(A.Fake<RegisterUserRequest>());
+            var result = await _controller.CreateUserAsync(A.Fake<UserRegistrationRequest>());
 
             // Assert
             Assert.IsInstanceOf(typeof(CreatedResult), result);
@@ -222,11 +223,11 @@ namespace api.test
         public async Task IdentityController_CreateUser_CreatedResultContainsUserId()
         {
             // Arrange
-            A.CallTo(() => _identityService.CreateUserAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
             // Act
-            var result = await _controller.CreateUserAsync(A.Fake<RegisterUserRequest>());
+            var result = await _controller.CreateUserAsync(A.Fake<UserRegistrationRequest>());
 
             // Assert
             var data = (result as CreatedResult).Location;
@@ -237,9 +238,13 @@ namespace api.test
         public async Task IdentityController_UpdateUser_NullOrEmptyIdReturnsBadRequest()
         {
             // Arrange
+            var request = new UserUpdateRequest
+            {
+                Id = string.Empty
+            };
 
             // Act
-            var result = await _controller.UpdateUserAsync(string.Empty, A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -249,10 +254,11 @@ namespace api.test
         public async Task IdentityController_UpdateUser_InvalidModelStateReturnsBadRequest()
         {
             // Arrange
+            var request = A.Fake<UserUpdateRequest>();
             _controller.ModelState.AddModelError(string.Empty, "Test Error");
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -262,11 +268,12 @@ namespace api.test
         public async Task IdentityController_UpdateUser_InvalidIdReturnsNotFound()
         {
             // Arrange
+            var request = A.Dummy<UserUpdateRequest>();
             A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -276,14 +283,15 @@ namespace api.test
         public async Task IdentityController_UpdateUser_UpdatedUserReturnsOk()
         {
             // Arrange
+            var request = A.Dummy<UserUpdateRequest>();
             A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
-            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
                 .Invokes(() => {});
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);
@@ -293,14 +301,16 @@ namespace api.test
         public async Task IdentityController_UpdateUser_UpdateException_ReturnsServerError()
         {
             // Arrange
+            var request = A.Dummy<UserUpdateRequest>();
+            
             A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
 
-            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
                 .Throws(new ActionFailedException());
 
             // Act
-            var result = await _controller.UpdateUserAsync(A.Dummy<string>(), A.Fake<UpdateUserRequest>());
+            var result = await _controller.UpdateUserAsync(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -427,6 +437,12 @@ namespace api.test
 
             // Assert
             Assert.IsInstanceOf(typeof(UnauthorizedResult), result);
+        }
+
+        [Test]
+        public async Task IdentityController_IsAdminOrCurrentUser_InvalidRequestReturnsFalse()
+        {
+            
         }
     }
 }

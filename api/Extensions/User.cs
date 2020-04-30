@@ -5,9 +5,9 @@ namespace API
 {
     public static class UserExtensions
     {
-        public static IdentityUser Update(this IdentityUser user, UpdateUserRequest model)
+        public static IdentityUser Update(this IdentityUser user, UserUpdateRequest model)
         {
-            var type = typeof(UpdateUserRequest);
+            var type = typeof(UserUpdateRequest);
             var properties = type.GetProperties();
 
             foreach (var property in properties)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Contracts;
 using Microsoft.AspNetCore.Identity;
 
 namespace API.Services
@@ -10,9 +11,11 @@ namespace API.Services
         Task<IdentityUser> GetUserByEmailAsync(string email);
         Task<IEnumerable<IdentityUser>> GetAllUsersAsync();
         Task DeleteUserAsync(string id);
-        Task UpdateUserAsync(IdentityUser update);
-        Task<IdentityUser> CreateUserAsync(string email, string password);
+        Task UpdateUserAsync(UserUpdateRequest update);
+        Task<IdentityUser> CreateUserAsync(UserRegistrationRequest request);
         Task<string> LoginAsync(string email, string password);
+        Task<bool> UserExistsWithIdAsync(string id);
+        Task<bool> UserExistsWithEmailAsync(string email);
         Task<IdentityUser> GetUserFromToken(string jwt);
         Task<bool> RoleExistsAsync(string role);
         Task<IdentityRole> GetRoleAsync(string role);

@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace API.Contracts
 {
-    public class RegisterUserRequest
+    public class UserRegistrationRequest
     {
         [Required]
         [EmailAddress]
@@ -10,5 +11,7 @@ namespace API.Contracts
 
         [Required]
         public string Password { get; set; }
+
+        public List<string> Roles { get; set; } = new List<string> { Contracts.Roles.User };
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace API.Controllers
         [Route(Routes.Logs.Get)]
         public async Task<IActionResult> Get()
         {
-            var list = await _logsService.GetAllLogsAsync();
+            var list = await _logsService.GetAllLogsAsync() ?? new List<LogFile>();
             var logSummaries = list.Select(x => new LogSummaryResponse(x));
             return Ok(logSummaries);
         }
