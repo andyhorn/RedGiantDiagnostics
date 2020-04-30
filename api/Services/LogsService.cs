@@ -66,6 +66,18 @@ namespace API.Services
             return await _logs.GetByIdAsync(id);
         }
 
+        public async Task<bool> LogExists(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var log = await GetByIdAsync(id);
+
+            return log != null;
+        }
+
         public async Task<IEnumerable<LogFile>> GetForUserAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))

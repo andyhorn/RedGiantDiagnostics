@@ -11,16 +11,13 @@ using API.Services;
 using System.Linq;
 using API.Factories;
 using API.Entities;
+using System;
 
 namespace api.test
 {
 
     public class LogsServiceTest
     {
-        private class DummyStringFactory : DummyFactory<string>
-        {
-            protected override string Create() => "DummyString";
-        }
         private ILogsRepository _logsRepository; // Mock
         private ILogFactory _logFactory; // Mock
 
@@ -164,6 +161,47 @@ namespace api.test
             Assert.IsNull(result);
             A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
                 .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public void LogsService_LogExists_EmptyIdString_ThrowsException()
+        {
+            // Arrange
+            var id = string.Empty;
+
+            // Act
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.LogExists(id));
+        }
+
+        [Test]
+        public async Task LogsService_LogExists_NoMatch_ReturnsFalse()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns((LogFile)null);
+
+            // Act
+            var result = await _logsService.LogExists(id);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task LogsService_LogExists_MatchingLog_ReturnsTrue()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var log = A.Dummy<LogFile>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns(log);
+
+            // Act
+            var result = await _logsService.LogExists(id);
+
+            // Assert
+            Assert.IsTrue(result);
         }
 
         [Test]

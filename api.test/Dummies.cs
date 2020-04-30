@@ -26,4 +26,9 @@ namespace api.test
             };
         }
     }
+
+    public class DummyStringFactory : DummyFactory<string>
+    {
+        protected override string Create() => "DummyString";
+    }
 }
