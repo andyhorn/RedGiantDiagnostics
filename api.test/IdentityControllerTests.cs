@@ -438,11 +438,5 @@ namespace api.test
             // Assert
             Assert.IsInstanceOf(typeof(UnauthorizedResult), result);
         }
-
-        [Test]
-        public async Task IdentityController_IsAdminOrCurrentUser_InvalidRequestReturnsFalse()
-        {
-            
-        }
     }
 }
