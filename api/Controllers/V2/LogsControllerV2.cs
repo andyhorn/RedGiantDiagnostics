@@ -63,6 +63,11 @@ namespace API.Controllers.V2
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Deletes an existing log from the database
+        /// </summary>
+        /// <param name="id">The ID of the log to delete</param>
+        /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete, Route(Contracts.Routes.Logs.V2.Delete)]
         public async Task<IActionResult> DeleteLog(string id)
         {
