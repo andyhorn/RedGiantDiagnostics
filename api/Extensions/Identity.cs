@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using API.Configuration;
 
 namespace API
 {
@@ -29,15 +30,7 @@ namespace API
             })
             .AddJwtBearer(options => {
                 options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime = false,
-                    ValidateLifetime = false
-                };
+                options.TokenValidationParameters = TokenValidationParametersFactory.Get(key);
             });
         }
     }

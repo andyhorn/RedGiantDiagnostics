@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using API.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,6 +18,38 @@ namespace API.Services
         public TokenService(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
+        }
+
+        public bool IsValid(string jwt)
+        {
+            if (string.IsNullOrEmpty(jwt))
+            {
+                throw new ArgumentNullException();
+            }
+
+            try
+            {
+                ValidateToken(jwt);
+            }
+            catch 
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private SecurityToken ValidateToken(string jwt)
+        {
+            SecurityToken validatedToken = null;
+
+            var handler = new JwtSecurityTokenHandler();
+            var key = GetTokenKey();
+            var tokenParams = TokenValidationParametersFactory.Get(key);
+
+            handler.ValidateToken(jwt, tokenParams, out validatedToken);
+
+            return validatedToken;
         }
 
         public string GetUserId(string jwt)
@@ -61,7 +94,7 @@ namespace API.Services
             return tokenString;
         }
 
-        private async Task<List<Claim>> GetUserClaims(IdentityUser user)
+        private async Task<List<Claim>> GetClaims(IdentityUser user)
         {
             var userClaims = new List<Claim>();
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -70,27 +103,26 @@ namespace API.Services
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, role)
             ));
 
+            userClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.NormalizedEmail));
+            userClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            userClaims.Add(new Claim(Contracts.Claims.UserId, user.Id));
+
             return userClaims;
         }
 
         private async Task<SecurityTokenDescriptor> GetDescriptor(IdentityUser user, byte[] key)
         {
+            var userClaims = await GetClaims(user);
+
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
-                Subject = new ClaimsIdentity(new []
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.NormalizedEmail),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(Contracts.Claims.UserId, user.Id)
-                }),
+                Subject = new ClaimsIdentity(userClaims),
                 Expires = DateTime.UtcNow.AddDays(Contracts.Claims.ExpiresInDays),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), 
                     SecurityAlgorithms.HmacSha256
                 )
-            };
-
-            var userClaims = await GetUserClaims(user);
+            };            
 
             return tokenDescriptor;
         }

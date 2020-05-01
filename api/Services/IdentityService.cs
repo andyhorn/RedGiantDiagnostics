@@ -261,6 +261,30 @@ namespace API.Services
         }
 
         /// <summary>
+        /// Confirms whether or not a JWT represents a valid, 
+        /// unexpired token
+        /// </summary>
+        /// <param name="jwt">A string containing a JWT</param>
+        /// <returns>True if the token is valid, false if not</returns>
+        public async Task<bool> ValidateTokenAsync(string jwt)
+        {
+            // Validate the jwt string
+            if (string.IsNullOrEmpty(jwt))
+            {
+                throw new ArgumentNullException();
+            }
+
+            bool isValid = false;
+
+            // Run the check asynchronously
+            await Task.Run(() => {
+                isValid = _tokenService.IsValid(jwt);
+            });
+
+            return isValid;
+        }
+
+        /// <summary>
         /// Verifies if a user exists with a given ID
         /// </summary>
         /// <param name="id">The user ID to search for</param>

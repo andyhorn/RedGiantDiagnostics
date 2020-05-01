@@ -18,7 +18,7 @@ namespace API.Controllers.V2
         }
 
         [HttpGet, Route(Contracts.Routes.Identity.V2.Get)]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromHeader(Name = "Authorization")]string token)
         {
             throw new NotImplementedException();
         }

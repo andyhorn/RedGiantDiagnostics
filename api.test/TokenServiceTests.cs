@@ -1,8 +1,10 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using API.Services;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 
 namespace api.test
@@ -69,5 +71,71 @@ namespace api.test
             // Assert
             Assert.AreEqual(id, userId);
         }
+
+        [Test]
+        public void TokenService_IsValid_EmptyTokenString_ThrowsException()
+        {
+            // Arrange
+            var token = string.Empty;
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => _tokenService.IsValid(token));
+        }
+
+        [Test]
+        public void TokenService_IsValid_InvalidToken_ReturnsFalse()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+
+            // Act
+            var result = _tokenService.IsValid(token);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        // [Test]
+        // public void TokenService_IsValid_ExpiredToken_ReturnsFalse()
+        // {
+        //     // Arrange
+        //     var expiryDate = DateTime.Now.Subtract(TimeSpan.FromDays(1));
+        //     var descriptor = new SecurityTokenDescriptor
+        //     {
+        //         Subject = new System.Security.Claims.ClaimsIdentity(),
+        //         Expires = expiryDate,
+                
+        //     };
+        //     var handler = new JwtSecurityTokenHandler();
+        //     var token = handler.CreateJwtSecurityToken(descriptor);
+        //     var jwt = handler.WriteToken(token);
+
+        //     // Act
+        //     var result = _tokenService.IsValid(jwt);
+
+        //     // Assert
+        //     Assert.IsFalse(result);
+        // }
+
+        // [Test]
+        // public void TokenService_IsValid_ValidToken_ReturnsTrue()
+        // {
+        //     // Arrange
+        //     var expiryDate = DateTime.Now.AddDays(1);
+        //     var descriptor = new SecurityTokenDescriptor
+        //     {
+        //         Subject = new System.Security.Claims.ClaimsIdentity(),
+        //         Expires = expiryDate
+        //     };
+        //     var handler = new JwtSecurityTokenHandler();
+        //     var token = handler.CreateJwtSecurityToken(descriptor);
+        //     var jwt = handler.WriteToken(token);
+
+        //     // Act
+        //     var result = _tokenService.IsValid(jwt);
+
+        //     // Assert
+        //     Assert.IsTrue(result);
+        // }
     }
 }

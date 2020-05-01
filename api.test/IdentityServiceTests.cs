@@ -520,6 +520,46 @@ namespace api.test
         }
 
         [Test]
+        public void IdentityService_ValidateToken_EmptyTokenString_ThrowsException()
+        {
+            // Arrange
+            var token = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.ValidateTokenAsync(token));
+        }
+
+        [Test]
+        public async Task IdentityService_ValidateToken_InvalidToken_ReturnsFalse()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+            A.CallTo(() => _tokenService.IsValid(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _identityService.ValidateTokenAsync(token);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task IdentityService_ValidateToken_ValidToken_ReturnsTrue()
+        {
+            // Arrange
+            var token = A.Dummy<string>();
+            A.CallTo(() => _tokenService.IsValid(A<string>.Ignored))
+                .Returns(true);
+
+            // Act
+            var result = await _identityService.ValidateTokenAsync(token);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [Test]
         public void IdentityService_RoleExistsAsync_EmptyStringThrowsException()
         {
             // Arrange
