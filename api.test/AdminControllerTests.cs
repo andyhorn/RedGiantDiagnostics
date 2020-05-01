@@ -57,7 +57,7 @@ namespace api.test
             var data = (result as BadRequestObjectResult).Value;
 
             // Assert
-            Assert.IsInstanceOf(typeof(IEnumerable<string>), data);
+            Assert.IsInstanceOf(typeof(SerializableError), data);
         }
 
         [Test]
@@ -176,7 +176,7 @@ namespace api.test
             // Assert
             var data = (result as BadRequestObjectResult).Value;
 
-            Assert.IsInstanceOf(typeof(IEnumerable<string>), data);
+            Assert.IsInstanceOf(typeof(SerializableError), data);
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace api.test
             var request = A.Dummy<UserUpdateRequest>();
             request.Roles = null; // We'll test this later
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
-                .Returns(false);
+                .Returns(true);
             A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
@@ -219,7 +219,7 @@ namespace api.test
             var request = A.Dummy<UserUpdateRequest>();
             request.Roles = null; // We'll test this later
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
-                .Returns(false);
+                .Returns(true);
             A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
@@ -239,93 +239,13 @@ namespace api.test
             var user = A.Dummy<IdentityUser>();
             request.Roles = null;
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
-                .Returns(false);
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
-                .Returns(null);
+                .Returns(true);
 
             // Act
             var result = await _controller.UpdateUser(request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);
-        }
-
-        [Test]
-        public async Task AdminController_UpdateUser_AddsRoles()
-        {
-            // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
-            var user = A.Dummy<IdentityUser>();
-            var roles = new List<string>();
-            request.Roles = new List<string>() { "TEST_ROLE" };
-            bool roleExists = true;
-            bool roleAdded = false;
-
-            // User exists
-            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
-                .Returns(true);
-
-            // Updates successfully
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
-                .Returns(null);
-
-            // Current roles are empty
-            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
-                .Returns(roles);
-
-            // The given role exists
-            A.CallTo(() => _identityService.RoleExistsAsync(A<string>.Ignored))
-                .Returns(roleExists);
-            
-            // Set flag when adding role
-            A.CallTo(() => _identityService.AddRoleToUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
-                .Invokes(() => roleAdded = true)
-                .Returns(null);
-
-            // Act
-            var result = await _controller.UpdateUser(request);
-
-            // Assert
-            Assert.IsTrue(roleAdded);
-        }
-
-        [Test]
-        public async Task AdminController_UpdateUser_RemovesRoles()
-        {
-            // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
-            var user = A.Dummy<IdentityUser>();
-            var roles = new List<string>() { "TEST_ROLE" };
-            request.Roles = new List<string>();
-            bool roleExists = true;
-            bool roleRemoved = false;
-
-            // User exists
-            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
-                .Returns(true);
-
-            // Updates successfully
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
-                .Returns(null);
-
-            // Current roles include TEST_ROLE
-            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
-                .Returns(roles);
-
-            // The given role exists
-            A.CallTo(() => _identityService.RoleExistsAsync(A<string>.Ignored))
-                .Returns(roleExists);
-            
-            // Set flag when removing role
-            A.CallTo(() => _identityService.RemoveRoleFromUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
-                .Invokes(() => roleRemoved = true)
-                .Returns(null);
-
-            // Act
-            var result = await _controller.UpdateUser(request);
-
-            // Assert
-            Assert.IsTrue(roleRemoved);
         }
 
         [Test]
@@ -412,8 +332,6 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _identityService.DeleteUserAsync(A<string>.Ignored))
-                .Returns(null);
 
             // Act
             var result = await _controller.DeleteUser(id);
@@ -580,6 +498,10 @@ namespace api.test
             Assert.IsNotNull(data);
         }
 
+        #endregion
+
+        #region AdminController.Logs Tests
+
         [Test]
         public async Task AdminController_UpdateLog_InvalidModelState_ReturnsBadRequest()
         {
@@ -726,8 +648,6 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _logsService.DeleteAsync(A<string>.Ignored))
-                .Returns(null);
 
             // Act
             var result = await _controller.DeleteLog(id);

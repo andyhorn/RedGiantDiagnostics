@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Exceptions;
 using API.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
@@ -26,7 +28,37 @@ namespace API.Controllers.V2
         [HttpPost, Route(Contracts.Routes.Administrator.Users.Register)]
         public async Task<IActionResult> RegisterUser([FromBody]UserRegistrationRequest request)
         {
-            throw new NotImplementedException();
+            // Validate the ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Verify no user exists with the same email address
+            var exists = await _identityService.UserExistsWithEmailAsync(request.Email);
+            if (exists)
+            {
+                return Conflict();
+            }
+
+            // Create the new user object
+            IdentityUser user = null;
+            try
+            {
+                user = await _identityService.CreateUserAsync(request);
+            }
+            catch (ActionFailedException)
+            {
+                return StatusCode(500);
+            }
+
+            // Verify the user object was created
+            if (user == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Created(user.Id, user);
         }
 
         /// <summary>
@@ -37,7 +69,32 @@ namespace API.Controllers.V2
         [HttpPut, Route(Contracts.Routes.Administrator.Users.Update)]
         public async Task<IActionResult> UpdateUser([FromBody]UserUpdateRequest request)
         {
-            throw new NotImplementedException();
+            // Validate the ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Verify a user exists with the given ID
+            var exists = await _identityService.UserExistsWithIdAsync(request.Id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Update the user object
+            try
+            {
+                await _identityService.UpdateUserAsync(request);
+            }
+            catch (ActionFailedException)
+            {
+                // If the update failed, return a 500 status code
+                return StatusCode(500);
+            }
+
+            // If everything succeeds, return an OK
+            return Ok();
         }
 
         /// <summary>
@@ -48,7 +105,32 @@ namespace API.Controllers.V2
         [HttpDelete, Route(Contracts.Routes.Administrator.Users.Delete)]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            throw new NotImplementedException();
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
+            }
+
+            // Verify a user exists with the given ID
+            var exists = await _identityService.UserExistsWithIdAsync(id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Delete the user object
+            try
+            {
+                await _identityService.DeleteUserAsync(id);
+            }
+            catch (ActionFailedException)
+            {
+                // If the delete fails, return an error status code
+                return StatusCode(500);
+            }
+
+            // If everything succeeds, return a No Content
+            return NoContent();
         }
 
         /// <summary>
@@ -59,7 +141,24 @@ namespace API.Controllers.V2
         [HttpGet, Route(Contracts.Routes.Administrator.Users.GetById)]
         public async Task<IActionResult> GetUserById(string id)
         {
-            throw new NotImplementedException();
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
+            }
+
+            // Verify a user exists with the given ID
+            var exists = await _identityService.UserExistsWithIdAsync(id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Retrieve the user object
+            var user = await _identityService.GetUserByIdAsync(id);
+
+            // Return an OK containing the user data
+            return Ok(user);
         }
 
         /// <summary>
@@ -70,7 +169,24 @@ namespace API.Controllers.V2
         [HttpGet, Route(Contracts.Routes.Administrator.Users.GetByEmail)]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
-            throw new NotImplementedException();
+            // Validate the email string
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email address is required");
+            }
+
+            // Verify a user exists with the given email address
+            var exists = await _identityService.UserExistsWithEmailAsync(email);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Search for the user object with the given email address
+            var user = await _identityService.GetUserByEmailAsync(email);
+
+            // Return an OK with the user object
+            return Ok(user);
         }
 
         /// <summary>
@@ -81,7 +197,51 @@ namespace API.Controllers.V2
         [HttpPut, Route(Contracts.Routes.Administrator.Logs.Update)]
         public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest request)
         {
-            throw new NotImplementedException();
+            // Validate the ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Verify a log exists with the given ID, return a NotFound if none exist
+            var exists = await _logsService.LogExists(request.Id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Retrieve the log
+            var log = await _logsService.GetByIdAsync(request.Id);
+
+            // Map the updated data
+            if (!string.IsNullOrEmpty(request.OwnerId))
+            {
+                log.OwnerId = request.OwnerId;
+            }
+
+            if (!string.IsNullOrEmpty(request.Title))
+            {
+                log.Title = request.Title;
+            }
+
+            if (!string.IsNullOrEmpty(request.Comments))
+            {
+                log.Comments = request.Comments;
+            }
+
+            // Update the log data
+            try
+            {
+                await _logsService.UpdateAsync(log);
+            }
+            catch (Exception)
+            {
+                // If the update fails, return a 500 status code
+                return StatusCode(500);
+            }
+
+            // If everything succeeds, return an Ok
+            return Ok();
         }
 
         /// <summary>
@@ -92,7 +252,32 @@ namespace API.Controllers.V2
         [HttpDelete, Route(Contracts.Routes.Administrator.Logs.Delete)]
         public async Task<IActionResult> DeleteLog(string id)
         {
-            throw new NotImplementedException();
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
+            }
+
+            // Verify a log exists with the given ID, return a NotFound if none exist
+            var exists = await _logsService.LogExists(id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Delete the log
+            try
+            {
+                await _logsService.DeleteAsync(id);
+            }
+            catch (Exception)
+            {
+                // If the delete fails, return a 500 status code
+                return StatusCode(500);
+            }
+
+            // If everything succeeds, return a NoContent
+            return NoContent();
         }
     }
 }

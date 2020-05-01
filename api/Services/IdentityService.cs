@@ -186,16 +186,16 @@ namespace API.Services
             // Update the user object
             var result = await _userManager.UpdateAsync(user);
 
-            // Update the user's roles
-            if (update.Roles != null)
-            {
-                await UpdateUserRoles(user, update.Roles);
-            }
-
             // Verify the success of the action
             if (result != IdentityResult.Success)
             {
                 throw new ActionFailedException();
+            }
+
+            // Update the user's roles
+            if (update.Roles != null)
+            {
+                await UpdateUserRoles(user, update.Roles);
             }
         }
 
@@ -260,6 +260,11 @@ namespace API.Services
             return user;
         }
 
+        /// <summary>
+        /// Verifies if a user exists with a given ID
+        /// </summary>
+        /// <param name="id">The user ID to search for</param>
+        /// <returns>True if a user exists with the ID, false if none are found</returns>
         public async Task<bool> UserExistsWithIdAsync(string id)
         {
             // Validate string
@@ -273,6 +278,11 @@ namespace API.Services
             return user != null;
         }
 
+        /// <summary>
+        /// Verifies if a user exists with a given email address
+        /// </summary>
+        /// <param name="email">The email address to search for</param>
+        /// <returns>True if a user exists with the email address, false if none are found</returns>
         public async Task<bool> UserExistsWithEmailAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
