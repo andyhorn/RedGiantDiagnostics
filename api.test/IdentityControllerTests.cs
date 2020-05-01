@@ -242,6 +242,7 @@ namespace api.test
             {
                 Id = string.Empty
             };
+            _controller.ModelState.AddModelError("Id", "Id cannot be empty");
 
             // Act
             var result = await _controller.UpdateUserAsync(request);

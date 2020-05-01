@@ -39,11 +39,6 @@ namespace API.Controllers
                 return BadRequest();
             }
 
-            if (!(await IsAdminOrCurrentUser(id)))
-            {
-                return Unauthorized();
-            }
-
             var user = await _identityService.GetUserByIdAsync(id);
 
             if (user == null)
@@ -115,12 +110,6 @@ namespace API.Controllers
         [Route(Contracts.Routes.Identity.UpdateUser)]
         public async Task<IActionResult> UpdateUserAsync([FromBody]UserUpdateRequest request)
         {
-            // Authenticate the request
-            if (!(await IsAdminOrCurrentUser(request.Id)))
-            {
-                return Unauthorized();
-            }
-
             // Verify the model state
             if (!ModelState.IsValid)
             {
@@ -208,29 +197,6 @@ namespace API.Controllers
             var response = new TokenResponse(userId, token);
 
             return Ok(response);
-        }
-
-        private async Task<bool> IsCurrentUser(string id)
-        {
-            var currentUser = await HttpContext.CurrentUser(_identityService);
-            return currentUser.Id == id;
-        }
-
-        private async Task<bool> IsAdministrator()
-        {
-            var currentUser = await HttpContext.CurrentUser(_identityService);
-            if (currentUser == null)
-            {
-                return false;
-            }
-
-            var roles = await _identityService.GetUserRolesAsync(currentUser);
-            return roles.Contains(Contracts.Roles.Admin);
-        }
-
-        private async Task<bool> IsAdminOrCurrentUser(string id)
-        {
-            return await IsAdministrator() || await IsCurrentUser(id);
         }
     }
 }
