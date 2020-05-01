@@ -142,6 +142,8 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
+            A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
+                .Returns(true);
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns((string)null);
 
@@ -158,6 +160,8 @@ namespace api.test
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
             var token = A.Dummy<string>();
+            A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
+                .Returns(true);
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(token);
 
@@ -169,20 +173,22 @@ namespace api.test
         }
 
         [Test]
-        public async Task IdentityControllerV2_Login_LoginSuccess_OkResultContainsToken()
+        public async Task IdentityControllerV2_Login_LoginSuccess_OkResultContainsTokenResponse()
         {
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
             const string token = "THIS_IS_A_TOKEN";
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(token);
+            A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
+                .Returns(true);
 
             // Act
             var result = await _controller.Login(request);
 
             // Assert
-            var data = (string)(result as OkObjectResult).Value;
-            Assert.AreEqual(token, data);
+            var data = (result as OkObjectResult).Value;
+            Assert.IsInstanceOf(typeof(TokenResponse), data);
         }
 
         [Test]
