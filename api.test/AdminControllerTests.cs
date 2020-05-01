@@ -503,6 +503,54 @@ namespace api.test
         #region AdminController.Logs Tests
 
         [Test]
+        public async Task AdminController_GetAllLogs_ReturnsOk()
+        {
+            // Arrange
+            var list = A.CollectionOfDummy<LogFile>(3);
+            A.CallTo(() => _logsService.GetAllLogsAsync())
+                .Returns(list);
+
+            // Act
+            var result = await _controller.GetAllLogs();
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_GetAllLogs_NoLogs_ReturnsEmptyList()
+        {
+            // Arrange
+            var list = new List<LogFile>();
+            A.CallTo(() => _logsService.GetAllLogsAsync())
+                .Returns(list);
+
+            // Act
+            var result = await _controller.GetAllLogs();
+
+            // Assert
+            var data = (result as OkObjectResult).Value as List<LogSummaryResponse>;
+            Assert.IsEmpty(data);
+        }
+
+        [Test]
+        public async Task AdminController_GetAllLogs_ReturnsListOfLogs()
+        {
+            // Arrange
+            const int numLogs = 3;
+            var list = A.CollectionOfDummy<LogFile>(numLogs);
+            A.CallTo(() => _logsService.GetAllLogsAsync())
+                .Returns(list);
+
+            // Act
+            var result = await _controller.GetAllLogs();
+
+            // Assert
+            var data = (result as OkObjectResult).Value as List<LogSummaryResponse>;
+            Assert.AreEqual(3, data.Count);
+        }
+
+        [Test]
         public async Task AdminController_UpdateLog_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange

@@ -15,14 +15,14 @@ namespace api.test
     {
         private ILogsService _logsService;
         private IFileService _fileService;
-        private LogsControllerV2 _controller;
+        private LogsController _controller;
 
         [SetUp]
         public void Setup()
         {
             _logsService = A.Fake<ILogsService>();
             _fileService = A.Fake<IFileService>();
-            _controller = new LogsControllerV2(_logsService, _fileService);
+            _controller = new LogsController(_logsService, _fileService);
         }
 
         [Test]

@@ -38,6 +38,8 @@ namespace API
             services.SetupIdentity();
 
             services.SetupAuthentication();
+
+            services.SetupSecurityPolicies();
             
             services.AddControllers();
 

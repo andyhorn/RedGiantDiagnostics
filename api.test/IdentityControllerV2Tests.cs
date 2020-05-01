@@ -12,14 +12,14 @@ namespace api.test
 {
     public class IdentityControllerV2Tests
     {
-        private IdentityControllerV2 _controller;
+        private IdentityController _controller;
         private IIdentityService _identityService;
 
         [SetUp]
         public void Setup()
         {
             _identityService = A.Fake<IIdentityService>();
-            _controller = new IdentityControllerV2(_identityService);
+            _controller = new IdentityController(_identityService);
         }
 
         [Test]

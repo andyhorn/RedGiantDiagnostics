@@ -11,7 +11,7 @@ namespace API.Controllers
 {
     [Authorize(Roles = Contracts.Roles.Admin)]
     [ApiController]
-    [Route(Contracts.Routes.Controller)]
+    [Route(Contracts.Routes.ControllerV1)]
     public class IdentityController : ControllerBase
     {
         private IIdentityService _identityService;

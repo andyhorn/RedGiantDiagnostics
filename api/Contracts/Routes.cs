@@ -2,8 +2,8 @@ namespace API.Contracts
 {
     public static class Routes
     {
-        public const string Controller = "[controller]";
-        public const string ControllerV2 = "v2/[controller]";
+        public const string ControllerV1 = "api/v1/{controller}";
+        public const string ControllerV2 = "api/v2/{controller}";
         public static class Administrator
         {
             public static class Users
@@ -20,6 +20,7 @@ namespace API.Contracts
             {
                 private const string Base = "logs";
                 public const string Update = Base;
+                public const string GetAll = Base;
                 public const string Delete = Base + "/{id}";
             }
         }

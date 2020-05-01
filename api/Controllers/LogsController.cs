@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace API.Controllers
 {
     [ApiController]
-    [Route(Routes.Controller)]
+    [Route(Routes.ControllerV1)]
     public class LogsController : ControllerBase
     {
         private readonly ILogsService _logsService;

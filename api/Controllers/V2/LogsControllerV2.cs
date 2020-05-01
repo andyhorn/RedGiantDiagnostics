@@ -3,18 +3,22 @@ using System.Threading.Tasks;
 using API.Contracts;
 using API.Entities;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
 {
-    [ApiController, Route(Contracts.Routes.ControllerV2)]
-    public class LogsControllerV2 : ControllerBase
+    [ApiController]
+    [Authorize]
+    [Route(Contracts.Routes.ControllerV2)]
+    [Route(Contracts.Routes.ControllerV1)]
+    public class LogsController : ControllerBase
     {
         private ILogsService _logsService;
         private IFileService _fileService;
 
-        public LogsControllerV2(ILogsService logs, IFileService files)
+        public LogsController(ILogsService logs, IFileService files)
         {
             _logsService = logs;
             _fileService = files;
@@ -25,7 +29,9 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="id">A string containing the ID of the log to return</param>
         /// <returns>LogFile or NotFound</returns>
-        [HttpGet, Route(Contracts.Routes.Logs.V2.GetById)]
+        [HttpGet]
+        [AllowAnonymous]
+        [Route(Contracts.Routes.Logs.V2.GetById)]
         public async Task<IActionResult> GetById(string id)
         {
             // Validate the ID string
@@ -52,7 +58,7 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="formFile">The uploaded log file</param>
         /// <returns>A new LogFile object or BadRequest</returns>
-        [HttpPost, Route(Contracts.Routes.Logs.V2.Upload)]
+        [AllowAnonymous, HttpPost, Route(Contracts.Routes.Logs.V2.Upload)]
         public async Task<IActionResult> Upload([FromForm]IFormFile formFile)
         {
             // Validate the ModelState
@@ -137,7 +143,9 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="update">The LogFile object to save to the database</param>
         /// <returns>OK, BadRequest, or Conflict</returns>
-        [HttpPut, Route(Contracts.Routes.Logs.V2.Update)]
+        [HttpPut]
+        [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
+        [Route(Contracts.Routes.Logs.V2.Update)]
         public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest update)
         {
             // Validate the ModelState
@@ -193,7 +201,9 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="id">The ID of the log to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
-        [HttpDelete, Route(Contracts.Routes.Logs.V2.Delete)]
+        [HttpDelete]
+        [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
+        [Route(Contracts.Routes.Logs.V2.Delete)]
         public async Task<IActionResult> DeleteLog(string id)
         {
             // Validate the ID string

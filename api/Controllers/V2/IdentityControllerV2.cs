@@ -3,22 +3,25 @@ using System.Threading.Tasks;
 using API.Contracts;
 using API.Exceptions;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
 {
     [ApiController]
+    [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
     [Route(Contracts.Routes.ControllerV2)]
-    public class IdentityControllerV2 : ControllerBase
+    [Route(Contracts.Routes.ControllerV1)]
+    public class IdentityController : ControllerBase
     {
         private IIdentityService _identityService;
 
-        public IdentityControllerV2(IIdentityService identity)
+        public IdentityController(IIdentityService identity)
         {
             _identityService = identity;
         }
 
-        [HttpGet, Route(Contracts.Routes.Identity.V2.Get)]
+        [HttpGet, AllowAnonymous, Route(Contracts.Routes.Identity.V2.Get)]
         public async Task<IActionResult> Get([FromHeader(Name = "Authorization")]string token)
         {
             // Validate the token string

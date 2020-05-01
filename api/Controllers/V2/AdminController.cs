@@ -1,14 +1,21 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Exceptions;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
 {
-    [ApiController, Route(Contracts.Routes.ControllerV2)]
+    [ApiController]
+    [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
+    [Route(Contracts.Routes.ControllerV2)]
+    [Route(Contracts.Routes.ControllerV1)]
     public class AdminController : ControllerBase
     {
         private IIdentityService _identityService;
@@ -55,7 +62,7 @@ namespace API.Controllers.V2
             // Verify the user object was created
             if (user == null)
             {
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return Created(user.Id, user);
@@ -90,7 +97,7 @@ namespace API.Controllers.V2
             catch (ActionFailedException)
             {
                 // If the update failed, return a 500 status code
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             // If everything succeeds, return an OK
@@ -126,7 +133,7 @@ namespace API.Controllers.V2
             catch (ActionFailedException)
             {
                 // If the delete fails, return an error status code
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             // If everything succeeds, return a No Content
@@ -189,6 +196,34 @@ namespace API.Controllers.V2
             return Ok(user);
         }
 
+        [HttpGet]
+        [Route(Contracts.Routes.Administrator.Logs.GetAll)]
+        public async Task<IActionResult> GetAllLogs()
+        {
+            // Instantiate a list of log summaries
+            var list = new List<LogSummaryResponse>();
+
+            // Retrieve all logs in the database
+            var logs = await _logsService.GetAllLogsAsync();
+            
+            // If no logs were returned or the list was null, 
+            // return an Ok with an empty list of log summaries
+            if (logs == null || logs.Count() == 0)
+            {
+                return Ok(list);
+            }
+            
+            // Create a summary for each log in the list
+            foreach (var log in logs)
+            {
+                var summary = new LogSummaryResponse(log);
+                list.Add(summary);
+            }
+
+            // Return the list of log summaries
+            return Ok(list);
+        }
+
         /// <summary>
         /// Updates data about a LogFile already in the database
         /// </summary>
@@ -237,7 +272,7 @@ namespace API.Controllers.V2
             catch (Exception)
             {
                 // If the update fails, return a 500 status code
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             // If everything succeeds, return an Ok
@@ -273,7 +308,7 @@ namespace API.Controllers.V2
             catch (Exception)
             {
                 // If the delete fails, return a 500 status code
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             // If everything succeeds, return a NoContent
