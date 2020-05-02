@@ -51,6 +51,7 @@ namespace API.Controllers.V2
             return Ok(user);
         }
 
+        [AllowAnonymous]
         [HttpPost, Route(Contracts.Routes.Identity.V2.Login)]
         public async Task<IActionResult> Login([FromBody]UserLoginRequest loginRequest)
         {
