@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Controllers.V2;
 using API.Entities;
 using API.Services;
@@ -407,10 +408,11 @@ namespace api.test
         {
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -421,10 +423,11 @@ namespace api.test
         {
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
@@ -436,11 +439,12 @@ namespace api.test
         {
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(false);
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -451,6 +455,7 @@ namespace api.test
         {
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
+            var id = A.Dummy<string>();
             var log = A.Fake<LogFile>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
@@ -460,7 +465,7 @@ namespace api.test
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -472,6 +477,7 @@ namespace api.test
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
             var log = A.Fake<LogFile>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
@@ -480,7 +486,7 @@ namespace api.test
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             var code = (result as StatusCodeResult).StatusCode;
@@ -493,6 +499,7 @@ namespace api.test
             // Arrange
             var request = A.Fake<LogUpdateRequest>();
             var log = A.Fake<LogFile>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
@@ -501,7 +508,7 @@ namespace api.test
                 .Returns(log);
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);

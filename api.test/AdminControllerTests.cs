@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests.Admin;
 using API.Controllers.V2;
 using API.Entities;
 using API.Exceptions;
@@ -33,7 +34,7 @@ namespace api.test
         public async Task AdminController_RegisterUser_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
 
             _controller.ModelState.AddModelError(A.Dummy<string>(), "TestError");
 
@@ -48,7 +49,7 @@ namespace api.test
         public async Task AdminController_RegisterUser_InvalidModelState_ReturnsListOfErrorStrings()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             _controller.ModelState.AddModelError(A.Dummy<string>(), "TestError");
 
             // Act
@@ -64,7 +65,7 @@ namespace api.test
         public async Task AdminController_RegisterUser_UserExistsWithEmail_ReturnsConflict()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(true);
 
@@ -79,10 +80,10 @@ namespace api.test
         public async Task AdminController_RegisterUser_ErrorCreatingUser_ReturnsStatusCode()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(false);
-            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
@@ -96,10 +97,10 @@ namespace api.test
         public async Task AdminController_RegisterUser_ErrorCreatingUser_Returns500StatusCode()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(false);
-            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .Returns((IdentityUser)null);
 
             // Act
@@ -114,11 +115,11 @@ namespace api.test
         public async Task AdminController_RegisterUser_CreationSuccess_ReturnsCreated()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             var user = A.Dummy<IdentityUser>();
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(false);
-            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .Returns(user);
 
             // Act
@@ -132,13 +133,13 @@ namespace api.test
         public async Task AdminController_RegisterUser_CreationSuccess_CreatedResponseContainsUserId()
         {
             // Arrange
-            var request = A.Dummy<UserRegistrationRequest>();
+            var request = A.Dummy<AdminUserRegistrationRequest>();
             var user = A.Dummy<IdentityUser>();
             const string id = "TEST_ID";
             user.Id = id;
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(false);
-            A.CallTo(() => _identityService.CreateUserAsync(A<UserRegistrationRequest>.Ignored))
+            A.CallTo(() => _identityService.CreateUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .Returns(user);
 
             // Act
@@ -153,11 +154,12 @@ namespace api.test
         public async Task AdminController_UpdateUser_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -167,11 +169,12 @@ namespace api.test
         public async Task AdminController_UpdateUser_InvalidModelState_BadRequestContainsListOfErrors()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
@@ -183,12 +186,13 @@ namespace api.test
         public async Task AdminController_UpdateUser_NoMatchingUser_ReturnsNotFound()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(false);
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -198,15 +202,15 @@ namespace api.test
         public async Task AdminController_UpdateUser_UpdateError_ReturnsStatusCodeResult()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
-            request.Roles = null; // We'll test this later
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -216,15 +220,15 @@ namespace api.test
         public async Task AdminController_UpdateUser_UpdateError_Returns500StatusCode()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
-            request.Roles = null; // We'll test this later
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             var statusCode = (result as StatusCodeResult).StatusCode;
@@ -235,14 +239,14 @@ namespace api.test
         public async Task AdminController_UpdateUser_UpdateSuccess_ReturnsOk()
         {
             // Arrange
-            var request = A.Dummy<UserUpdateRequest>();
+            var request = A.Dummy<AdminUserUpdateRequest>();
+            var id = A.Dummy<string>();
             var user = A.Dummy<IdentityUser>();
-            request.Roles = null;
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
 
             // Act
-            var result = await _controller.UpdateUser(request);
+            var result = await _controller.UpdateUser(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);
@@ -554,11 +558,12 @@ namespace api.test
         public async Task AdminController_UpdateLog_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -568,11 +573,12 @@ namespace api.test
         public async Task AdminController_UpdateLog_InvalidModelState_BadRequestContainsErrorMessages()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
@@ -583,12 +589,13 @@ namespace api.test
         public async Task AdminController_UpdateLog_NoMatchingLog_ReturnsNotFound()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(false);
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -598,14 +605,15 @@ namespace api.test
         public async Task AdminController_UpdateLog_UpdateError_ReturnsStatusCode()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
             A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -615,14 +623,15 @@ namespace api.test
         public async Task AdminController_UpdateLog_UpdateError_Returns500StatusCode()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
             A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             var code = (result as StatusCodeResult).StatusCode;
@@ -633,7 +642,8 @@ namespace api.test
         public async Task AdminController_UpdateLog_UpdateSuccess_ReturnsOk()
         {
             // Arrange
-            var request = A.Dummy<LogUpdateRequest>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var id = A.Dummy<string>();
             var log = A.Dummy<LogFile>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
@@ -641,7 +651,7 @@ namespace api.test
                 .Returns(log);
 
             // Act
-            var result = await _controller.UpdateLog(request);
+            var result = await _controller.UpdateLog(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);

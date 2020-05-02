@@ -1,4 +1,6 @@
 using API.Contracts;
+using API.Contracts.Requests;
+using API.Contracts.Requests.Admin;
 using FakeItEasy;
 
 namespace api.test
@@ -9,20 +11,24 @@ namespace api.test
         {
             return new UserUpdateRequest
             {
-                Id = A.Dummy<string>(),
+                FirstName = A.Dummy<string>(),
+                LastName = A.Dummy<string>(),
                 Email = A.Dummy<string>()
             };
         }
     }
 
-    public class DummyUserRegistrationRequestFactory : DummyFactory<UserRegistrationRequest>
+    public class DummyUserRegistrationRequestFactory : DummyFactory<AdminUserRegistrationRequest>
     {
-        protected override UserRegistrationRequest Create()
+        protected override AdminUserRegistrationRequest Create()
         {
-            return new UserRegistrationRequest
+            return new AdminUserRegistrationRequest
             {
                 Email = A.Dummy<string>(),
-                Password = A.Dummy<string>()
+                FirstName = A.Dummy<string>(),
+                LastName = A.Dummy<string>(),
+                Password = A.Dummy<string>(),
+                ConfirmPassword = A.Dummy<string>()
             };
         }
     }

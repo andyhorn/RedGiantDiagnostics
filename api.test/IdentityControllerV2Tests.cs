@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Controllers.V2;
 using API.Exceptions;
 using API.Services;
@@ -196,10 +197,11 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -210,10 +212,11 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
@@ -225,11 +228,12 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(false);
 
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
@@ -240,13 +244,14 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -257,13 +262,14 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _identityService.UpdateUserAsync(A<UserUpdateRequest>.Ignored))
+            A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             var code = (result as StatusCodeResult).StatusCode;
@@ -275,11 +281,12 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
             
             // Act
-            var result = await _controller.Update(request);
+            var result = await _controller.Update(id, request);
 
             // Assert
             Assert.IsInstanceOf(typeof(OkResult), result);

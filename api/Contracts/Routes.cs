@@ -10,7 +10,7 @@ namespace API.Contracts
             {
                 private const string Base = "users";
                 public const string Register = Base;
-                public const string Update = Base;
+                public const string Update = Base + "/{id}";
                 public const string Delete = Base + "/{id}";
                 public const string GetById = Base + "/{id}";
                 public const string GetByEmail = Base + "/email/{email}";
@@ -19,7 +19,7 @@ namespace API.Contracts
             public static class Logs
             {
                 private const string Base = "logs";
-                public const string Update = Base;
+                public const string Update = Base + "/{id}";
                 public const string GetAll = Base;
                 public const string Delete = Base + "/{id}";
             }
@@ -48,7 +48,7 @@ namespace API.Contracts
             public static class V2
             {
                 public const string Get = "";
-                public const string Update = "";
+                public const string Update = "{id}";
                 public const string Login = "Login";
             }
             public const string GetAllUsers = "";

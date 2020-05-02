@@ -1,17 +1,9 @@
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace API.Contracts
+namespace API.Contracts.Requests
 {
+    // This class has been retired with V1 of the API
     public class UserRegistrationRequest
     {
-        [Required]
-        [EmailAddress]
         public string Email { get; set; }
-
-        [Required]
         public string Password { get; set; }
-
-        public List<string> Roles { get; set; } = new List<string> { Contracts.Roles.User };
     }
 }

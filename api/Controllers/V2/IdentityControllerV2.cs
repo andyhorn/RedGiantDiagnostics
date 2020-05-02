@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -85,7 +86,7 @@ namespace API.Controllers.V2
         }
 
         [HttpPut(Contracts.Routes.Identity.V2.Update)]
-        public async Task<IActionResult> Update([FromBody]UserUpdateRequest updateRequest)
+        public async Task<IActionResult> Update([FromRoute]string id, [FromBody]UserUpdateRequest updateRequest)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -94,7 +95,7 @@ namespace API.Controllers.V2
             }
 
             // Verify a user exists with the given ID
-            var exists = await _identityService.UserExistsWithIdAsync(updateRequest.Id);
+            var exists = await _identityService.UserExistsWithIdAsync(id);
             if (!exists)
             {
                 // If no user exists, return NotFound
@@ -102,9 +103,13 @@ namespace API.Controllers.V2
             }
 
             // Update the user data
+            var user = await _identityService.GetUserByIdAsync(id);
+            user.Map<UserUpdateRequest>(updateRequest);
+
+            // Save the updated data to the identity store
             try
             {
-                await _identityService.UpdateUserAsync(updateRequest);
+                await _identityService.UpdateUserAsync(user);
             }
             catch (ActionFailedException)
             {

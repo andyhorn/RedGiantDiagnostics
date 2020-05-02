@@ -1,202 +1,205 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using API.Contracts;
-using API.Exceptions;
-using API.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+// using System;
+// using System.Linq;
+// using System.Threading.Tasks;
+// using API.Contracts;
+// using API.Contracts.Requests;
+// using API.Contracts.Requests.Admin;
+// using API.Exceptions;
+// using API.Services;
+// using Microsoft.AspNetCore.Authorization;
+// using Microsoft.AspNetCore.Identity;
+// using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
-{
-    [Authorize(Roles = Contracts.Roles.Admin)]
-    [ApiController]
-    [Route(Contracts.Routes.ControllerV1)]
-    public class IdentityController : ControllerBase
-    {
-        private IIdentityService _identityService;
+// namespace API.Controllers
+// {
+//     [Authorize(Roles = Contracts.Roles.Admin)]
+//     [ApiController]
+//     [Route(Contracts.Routes.ControllerV1)]
+//     public class IdentityController : ControllerBase
+//     {
+//         private IIdentityService _identityService;
 
-        public IdentityController(IIdentityService identity)
-        {
-            _identityService = identity;
-        }
+//         public IdentityController(IIdentityService identity)
+//         {
+//             _identityService = identity;
+//         }
 
-        [HttpGet]
-        [Route(Contracts.Routes.Identity.GetAllUsers)]
-        public async Task<IActionResult> GetAllUsersAsync()
-        {
-            var userList = await _identityService.GetAllUsersAsync();
-            return Ok(userList);
-        }
+//         [HttpGet]
+//         [Route(Contracts.Routes.Identity.GetAllUsers)]
+//         public async Task<IActionResult> GetAllUsersAsync()
+//         {
+//             var userList = await _identityService.GetAllUsersAsync();
+//             return Ok(userList);
+//         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        [Route(Contracts.Routes.Identity.GetUserById)]
-        public async Task<IActionResult> GetUserByIdAsync(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return BadRequest();
-            }
+//         [AllowAnonymous]
+//         [HttpGet]
+//         [Route(Contracts.Routes.Identity.GetUserById)]
+//         public async Task<IActionResult> GetUserByIdAsync(string id)
+//         {
+//             if (string.IsNullOrEmpty(id))
+//             {
+//                 return BadRequest();
+//             }
 
-            var user = await _identityService.GetUserByIdAsync(id);
+//             var user = await _identityService.GetUserByIdAsync(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+//             if (user == null)
+//             {
+//                 return NotFound();
+//             }
             
-            return Ok(user);
-        }
+//             return Ok(user);
+//         }
 
-        [HttpGet]
-        [Route(Contracts.Routes.Identity.GetUserByEmail)]
-        public async Task<IActionResult> GetUserByEmail(string email)
-        {
-            if (string.IsNullOrEmpty(email))
-            {
-                return BadRequest("Email address is required.");
-            }
+//         [HttpGet]
+//         [Route(Contracts.Routes.Identity.GetUserByEmail)]
+//         public async Task<IActionResult> GetUserByEmail(string email)
+//         {
+//             if (string.IsNullOrEmpty(email))
+//             {
+//                 return BadRequest("Email address is required.");
+//             }
 
-            var user = await _identityService.GetUserByEmailAsync(email);
+//             var user = await _identityService.GetUserByEmailAsync(email);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+//             if (user == null)
+//             {
+//                 return NotFound();
+//             }
 
-            return Ok(user);
-        }
+//             return Ok(user);
+//         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route(Contracts.Routes.Identity.CreateUser)]
-        public async Task<IActionResult> CreateUserAsync([FromBody]UserRegistrationRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+//         [AllowAnonymous]
+//         [HttpPost]
+//         [Route(Contracts.Routes.Identity.CreateUser)]
+//         public async Task<IActionResult> CreateUserAsync([FromBody]AdminUserRegistrationRequest request)
+//         {
+//             if (!ModelState.IsValid)
+//             {
+//                 return BadRequest();
+//             }
 
-            try
-            {
-                var user = await _identityService.CreateUserAsync(request);
-                var response = new UserRegistrationResponse
-                {
-                    UserId = user.Id,
-                    Token = await _identityService.LoginAsync(request.Email, request.Password)
-                };
+//             try
+//             {
+//                 var user = new IdentityUser();
+//                 user.Map<AdminUserRegistrationRequest>(request);
+//                 user = await _identityService.CreateUserAsync(user, request.Password);
+//                 var response = new UserRegistrationResponse
+//                 {
+//                     UserId = user.Id,
+//                     Token = await _identityService.LoginAsync(request.Email, request.Password)
+//                 };
 
-                return Created(user.Id, response);
-            }
-            catch (ResourceConflictException)
-            {
-                return Conflict();
-            }
-            catch (ActionFailedException e)
-            {
-                return BadRequest(e.Errors);
-            }
-        }
+//                 return Created(user.Id, response);
+//             }
+//             catch (ResourceConflictException)
+//             {
+//                 return Conflict();
+//             }
+//             catch (ActionFailedException e)
+//             {
+//                 return BadRequest(e.Errors);
+//             }
+//         }
 
-        /// <summary>
-        /// Updates a user's identity information. Users can update their own information;
-        /// Administrators can update anyone's information.
-        /// </summary>
-        /// <param name="request">A UserUpdateRequest object containing the new values.</param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpPut]
-        [Route(Contracts.Routes.Identity.UpdateUser)]
-        public async Task<IActionResult> UpdateUserAsync([FromBody]UserUpdateRequest request)
-        {
-            // Verify the model state
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+//         /// <summary>
+//         /// Updates a user's identity information. Users can update their own information;
+//         /// Administrators can update anyone's information.
+//         /// </summary>
+//         /// <param name="request">A UserUpdateRequest object containing the new values.</param>
+//         /// <returns></returns>
+//         [AllowAnonymous]
+//         [HttpPut]
+//         [Route(Contracts.Routes.Identity.UpdateUser)]
+//         public async Task<IActionResult> UpdateUserAsync([FromRoute]string id, [FromBody]AdminUserUpdateRequest request)
+//         {
+//             // Verify the model state
+//             if (!ModelState.IsValid)
+//             {
+//                 return BadRequest(ModelState);
+//             }
 
-            // Verify the user exists with the specified ID
-            var exists = await _identityService.GetUserByIdAsync(request.Id) != null;
-            if (!exists)
-            {
-                return NotFound();
-            }
-            // var user = await _identityService.GetUserByIdAsync(request.Id);
-            // if (user == null)
-            // {
-            //     return NotFound();
-            // }
-
-            // Update the user data
-            try
-            {
-                await _identityService.UpdateUserAsync(request);
-            }
-            catch (Exception)
-            {
-                return new StatusCodeResult(500);
-            }
+//             // Verify the user exists with the specified ID
+//             var exists = await _identityService.GetUserByIdAsync(id) != null;
+//             if (!exists)
+//             {
+//                 return NotFound();
+//             }
             
-            return Ok();
-        }
+//             var user = await _identityService.GetUserByIdAsync(id);
+//             user.Map<AdminUserUpdateRequest>(request);
 
-        [HttpDelete]
-        [Route(Contracts.Routes.Identity.DeleteUser)]
-        public async Task<IActionResult> DeleteUserAsync(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return BadRequest("ID is required.");
-            }
+//             // Update the user data
+//             try
+//             {
+//                 await _identityService.UpdateUserAsync(user);
+//             }
+//             catch (Exception)
+//             {
+//                 return new StatusCodeResult(500);
+//             }
+            
+//             return Ok();
+//         }
 
-            try
-            {
-                await _identityService.DeleteUserAsync(id);
-            }
-            catch (ResourceNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (Exception)
-            {
-                return new StatusCodeResult(500);
-            }
+//         [HttpDelete]
+//         [Route(Contracts.Routes.Identity.DeleteUser)]
+//         public async Task<IActionResult> DeleteUserAsync(string id)
+//         {
+//             if (string.IsNullOrEmpty(id))
+//             {
+//                 return BadRequest("ID is required.");
+//             }
 
-            return NoContent();
-        }
+//             try
+//             {
+//                 await _identityService.DeleteUserAsync(id);
+//             }
+//             catch (ResourceNotFoundException)
+//             {
+//                 return NotFound();
+//             }
+//             catch (Exception)
+//             {
+//                 return new StatusCodeResult(500);
+//             }
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route(Contracts.Routes.Identity.Login)]
-        public async Task<IActionResult> Login([FromBody]UserLoginRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+//             return NoContent();
+//         }
 
-            string token = string.Empty;
-            try
-            {
-                token = await _identityService.LoginAsync(request.Email, request.Password);
-            }
-            catch (ArgumentException)
-            {
-                return Unauthorized();
-            }
+//         [AllowAnonymous]
+//         [HttpPost]
+//         [Route(Contracts.Routes.Identity.Login)]
+//         public async Task<IActionResult> Login([FromBody]UserLoginRequest request)
+//         {
+//             if (!ModelState.IsValid)
+//             {
+//                 return BadRequest(ModelState);
+//             }
 
-            if (string.IsNullOrEmpty(token))
-            {
-                return Unauthorized();
-            }
+//             string token = string.Empty;
+//             try
+//             {
+//                 token = await _identityService.LoginAsync(request.Email, request.Password);
+//             }
+//             catch (ArgumentException)
+//             {
+//                 return Unauthorized();
+//             }
 
-            var user = await _identityService.GetUserFromToken(token);
-            var userId = user.Id;
+//             if (string.IsNullOrEmpty(token))
+//             {
+//                 return Unauthorized();
+//             }
 
-            var response = new TokenResponse(userId, token);
+//             var user = await _identityService.GetUserFromToken(token);
+//             var userId = user.Id;
 
-            return Ok(response);
-        }
-    }
-}
+//             var response = new TokenResponse(userId, token);
+
+//             return Ok(response);
+//         }
+//     }
+// }

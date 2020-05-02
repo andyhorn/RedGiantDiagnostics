@@ -1,10 +1,8 @@
-namespace API.Contracts
+namespace API.Contracts.Requests
 {
     public class LogUpdateRequest
     {
-        public string Id { get; set; }
-        public string OwnerId { get; set; }
-        public string Title { get; set; }
-        public string Comments { get; set; }
+        public string Title { get; set; } = null;
+        public string Comments { get; set; } = null;
     }
 }

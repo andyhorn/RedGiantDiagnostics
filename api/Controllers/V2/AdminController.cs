@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests.Admin;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +34,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserRegistrationRequest containing new user data</param>
         /// <returns>Created with the new user's ID or BadRequest</returns>
         [HttpPost(Contracts.Routes.Administrator.Users.Register)]
-        public async Task<IActionResult> RegisterUser([FromBody]UserRegistrationRequest request)
+        public async Task<IActionResult> RegisterUser([FromBody]AdminUserRegistrationRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -49,10 +50,13 @@ namespace API.Controllers.V2
             }
 
             // Create the new user object
-            IdentityUser user = null;
+            var newUser = new IdentityUser();
+            newUser.Map<AdminUserRegistrationRequest>(request);
+
+            // Save the new user to the identity store
             try
             {
-                user = await _identityService.CreateUserAsync(request);
+                newUser = await _identityService.CreateUserAsync(newUser, request.Password);
             }
             catch (ActionFailedException)
             {
@@ -60,12 +64,12 @@ namespace API.Controllers.V2
             }
 
             // Verify the user object was created
-            if (user == null)
+            if (newUser == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return Created(user.Id, user);
+            return Created(newUser.Id, newUser);
         }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserUpdateRequest containing updated information</param>
         /// <returns>Ok or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Users.Update)]
-        public async Task<IActionResult> UpdateUser([FromBody]UserUpdateRequest request)
+        public async Task<IActionResult> UpdateUser([FromRoute]string id, [FromBody]AdminUserUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -83,16 +87,20 @@ namespace API.Controllers.V2
             }
 
             // Verify a user exists with the given ID
-            var exists = await _identityService.UserExistsWithIdAsync(request.Id);
+            var exists = await _identityService.UserExistsWithIdAsync(id);
             if (!exists)
             {
                 return NotFound();
             }
 
             // Update the user object
+            var user = await _identityService.GetUserByIdAsync(id);
+            user.Map<AdminUserUpdateRequest>(request);
+
+            // Save the updated user object to the identity store
             try
             {
-                await _identityService.UpdateUserAsync(request);
+                await _identityService.UpdateUserAsync(user);
             }
             catch (ActionFailedException)
             {
@@ -110,7 +118,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete(Contracts.Routes.Administrator.Users.Delete)]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser([FromRoute]string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -146,7 +154,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet(Contracts.Routes.Administrator.Users.GetById)]
-        public async Task<IActionResult> GetUserById(string id)
+        public async Task<IActionResult> GetUserById([FromRoute]string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -174,7 +182,7 @@ namespace API.Controllers.V2
         /// <param name="email">The email address of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet(Contracts.Routes.Administrator.Users.GetByEmail)]
-        public async Task<IActionResult> GetUserByEmail(string email)
+        public async Task<IActionResult> GetUserByEmail([FromRoute]string email)
         {
             // Validate the email string
             if (string.IsNullOrEmpty(email))
@@ -233,7 +241,7 @@ namespace API.Controllers.V2
         /// <param name="request">LogUpdateRequest containing updated information</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Logs.Update)]
-        public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest request)
+        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]AdminLogUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -242,14 +250,14 @@ namespace API.Controllers.V2
             }
 
             // Verify a log exists with the given ID, return a NotFound if none exist
-            var exists = await _logsService.LogExists(request.Id);
+            var exists = await _logsService.LogExists(id);
             if (!exists)
             {
                 return NotFound();
             }
 
             // Retrieve the log
-            var log = await _logsService.GetByIdAsync(request.Id);
+            var log = await _logsService.GetByIdAsync(id);
 
             // Map the updated data
             if (!string.IsNullOrEmpty(request.OwnerId))
@@ -288,7 +296,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the log to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete(Contracts.Routes.Administrator.Logs.Delete)]
-        public async Task<IActionResult> DeleteLog(string id)
+        public async Task<IActionResult> DeleteLog([FromRoute]string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))

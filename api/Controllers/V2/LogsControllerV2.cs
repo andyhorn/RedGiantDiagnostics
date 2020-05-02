@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Entities;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -32,8 +33,7 @@ namespace API.Controllers.V2
         /// <returns>LogFile or NotFound</returns>
         [AllowAnonymous]
         [HttpGet(Contracts.Routes.Logs.V2.GetById)]
-        // [Route(Contracts.Routes.Logs.V2.GetById)]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById([FromRoute]string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -149,7 +149,7 @@ namespace API.Controllers.V2
         /// <returns>OK, BadRequest, or Conflict</returns>
         [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
         [HttpPut(Contracts.Routes.Logs.V2.Update)]
-        public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest update)
+        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]LogUpdateRequest update)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -158,7 +158,7 @@ namespace API.Controllers.V2
             }
 
             // Verify a log exists with the given ID
-            var exists = await _logsService.LogExists(update.Id);
+            var exists = await _logsService.LogExists(id);
             if (!exists)
             {
                 // If no existing log was found, return NotFound
@@ -166,17 +166,12 @@ namespace API.Controllers.V2
             }
 
             // Retrieve the log from the store
-            var log = await _logsService.GetByIdAsync(update.Id);
+            var log = await _logsService.GetByIdAsync(id);
 
             // Map the updated log info <-- This should be moved into the logs service
             if (!string.IsNullOrEmpty(update.Comments))
             {
                 log.Comments = update.Comments;
-            }
-
-            if (!string.IsNullOrEmpty(update.OwnerId))
-            {
-                log.OwnerId = update.OwnerId;
             }
 
             if (!string.IsNullOrEmpty(update.Title))

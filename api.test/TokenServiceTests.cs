@@ -94,48 +94,5 @@ namespace api.test
             // Assert
             Assert.IsFalse(result);
         }
-
-        // [Test]
-        // public void TokenService_IsValid_ExpiredToken_ReturnsFalse()
-        // {
-        //     // Arrange
-        //     var expiryDate = DateTime.Now.Subtract(TimeSpan.FromDays(1));
-        //     var descriptor = new SecurityTokenDescriptor
-        //     {
-        //         Subject = new System.Security.Claims.ClaimsIdentity(),
-        //         Expires = expiryDate,
-                
-        //     };
-        //     var handler = new JwtSecurityTokenHandler();
-        //     var token = handler.CreateJwtSecurityToken(descriptor);
-        //     var jwt = handler.WriteToken(token);
-
-        //     // Act
-        //     var result = _tokenService.IsValid(jwt);
-
-        //     // Assert
-        //     Assert.IsFalse(result);
-        // }
-
-        // [Test]
-        // public void TokenService_IsValid_ValidToken_ReturnsTrue()
-        // {
-        //     // Arrange
-        //     var expiryDate = DateTime.Now.AddDays(1);
-        //     var descriptor = new SecurityTokenDescriptor
-        //     {
-        //         Subject = new System.Security.Claims.ClaimsIdentity(),
-        //         Expires = expiryDate
-        //     };
-        //     var handler = new JwtSecurityTokenHandler();
-        //     var token = handler.CreateJwtSecurityToken(descriptor);
-        //     var jwt = handler.WriteToken(token);
-
-        //     // Act
-        //     var result = _tokenService.IsValid(jwt);
-
-        //     // Assert
-        //     Assert.IsTrue(result);
-        // }
     }
 }

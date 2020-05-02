@@ -34,51 +34,45 @@ namespace API.Services
         /// </summary>
         /// <param name="request">The registration request containing the user name, password, and list of roles.</param>
         /// <returns>Returns a new IdentityUser object for the given registration data.</returns>
-        public async Task<IdentityUser> CreateUserAsync(UserRegistrationRequest request)
+        public async Task<IdentityUser> CreateUserAsync(IdentityUser newUser, string password)
         {
             // Validate the email and password strings
-            if (string.IsNullOrEmpty(request.Email))
+            if (string.IsNullOrEmpty(newUser.Email))
             {
                 throw new ArgumentNullException("email");
             }
 
-            if (string.IsNullOrEmpty(request.Password))
+            if (string.IsNullOrEmpty(password))
             {
                 throw new ArgumentNullException("password");
             }
 
             // Verify a user does not exist with the same email
-            var exists = await GetUserByEmailAsync(request.Email) != null;
+            var exists = await GetUserByEmailAsync(newUser.Email) != null;
             if (exists)
             {
                 throw new ResourceConflictException();
             }
 
             // Create the new user object
-            var user = new IdentityUser
-            {
-                Email = request.Email,
-                UserName = request.Email
-            };
+            // var user = new IdentityUser
+            // {
+            //     Email = request.Email,
+            //     UserName = request.Email
+            // };
 
             // Create the user object in the database
-            var result = await _userManager.CreateAsync(user, request.Password);
+            var result = await _userManager.CreateAsync(newUser, password);
             if (!result.Succeeded)
             {
                 throw new ActionFailedException(result.Errors.Select(x => x.Description));
             }
 
-            /* SPECIAL LOGIC */
-            if (request.Email == "andyjhorn@gmail.com")
-            {
-                request.Roles.Add(Contracts.Roles.Admin);
-            }
-
-            // Add the user roles
-            await AddRolesToUserAsync(user, request.Roles);
+            // Add the user to the "User" role
+            await AddRoleToUserAsync(newUser, Contracts.Roles.User);
 
             // Return the new user object
-            return await GetUserByEmailAsync(request.Email);
+            return await GetUserByEmailAsync(newUser.Email);
         }
 
         /// <summary>
@@ -164,7 +158,7 @@ namespace API.Services
         /// </summary>
         /// <param name="update">A UserUpdateRequest object containing changed information</param>
         /// <returns></returns>
-        public async Task UpdateUserAsync(UserUpdateRequest update)
+        public async Task UpdateUserAsync(IdentityUser update)
         {
             // Validate the user object
             if (update == null)
@@ -172,19 +166,24 @@ namespace API.Services
                 throw new ArgumentNullException();
             }
 
-            // Retrieve the user object and verify the user exists
-            var user = await GetUserByIdAsync(update.Id);
-            if (user == null)
+            // Verify the user exists
+            var exists = await UserExistsWithIdAsync(update.Id);
+            if (!exists)
             {
                 throw new ResourceNotFoundException();
             }
+            // var user = await GetUserByIdAsync(update.Id);
+            // if (user == null)
+            // {
+            //     throw new ResourceNotFoundException();
+            // }
 
             // Map the update object to the user, updating any changed
             // information
-            user = user.Update(update);
+            // user = user.Update(update);
 
             // Update the user object
-            var result = await _userManager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(update);
 
             // Verify the success of the action
             if (result != IdentityResult.Success)
@@ -192,11 +191,11 @@ namespace API.Services
                 throw new ActionFailedException();
             }
 
-            // Update the user's roles
-            if (update.Roles != null)
-            {
-                await UpdateUserRoles(user, update.Roles);
-            }
+            // // Update the user's roles
+            // if (update.Roles != null)
+            // {
+            //     await UpdateUserRoles(user, update.Roles);
+            // }
         }
 
         /// <summary>
