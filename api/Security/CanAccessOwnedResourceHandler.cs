@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace API.Security
@@ -10,23 +11,19 @@ namespace API.Security
     {
         private IIdentityService _identityService;
         private ILogsService _logsService;
+        private IHttpContextAccessor _httpContext;
 
-        public CanAccessOwnedResourceHandler(IIdentityService identity, ILogsService logs)
+        public CanAccessOwnedResourceHandler(IIdentityService identity, ILogsService logs, IHttpContextAccessor httpContext)
         {
             _identityService = identity;
             _logsService = logs;
+            _httpContext = httpContext;
         }
 
         protected async override Task HandleRequirementAsync(AuthorizationHandlerContext context, 
             ResourceOwnerRequirement requirement)
         {
-            var filterContext = context.Resource as AuthorizationFilterContext;
-            if (filterContext == null)
-            {
-                return;
-            }
-
-            var logId = filterContext.HttpContext.Request.Query["id"].ToString();
+            var logId = _httpContext.HttpContext.Request.RouteValues["id"].ToString();
             var userId = context.User.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId)).Value;
 
             var log = await _logsService.GetByIdAsync(logId);

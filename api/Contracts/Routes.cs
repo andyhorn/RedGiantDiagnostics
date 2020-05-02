@@ -8,7 +8,7 @@ namespace API.Contracts
         {
             public static class Users
             {
-                private const string Base = "user";
+                private const string Base = "users";
                 public const string Register = Base;
                 public const string Update = Base;
                 public const string Delete = Base + "/{id}";

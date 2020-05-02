@@ -10,8 +10,13 @@ namespace API
         {
             services.AddAuthorization(options => {
                 options.AddPolicy(Contracts.Policies.AdministrativeAccessPolicy, policy => {
-                    policy.RequireRole(Contracts.Roles.Admin);
+                    policy.AddRequirements(
+                        new AdministrativeRightsRequirement()
+                    );
                 });
+                // options.AddPolicy(Contracts.Policies.AdministrativeAccessPolicy, policy => {
+                //     policy.RequireRole(Contracts.Roles.Admin);
+                // });
                 options.AddPolicy(Contracts.Policies.ResourceOwnerPolicy, policy => {
                     policy.AddRequirements(
                         new ResourceOwnerRequirement()
@@ -20,6 +25,7 @@ namespace API
             });
 
             services.AddScoped<IAuthorizationHandler, CanAccessOwnedResourceHandler>();
+            services.AddScoped<IAuthorizationHandler, CanAccessAdministrativeResourcesHandler>();
         }
     }
 }

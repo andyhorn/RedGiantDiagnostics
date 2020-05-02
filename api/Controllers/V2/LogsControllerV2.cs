@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Entities;
@@ -127,9 +128,10 @@ namespace API.Controllers.V2
             LogFile savedLog = null;
             try
             {
+                save.OwnerId = User.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId)).Value;
                 savedLog = await _logsService.CreateAsync(save);
             }
-            catch
+            catch (Exception e)
             {
                 // If the save fails, return a server error
                 return StatusCode(StatusCodes.Status500InternalServerError);

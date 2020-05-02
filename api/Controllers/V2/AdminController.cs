@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.V2
 {
     [ApiController]
-    [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
     [Route(Contracts.Routes.ControllerV2)]
     [Route(Contracts.Routes.ControllerV1)]
     public class AdminController : ControllerBase
@@ -33,6 +32,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserRegistrationRequest containing new user data</param>
         /// <returns>Created with the new user's ID or BadRequest</returns>
         [HttpPost, Route(Contracts.Routes.Administrator.Users.Register)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> RegisterUser([FromBody]UserRegistrationRequest request)
         {
             // Validate the ModelState
@@ -74,6 +74,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserUpdateRequest containing updated information</param>
         /// <returns>Ok or BadRequest</returns>
         [HttpPut, Route(Contracts.Routes.Administrator.Users.Update)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> UpdateUser([FromBody]UserUpdateRequest request)
         {
             // Validate the ModelState
@@ -110,6 +111,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete, Route(Contracts.Routes.Administrator.Users.Delete)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             // Validate the ID string
@@ -146,6 +148,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet, Route(Contracts.Routes.Administrator.Users.GetById)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> GetUserById(string id)
         {
             // Validate the ID string
@@ -174,6 +177,7 @@ namespace API.Controllers.V2
         /// <param name="email">The email address of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet, Route(Contracts.Routes.Administrator.Users.GetByEmail)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
             // Validate the email string
@@ -198,6 +202,7 @@ namespace API.Controllers.V2
 
         [HttpGet]
         [Route(Contracts.Routes.Administrator.Logs.GetAll)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> GetAllLogs()
         {
             // Instantiate a list of log summaries
@@ -230,6 +235,7 @@ namespace API.Controllers.V2
         /// <param name="request">LogUpdateRequest containing updated information</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpPut, Route(Contracts.Routes.Administrator.Logs.Update)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest request)
         {
             // Validate the ModelState
@@ -285,6 +291,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the log to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete, Route(Contracts.Routes.Administrator.Logs.Delete)]
+        [Authorize(Policy = Contracts.Policies.AdministrativeAccessPolicy)]
         public async Task<IActionResult> DeleteLog(string id)
         {
             // Validate the ID string

@@ -11,9 +11,7 @@ namespace API.Configuration
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = false,
-                ValidateAudience = false,
-                RequireExpirationTime = false,
-                ValidateLifetime = false
+                ValidateAudience = false
             };
         }
     }
