@@ -12,7 +12,7 @@ namespace API.Contracts
                 public const string Register = Base;
                 public const string Update = Base;
                 public const string Delete = Base + "/{id}";
-                public const string GetById = Base + "/id/{id}";
+                public const string GetById = Base + "/{id}";
                 public const string GetByEmail = Base + "/email/{email}";
             }
 

@@ -30,9 +30,9 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="id">A string containing the ID of the log to return</param>
         /// <returns>LogFile or NotFound</returns>
-        [HttpGet]
         [AllowAnonymous]
-        [Route(Contracts.Routes.Logs.V2.GetById)]
+        [HttpGet(Contracts.Routes.Logs.V2.GetById)]
+        // [Route(Contracts.Routes.Logs.V2.GetById)]
         public async Task<IActionResult> GetById(string id)
         {
             // Validate the ID string
@@ -59,7 +59,8 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="formFile">The uploaded log file</param>
         /// <returns>A new LogFile object or BadRequest</returns>
-        [AllowAnonymous, HttpPost, Route(Contracts.Routes.Logs.V2.Upload)]
+        [AllowAnonymous]
+        [HttpPost(Contracts.Routes.Logs.V2.Upload)]
         public async Task<IActionResult> Upload([FromForm]IFormFile formFile)
         {
             // Validate the ModelState
@@ -104,8 +105,8 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="save">The LogFile object to save</param>
         /// <returns>The same LogFile object, updated with a unique ID</returns>
-        [HttpPost, Route(Contracts.Routes.Logs.V2.Save)]
-        public async Task<IActionResult> Save([FromBody]LogFile save)
+        [HttpPost(Contracts.Routes.Logs.V2.Save)]
+        public async Task<IActionResult> Save([FromBody]LogFile save, [FromServices]ITokenService _tokenService, [FromHeader(Name = "Authorization")]string jwt)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -126,12 +127,13 @@ namespace API.Controllers.V2
 
             // Save the log data to the store
             LogFile savedLog = null;
+            var userId = _tokenService.GetUserId(jwt.Substring("Bearer ".Length));
+            save.OwnerId = userId;
             try
             {
-                save.OwnerId = User.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId)).Value;
                 savedLog = await _logsService.CreateAsync(save);
             }
-            catch (Exception e)
+            catch
             {
                 // If the save fails, return a server error
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -145,9 +147,8 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="update">The LogFile object to save to the database</param>
         /// <returns>OK, BadRequest, or Conflict</returns>
-        [HttpPut]
         [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
-        [Route(Contracts.Routes.Logs.V2.Update)]
+        [HttpPut(Contracts.Routes.Logs.V2.Update)]
         public async Task<IActionResult> UpdateLog([FromBody]LogUpdateRequest update)
         {
             // Validate the ModelState
@@ -203,9 +204,8 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="id">The ID of the log to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
-        [HttpDelete]
         [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
-        [Route(Contracts.Routes.Logs.V2.Delete)]
+        [HttpDelete(Contracts.Routes.Logs.V2.Delete)]
         public async Task<IActionResult> DeleteLog(string id)
         {
             // Validate the ID string

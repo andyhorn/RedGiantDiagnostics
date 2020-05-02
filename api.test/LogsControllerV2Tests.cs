@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Controllers.V2;
@@ -6,6 +8,7 @@ using API.Entities;
 using API.Services;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 
@@ -16,12 +19,14 @@ namespace api.test
         private ILogsService _logsService;
         private IFileService _fileService;
         private LogsController _controller;
+        private ITokenService _tokenService;
 
         [SetUp]
         public void Setup()
         {
             _logsService = A.Fake<ILogsService>();
             _fileService = A.Fake<IFileService>();
+            _tokenService = A.Fake<ITokenService>();
             _controller = new LogsController(_logsService, _fileService);
         }
 
@@ -227,9 +232,10 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
+            var jwt = A.Dummy<string>();
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
@@ -240,10 +246,11 @@ namespace api.test
         {
             // Arrange
             var log = A.Dummy<LogFile>();
+            var jwt = A.Dummy<string>();
             _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
@@ -256,11 +263,12 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             log.Id = A.Dummy<string>();
+            var jwt = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             Assert.IsInstanceOf(typeof(ConflictObjectResult), result);
@@ -272,11 +280,12 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             log.Id = A.Dummy<string>();
+            var jwt = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             var data = (result as ConflictObjectResult).Value as string;
@@ -289,11 +298,15 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             log.Id = null;
+            var jwt = $"Bearer {A.Dummy<string>()}";
+            var userId = A.Dummy<string>();
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .ThrowsAsync(new Exception());
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -305,11 +318,15 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             log.Id = null;
+            var userId = A.Dummy<string>();
+            var jwt = $"Bearer {A.Dummy<string>()}";
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .ThrowsAsync(new Exception());
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             var code = (result as StatusCodeResult).StatusCode;
@@ -322,12 +339,16 @@ namespace api.test
             // Arrange
             var log = A.Dummy<LogFile>();
             log.Id = null;
+            var userId = A.Dummy<string>();
+            var jwt = $"Bearer {A.Dummy<string>()}";
             var savedLog = A.Dummy<LogFile>();
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .Returns(savedLog);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             Assert.IsInstanceOf(typeof(CreatedResult), result);
@@ -342,9 +363,15 @@ namespace api.test
             var savedLog = A.Dummy<LogFile>();
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .Returns(savedLog);
+            var userId = A.Dummy<string>();
+            var token = $"Bearer {A.Dummy<string>()}";
+            var tokenService = A.Fake<ITokenService>();
+            A.CallTo(() => tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
+
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, tokenService, token);
 
             // Assert
             var data = (result as CreatedResult).Value;
@@ -358,11 +385,17 @@ namespace api.test
             var log = A.Dummy<LogFile>();
             log.Id = null;
             var savedLog = A.Dummy<LogFile>();
+            const string newId = "NEW_LOG_ID";
+            savedLog.Id = newId;
+            var userId = A.Dummy<string>();
+            var jwt = $"Bearer {A.Dummy<string>()}";
+            A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
+                .Returns(userId);
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .Returns(savedLog);
 
             // Act
-            var result = await _controller.Save(log);
+            var result = await _controller.Save(log, _tokenService, jwt);
 
             // Assert
             var data = (result as CreatedResult).Location;

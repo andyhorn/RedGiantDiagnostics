@@ -21,7 +21,8 @@ namespace API.Controllers.V2
             _identityService = identity;
         }
 
-        [HttpGet, AllowAnonymous, Route(Contracts.Routes.Identity.V2.Get)]
+        [AllowAnonymous]
+        [HttpGet(Contracts.Routes.Identity.V2.Get)]
         public async Task<IActionResult> Get([FromHeader(Name = "Authorization")]string token)
         {
             // Validate the token string
@@ -52,7 +53,7 @@ namespace API.Controllers.V2
         }
 
         [AllowAnonymous]
-        [HttpPost, Route(Contracts.Routes.Identity.V2.Login)]
+        [HttpPost(Contracts.Routes.Identity.V2.Login)]
         public async Task<IActionResult> Login([FromBody]UserLoginRequest loginRequest)
         {
             // Validate the ModelState
@@ -83,7 +84,7 @@ namespace API.Controllers.V2
             return Ok(response);
         }
 
-        [HttpPut, Route(Contracts.Routes.Identity.V2.Update)]
+        [HttpPut(Contracts.Routes.Identity.V2.Update)]
         public async Task<IActionResult> Update([FromBody]UserUpdateRequest updateRequest)
         {
             // Validate the ModelState
