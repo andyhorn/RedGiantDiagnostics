@@ -362,6 +362,162 @@ namespace api.test
         }
 
         [Test]
+        public async Task AdminController_GetUserRoles_EmptyIdString_ReturnsBadRequest()
+        {
+            // Arrange
+            var id = string.Empty;
+
+            // Act
+            var result = await _controller.GetUserRoles(id);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_GetUserRoles_NoMatchingUser_ReturnsNotFound()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _controller.GetUserRoles(id);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_GetUserRoles_ReturnsOk()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var roles = A.CollectionOfDummy<string>(2);
+            var user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
+            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
+
+            // Act
+            var result = await _controller.GetUserRoles(id);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_GetUserRoles_OkContainsListOfRoles()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var roles = A.CollectionOfDummy<string>(2);
+            var user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
+            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
+
+            // Act
+            var result = await _controller.GetUserRoles(id);
+
+            // Assert
+            var data = (result as OkObjectResult).Value;
+            Assert.IsInstanceOf(typeof(List<string>), data);
+        }
+
+        [Test]
+        public async Task AdminController_SetUserRoles_InvalidModelState_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = A.Dummy<AdminUserRolesUpdateRequest>();
+            var id = A.Dummy<string>();
+            _controller.ModelState.AddModelError(string.Empty, A.Dummy<string>());
+
+            // Act
+            var result = await _controller.SetUserRoles(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_SetUserRoles_EmptyIdString_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = A.Dummy<AdminUserRolesUpdateRequest>();
+            var id = string.Empty;
+            
+            // Act
+            var result = await _controller.SetUserRoles(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_SetUserRoles_NoMatchingUser_ReturnsNotFound()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<AdminUserRolesUpdateRequest>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _controller.SetUserRoles(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_SetUserRoles_UpdateFails_ReturnsStatusCode()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<AdminUserRolesUpdateRequest>();
+            var user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
+            A.CallTo(() => _identityService.SetUserRolesAsync(A<IdentityUser>.Ignored, A<IEnumerable<string>>.Ignored))
+                .ThrowsAsync(new ActionFailedException());
+
+            // Act
+            var result = await _controller.SetUserRoles(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_SetUserRoles_UpdateSuccess_ReturnsOk()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<AdminUserRolesUpdateRequest>();
+            var user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
+
+            // Act
+            var result = await _controller.SetUserRoles(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkResult), result);
+        }
+
+        [Test]
         public async Task AdminController_GetUserById_EmptyIdString_ReturnsBadRequest()
         {
             // Arrange

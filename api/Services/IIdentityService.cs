@@ -19,6 +19,7 @@ namespace API.Services
         Task<bool> UserExistsWithEmailAsync(string email);
         Task<IdentityUser> GetUserFromToken(string jwt);
         Task<bool> ValidateTokenAsync(string jwt);
+        Task SetUserRolesAsync(IdentityUser user, IEnumerable<string> roles);
         Task<bool> RoleExistsAsync(string role);
         Task<IdentityRole> GetRoleAsync(string role);
         Task CreateRoleAsync(string role);

@@ -148,6 +148,68 @@ namespace API.Controllers.V2
             return NoContent();
         }
 
+        [Authorize(Policy = Contracts.Policies.RoleChangePolicy)]
+        [HttpPost(Contracts.Routes.Administrator.Users.Roles)]
+        public async Task<IActionResult> SetUserRoles([FromRoute]string id, [FromBody]AdminUserRolesUpdateRequest request)
+        {
+            // Validate the ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
+            }
+
+            // Verify the user exists
+            var exists = await _identityService.UserExistsWithIdAsync(id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Retrieve the user object
+            var user = await _identityService.GetUserByIdAsync(id);
+
+            // Update the user's roles
+            try
+            {
+                await _identityService.SetUserRolesAsync(user, request.Roles);
+            }
+            catch (ActionFailedException)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok();
+        }
+
+        [HttpGet(Contracts.Routes.Administrator.Users.Roles)]
+        public async Task<IActionResult> GetUserRoles([FromRoute]string id)
+        {
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
+            }
+
+            // Verify the user exists
+            var exists = await _identityService.UserExistsWithIdAsync(id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            // Retrieve the user's roles
+            var user = await _identityService.GetUserByIdAsync(id);
+            var roles = await _identityService.GetUserRolesAsync(user);
+
+            return Ok(roles);
+        }
+
         /// <summary>
         /// Retrieves user data
         /// </summary>

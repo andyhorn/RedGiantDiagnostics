@@ -14,16 +14,19 @@ namespace API
                         new AdministrativeRightsRequirement()
                     );
                 });
-                // options.AddPolicy(Contracts.Policies.AdministrativeAccessPolicy, policy => {
-                //     policy.RequireRole(Contracts.Roles.Admin);
-                // });
                 options.AddPolicy(Contracts.Policies.ResourceOwnerPolicy, policy => {
                     policy.AddRequirements(
                         new ResourceOwnerRequirement()
                     );
                 });
+                options.AddPolicy(Contracts.Policies.RoleChangePolicy, policy => {
+                    policy.AddRequirements(
+                        new RoleChangeRequirement()
+                    );
+                });
             });
 
+            services.AddScoped<IAuthorizationHandler, CannotChangeOwnRolesHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessOwnedResourceHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessAdministrativeResourcesHandler>();
         }

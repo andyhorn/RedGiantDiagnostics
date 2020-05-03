@@ -327,6 +327,64 @@ namespace API.Services
             return isValid;
         }
 
+        public async Task SetUserRolesAsync(IdentityUser user, IEnumerable<string> roles)
+        {
+            // Validate the user object
+            if (user == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Validate the roles object
+            if (roles == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            // Validate the roles to be set
+            foreach (var role in roles)
+            {
+                if (!(await _roleManager.RoleExistsAsync(role)))
+                {
+                    throw new ArgumentOutOfRangeException($"role {role} does not exist");
+                }
+            }
+
+            // Get the list of current roles for the user
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            // Loop through the user's current roles
+            foreach (var role in currentRoles)
+            {
+                // If the role is not included in the set roles, remove it from the user
+                if (!roles.Contains(role))
+                {
+                    var removed = await _userManager.RemoveFromRoleAsync(user, role);
+                    if (!removed.Succeeded)
+                    {
+                        throw new ActionFailedException();
+                    }
+                }
+            }
+
+            // Update the list of current roles
+            currentRoles = await _userManager.GetRolesAsync(user);
+
+            // Loop through the set of roles
+            foreach (var role in roles)
+            {
+                // If the user is not currently assigned to the role, add them to the role
+                if (!currentRoles.Contains(role))
+                {
+                    var added = await _userManager.AddToRoleAsync(user, role);
+                    if (!added.Succeeded)
+                    {
+                        throw new ActionFailedException();
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Verifies if a user exists with a given ID
         /// </summary>

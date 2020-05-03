@@ -600,6 +600,121 @@ namespace api.test
         }
 
         [Test]
+        public void IdentityService_SetUserRoles_NullUserObject_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = null;
+            var roles = A.CollectionOfDummy<string>(3);
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserRolesAsync(user, roles));
+        }
+
+        [Test]
+        public void IdentityService_SetUserRoles_NullRolesList_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = A.Dummy<IdentityUser>();
+            List<string> roles = null;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserRolesAsync(user, roles));
+        }
+
+        [Test]
+        public void IdentityService_SetUserRoles_RoleDoesntExist_ThrowsException()
+        {
+            // Arrange
+            var user = A.Dummy<IdentityUser>();
+            var roles = A.CollectionOfDummy<string>(3);
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _identityService.SetUserRolesAsync(user, roles));
+        }
+
+        [Test]
+        public void IdentityService_SetUserRoles_RemoveRoleFails_ThrowsException()
+        {
+            // Arrange
+            var user = A.Dummy<IdentityUser>();
+            var setRoles = new List<string>
+            {
+                "RoleOne"
+            };
+            var currentRoles = new List<string>
+            {
+                "RoleOne",
+                "RoleTwo"
+            };
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(currentRoles);
+            A.CallTo(() => _userManager.RemoveFromRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Returns(IdentityResult.Failed());
+
+            // Act and Assert
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserRolesAsync(user, setRoles));
+        }
+
+        [Test]
+        public void IdentityService_SetUserRoles_AddRoleFails_ThrowsException()
+        {
+            // Arrange
+            var user = A.Dummy<IdentityUser>();
+            var setRoles = new List<string>
+            {
+                "RoleOne",
+                "RoleTwo"
+            };
+            var currentRoles = new List<string>
+            {
+                "RoleOne"
+            };
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(currentRoles);
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Returns(IdentityResult.Failed());
+
+            // Act and Assert
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserRolesAsync(user, setRoles));
+        }
+
+        [Test]
+        public async Task IdentityService_SetUserRoles_Success()
+        {
+            // Arrange
+            var user = A.Dummy<IdentityUser>();
+            var success = false;
+            var setRoles = new List<string>
+            {
+                "RoleOne",
+                "RoleTwo"
+            };
+            var currentRoles = new List<string>
+            {
+                "RoleOne"
+            };
+            A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(currentRoles);
+            A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Invokes(() => success = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.SetUserRolesAsync(user, setRoles);
+
+            // Assert
+            Assert.IsTrue(success);
+        }
+
+        [Test]
         public void IdentityService_RoleExistsAsync_EmptyStringThrowsException()
         {
             // Arrange
