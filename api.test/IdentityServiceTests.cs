@@ -355,7 +355,7 @@ namespace api.test
             string password = A.Dummy<string>();
 
             // Act and Assert
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPassword(user, password));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPasswordAsync(user, password));
         }
 
         [Test]
@@ -366,7 +366,7 @@ namespace api.test
             string password = string.Empty;
 
             // Act and Assert
-            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPassword(user, password));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPasswordAsync(user, password));
         }
 
         [Test]
@@ -381,7 +381,7 @@ namespace api.test
                 .Returns(IdentityResult.Failed(A.Dummy<IdentityError>()));
 
             // Act and Assert
-            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPassword(user, password));
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPasswordAsync(user, password));
         }
 
         [Test]
@@ -398,7 +398,7 @@ namespace api.test
                 .Returns(IdentityResult.Failed());
 
             // Act and Assert
-            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPassword(user, password));
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPasswordAsync(user, password));
         }
 
         [Test]
@@ -417,7 +417,7 @@ namespace api.test
                 .Returns(IdentityResult.Success);
 
             // Act
-            await _identityService.SetUserPassword(user, password);
+            await _identityService.SetUserPasswordAsync(user, password);
 
             // Assert
             Assert.IsTrue(passwordSet);

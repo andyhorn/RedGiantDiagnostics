@@ -166,7 +166,7 @@ namespace API.Controllers.V2
             // Set the new password
             try
             {
-                await _identityService.SetUserPassword(user, request.NewPassword);
+                await _identityService.SetUserPasswordAsync(user, request.NewPassword);
             }
             catch (ActionFailedException)
             {

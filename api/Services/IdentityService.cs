@@ -242,7 +242,7 @@ namespace API.Services
         /// <param name="user">The existing IdentityUser for which to set the password</param>
         /// <param name="password">The plain-text password - will be hashed and stored</param>
         /// <returns></returns>
-        public async Task SetUserPassword(IdentityUser user, string password)
+        public async Task SetUserPasswordAsync(IdentityUser user, string password)
         {
             // Validate user object
             if (user == null)

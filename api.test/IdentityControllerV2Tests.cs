@@ -263,7 +263,7 @@ namespace api.test
             IdentityUser user = A.Dummy<IdentityUser>();
             A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
                 .Returns(user);
-            A.CallTo(() => _identityService.SetUserPassword(A<IdentityUser>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.SetUserPasswordAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
@@ -282,7 +282,7 @@ namespace api.test
             IdentityUser user = A.Dummy<IdentityUser>();
             A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
                 .Returns(user);
-            A.CallTo(() => _identityService.SetUserPassword(A<IdentityUser>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _identityService.SetUserPasswordAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
             // Act
