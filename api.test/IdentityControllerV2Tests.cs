@@ -208,6 +208,109 @@ namespace api.test
         }
 
         [Test]
+        public async Task IdentityControllerV2_ChangePassword_InvalidModelState_ReturnsBadRequest()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
+
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+            
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_ChangePassword_InvalidModelState_BadRequestContainsErrors()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
+
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+
+            // Assert
+            var data = (result as BadRequestObjectResult).Value;
+            Assert.IsInstanceOf(typeof(SerializableError), data);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_ChangePassword_NoMatchingUser_ReturnsNotFound()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns((IdentityUser)null);
+
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_ChangePassword_ActionFailed_ReturnsStatusCode()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            IdentityUser user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns(user);
+            A.CallTo(() => _identityService.SetUserPassword(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .ThrowsAsync(new ActionFailedException());
+
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_ChangePassword_ActionFailed_Returns500StatusCode()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            IdentityUser user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns(user);
+            A.CallTo(() => _identityService.SetUserPassword(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .ThrowsAsync(new ActionFailedException());
+
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+
+            // Assert
+            var code = (result as StatusCodeResult).StatusCode;
+            Assert.AreEqual(500, code);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_ChangePassword_Success_ReturnsOk()
+        {
+            // Arrange
+            string jwt = A.Dummy<string>();
+            PasswordChangeRequest request = A.Dummy<PasswordChangeRequest>();
+            IdentityUser user = A.Dummy<IdentityUser>();
+            A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
+                .Returns(user);
+            
+            // Act
+            var result = await _controller.ChangePassword(request, jwt);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkResult), result);
+        }
+
+        [Test]
         public async Task IdentityControllerV2_Update_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange

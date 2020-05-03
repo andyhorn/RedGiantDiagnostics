@@ -14,6 +14,7 @@ namespace API.Services
         Task UpdateUserAsync(IdentityUser update);
         Task<IdentityUser> CreateUserAsync(IdentityUser newUser, string password);
         Task<string> LoginAsync(string email, string password);
+        Task SetUserPassword(IdentityUser user, string newPassword);
         Task<bool> UserExistsWithIdAsync(string id);
         Task<bool> UserExistsWithEmailAsync(string email);
         Task<IdentityUser> GetUserFromToken(string jwt);

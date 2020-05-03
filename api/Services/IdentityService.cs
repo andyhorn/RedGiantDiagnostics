@@ -237,6 +237,17 @@ namespace API.Services
         }
 
         /// <summary>
+        /// Sets the user's password
+        /// </summary>
+        /// <param name="user">The existing IdentityUser for which to set the password</param>
+        /// <param name="password">The plain-text password - will be hashed and stored</param>
+        /// <returns></returns>
+        public async Task SetUserPassword(IdentityUser user, string password)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Retrieves an IdentityUser object from a given JWT
         /// </summary>
         /// <param name="jwt">A string representation of a JWT</param>

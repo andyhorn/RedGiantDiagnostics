@@ -5,6 +5,7 @@ using API.Contracts.Requests;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
@@ -22,6 +23,11 @@ namespace API.Controllers.V2
             _identityService = identity;
         }
 
+        /// <summary>
+        /// Allows a logged-in user to retrieve their own user data
+        /// </summary>
+        /// <param name=""Authorization"">JWT from the request headers</param>
+        /// <returns>IdentityUser object for the logged-in user</returns>
         [AllowAnonymous]
         [HttpGet(Contracts.Routes.Identity.V2.Get)]
         public async Task<IActionResult> Get([FromHeader(Name = "Authorization")]string token)
@@ -54,6 +60,11 @@ namespace API.Controllers.V2
             return Ok(user);
         }
 
+        /// <summary>
+        /// Logs a user in via email and password
+        /// </summary>
+        /// <param name="loginRequest">UserLoginRequest object containing email and password</param>
+        /// <returns>BadRequest, NotFound, Unauthorized, or Ok with a JWT</returns>
         [AllowAnonymous]
         [HttpPost(Contracts.Routes.Identity.V2.Login)]
         public async Task<IActionResult> Login([FromBody]UserLoginRequest loginRequest)
@@ -87,6 +98,12 @@ namespace API.Controllers.V2
             return Ok(response);
         }
 
+        /// <summary>
+        /// Allows a logged-in user to update their user info
+        /// </summary>
+        /// <param name="id">The ID of the user to update</param>
+        /// <param name="updateRequest">The UserUpdateRequest object containing changed information</param>
+        /// <returns>BadRequest, NotFound, or Ok</returns>
         [HttpPut(Contracts.Routes.Identity.V2.Update)]
         public async Task<IActionResult> Update([FromRoute]string id, [FromBody]UserUpdateRequest updateRequest)
         {
@@ -125,6 +142,39 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return an Ok
+            return Ok();
+        }
+
+        [HttpPost(Contracts.Routes.Identity.V2.ChangePassword)]
+        public async Task<IActionResult> ChangePassword([FromBody]PasswordChangeRequest request, [FromHeader(Name = "Authorization")]string jwt)
+        {
+            // Validate the ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Retrieve the user object
+            var user = await _identityService.GetUserFromToken(jwt);
+
+            // Verify the existence of the user
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Set the new password
+            try
+            {
+                await _identityService.SetUserPassword(user, request.NewPassword);
+            }
+            catch (ActionFailedException)
+            {
+                // If the change fails, return a server error code
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            // Return Ok
             return Ok();
         }
     }
