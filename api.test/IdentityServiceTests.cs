@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using API.Contracts;
 using API.Exceptions;
 using API.Services;
 using FakeItEasy;
@@ -70,39 +69,6 @@ namespace api.test
             // Act
             Assert.ThrowsAsync<ResourceConflictException>(() => _identityService.CreateUserAsync(newUser, password));
         }
-
-        // [Test]
-        // public async Task IdentityService_CreateUserAsync_CreatesNewRoles()
-        // {
-        //     // Arrange
-        //     var user = A.Dummy<IdentityUser>();
-        //     var password = A.Dummy<string>();
-        //     bool created = false;
-        //     bool[] roleExistsResults = new bool[] { false, false, true };
-
-        //     // UserExists will return false
-        //     A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
-        //         .Returns((IdentityUser)null);
-
-        //     // User creation returns success
-        //     A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.Ignored, A<string>.Ignored))   
-        //         .Returns(IdentityResult.Success);
-            
-        //     // RoleExists will return false
-        //     A.CallTo(() => _roleManager.RoleExistsAsync(A<string>.Ignored))
-        //         .ReturnsNextFromSequence(roleExistsResults);
-
-        //     // Role creation will succeed
-        //     A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.Ignored))
-        //         .Invokes(() => created = true)
-        //         .Returns(IdentityResult.Success);
-
-        //     // Act
-        //     await _identityService.CreateUserAsync(request);
-
-        //     // Assert
-        //     Assert.IsTrue(created);
-        // }
 
         [Test]
         public async Task IdentityService_CreateUserAsync_ValidParameters_CreatesNewUser()
@@ -379,6 +345,82 @@ namespace api.test
 
             // Assert
             Assert.IsNotEmpty(result);
+        }
+
+        [Test]
+        public void IdentityService_SetUserPassword_NullUserObject_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = null;
+            string password = A.Dummy<string>();
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPassword(user, password));
+        }
+
+        [Test]
+        public void IdentityService_SetUserPassword_EmptyPasswordString_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = A.Dummy<IdentityUser>();
+            string password = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _identityService.SetUserPassword(user, password));
+        }
+
+        [Test]
+        public void IdentityService_SetUserPassword_RemovePassword_ActionFails_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = A.Dummy<IdentityUser>();
+            string password = A.Dummy<string>();
+            A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.RemovePasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(IdentityResult.Failed(A.Dummy<IdentityError>()));
+
+            // Act and Assert
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPassword(user, password));
+        }
+
+        [Test]
+        public void IdentityService_SetUserPassword_AddPassword_ActionFails_ThrowsException()
+        {
+            // Arrange
+            IdentityUser user = A.Dummy<IdentityUser>();
+            string password = A.Dummy<string>();
+            A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.RemovePasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(IdentityResult.Success);
+            A.CallTo(() => _userManager.AddPasswordAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Returns(IdentityResult.Failed());
+
+            // Act and Assert
+            Assert.ThrowsAsync<ActionFailedException>(() => _identityService.SetUserPassword(user, password));
+        }
+
+        [Test]
+        public async Task IdentityService_SetUserPassword_Success()
+        {
+            // Arrange
+            IdentityUser user = A.Dummy<IdentityUser>();
+            string password = A.Dummy<string>();
+            bool passwordSet = false;
+            A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(true);
+            A.CallTo(() => _userManager.RemovePasswordAsync(A<IdentityUser>.Ignored))
+                .Returns(IdentityResult.Success);
+            A.CallTo(() => _userManager.AddPasswordAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .Invokes(() => passwordSet = true)
+                .Returns(IdentityResult.Success);
+
+            // Act
+            await _identityService.SetUserPassword(user, password);
+
+            // Assert
+            Assert.IsTrue(passwordSet);
         }
 
         [Test]

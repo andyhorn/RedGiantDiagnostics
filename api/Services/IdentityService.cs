@@ -244,7 +244,40 @@ namespace API.Services
         /// <returns></returns>
         public async Task SetUserPassword(IdentityUser user, string password)
         {
-            throw new NotImplementedException();
+            // Validate user object
+            if (user == null)
+            {
+                throw new ArgumentNullException("User cannot be null");
+            }
+
+            // Validate password string
+            if (string.IsNullOrEmpty(password))
+            {
+                throw new ArgumentNullException("Password cannot be empty");
+            }
+
+            // Check if the user has a password set
+            var hasPassword = await _userManager.HasPasswordAsync(user);
+
+            // If the user has a password currently set, remove it
+            if (hasPassword)
+            {
+                var removeResult = await _userManager.RemovePasswordAsync(user);
+                if (!removeResult.Succeeded)
+                {
+                    // If the password could not be removed, throw an exception
+                    throw new ActionFailedException();
+                }
+            }
+
+            // Set the new password
+            var setResult = await _userManager.AddPasswordAsync(user, password);
+
+            if (!setResult.Succeeded)
+            {
+                // If the new password could not be set, throw an exception
+                throw new ActionFailedException();
+            }
         }
 
         /// <summary>
