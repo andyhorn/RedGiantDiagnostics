@@ -77,6 +77,23 @@ namespace api.test
         }
 
         [Test]
+        public async Task AdminController_RegisterUser_CreationFailThrowsException_ReturnsStatusCode()
+        {
+            // Arrange
+            var request = A.Dummy<AdminUserRegistrationRequest>();
+            A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
+                .Returns(false);
+            A.CallTo(() => _identityService.CreateUserAsync(A<IdentityUser>.Ignored, A<string>.Ignored))
+                .ThrowsAsync(new ActionFailedException());
+
+            // Act
+            var result = await _controller.RegisterUser(request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+        }
+
+        [Test]
         public async Task AdminController_RegisterUser_ErrorCreatingUser_ReturnsStatusCode()
         {
             // Arrange
@@ -420,7 +437,7 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsNotNull(data);
+            Assert.IsInstanceOf(typeof(IdentityUser), data);
         }
 
         [Test]
@@ -499,7 +516,7 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsNotNull(data);
+            Assert.IsInstanceOf(typeof(IdentityUser), data);
         }
 
         #endregion
@@ -582,7 +599,7 @@ namespace api.test
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
-            Assert.IsNotNull(data);
+            Assert.IsInstanceOf(typeof(SerializableError), data);
         }
 
         [Test]

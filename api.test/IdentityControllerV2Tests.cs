@@ -106,11 +106,11 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsNotNull(data);
+            Assert.IsInstanceOf(typeof(IdentityUser), data);
         }
 
         [Test]
-        public async Task IdentityControllerV2_Get_Login_InvalidModelState_ReturnsBadRequest()
+        public async Task IdentityControllerV2_Login_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
@@ -135,7 +135,22 @@ namespace api.test
 
             // Assert
             var data = (result as BadRequestObjectResult).Value;
-            Assert.IsNotNull(data);
+            Assert.IsInstanceOf(typeof(SerializableError), data);
+        }
+
+        [Test]
+        public async Task IdentityControllerV2_Login_NoMatchingUser_ReturnsNotFound()
+        {
+            // Arrange
+            var request = A.Dummy<UserLoginRequest>();
+            A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
+                .Returns(false);
+
+            // Act
+            var result = await _controller.Login(request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
         }
 
         [Test]
@@ -224,6 +239,20 @@ namespace api.test
         }
 
         [Test]
+        public async Task IdentityControllerV2_Update_EmptyIdString_ReturnsBadRequest()
+        {
+            // Arrange
+            var id = string.Empty;
+            var request = A.Dummy<UserUpdateRequest>();
+
+            // Act
+            var result = await _controller.Update(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
+        }
+
+        [Test]
         public async Task IdentityControllerV2_Update_NoMatchingUser_ReturnsNotFound()
         {
             // Arrange
@@ -244,9 +273,12 @@ namespace api.test
         {
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
+            var user = A.Dummy<IdentityUser>();
             var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
             A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 
@@ -263,8 +295,11 @@ namespace api.test
             // Arrange
             var request = A.Dummy<UserUpdateRequest>();
             var id = A.Dummy<string>();
+            var user = A.Dummy<IdentityUser>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
+            A.CallTo(() => _identityService.GetUserByIdAsync(A<string>.Ignored))
+                .Returns(user);
             A.CallTo(() => _identityService.UpdateUserAsync(A<IdentityUser>.Ignored))
                 .ThrowsAsync(new ActionFailedException());
 

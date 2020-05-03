@@ -33,7 +33,8 @@ namespace API.Controllers.V2
             }
 
             // Remove the Bearer title
-            token = token.Substring("Bearer ".Length);
+            if (token.Contains("Bearer "))
+                token = token.Substring("Bearer ".Length);
 
             // Validate the token
             var isValid = await _identityService.ValidateTokenAsync(token);
@@ -82,6 +83,7 @@ namespace API.Controllers.V2
             // Return Ok with the token and user ID
             var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
             var response = new TokenResponse(user.Id, token);
+
             return Ok(response);
         }
 
@@ -92,6 +94,11 @@ namespace API.Controllers.V2
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
             }
 
             // Verify a user exists with the given ID

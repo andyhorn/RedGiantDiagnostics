@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Threading.Tasks;
-using API.Contracts;
 using API.Contracts.Requests;
 using API.Entities;
 using API.Services;
@@ -155,6 +152,12 @@ namespace API.Controllers.V2
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("ID is required");
             }
 
             // Verify a log exists with the given ID

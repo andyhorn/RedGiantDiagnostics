@@ -1,15 +1,11 @@
 using System;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using API.Contracts;
 using API.Contracts.Requests;
 using API.Controllers.V2;
 using API.Entities;
 using API.Services;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 
@@ -343,6 +339,7 @@ namespace api.test
             var userId = A.Dummy<string>();
             var jwt = $"Bearer {A.Dummy<string>()}";
             var savedLog = A.Dummy<LogFile>();
+            savedLog.Id = A.Dummy<string>();
             A.CallTo(() => _tokenService.GetUserId(A<string>.Ignored))
                 .Returns(userId);
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
@@ -362,6 +359,7 @@ namespace api.test
             var log = A.Dummy<LogFile>();
             log.Id = null;
             var savedLog = A.Dummy<LogFile>();
+            savedLog.Id = A.Dummy<string>();
             A.CallTo(() => _logsService.CreateAsync(A<LogFile>.Ignored))
                 .Returns(savedLog);
             var userId = A.Dummy<string>();
@@ -432,6 +430,20 @@ namespace api.test
             // Assert
             var data = (result as BadRequestObjectResult).Value;
             Assert.IsInstanceOf(typeof(SerializableError), data);
+        }
+
+        [Test]
+        public async Task LogsControllerV2_UpdateLog_EmptyStringId_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = A.Dummy<LogUpdateRequest>();
+            var id = string.Empty;
+
+            // Act
+            var result = await _controller.UpdateLog(id, request);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
         [Test]
