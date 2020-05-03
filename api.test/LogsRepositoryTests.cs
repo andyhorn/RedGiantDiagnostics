@@ -11,9 +11,9 @@ using NUnit.Framework;
 using FakeItEasy;
 using API.Data;
 using MongoDB.Driver;
-using API.Models;
 using System.Threading.Tasks;
 using API.Entities;
+using System;
 
 namespace api.test
 {
@@ -54,6 +54,16 @@ namespace api.test
         }
 
         [Test]
+        public async Task LogsRepository_GetById_EmptyIdString_ThrowsException()
+        {
+            // Arrange
+            var id = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsRepository.GetByIdAsync(id));
+        }
+
+        [Test]
         public async Task LogsRepository_GetById_CallsMongoFindAsync()
         {
             // Arrange
@@ -66,6 +76,16 @@ namespace api.test
             A.CallTo(_logCollection)
                 .Where(x => x.Method.Name == "FindAsync")
                 .MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public void LogsRepository_RemoveAsync_EmptyIdString_ThrowsException()
+        {
+            // Arrange
+            var id = string.Empty;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsRepository.RemoveAsync(id));
         }
 
         [Test]
@@ -84,6 +104,16 @@ namespace api.test
         }
 
         [Test]
+        public void LogsRepository_SaveAsync_NullLogFileObject_ThrowsException()
+        {
+            // Arrange
+            LogFile log = null;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsRepository.SaveAsync(log));
+        }
+
+        [Test]
         public async Task LogsRepository_SaveAsync_CallsMongoInsertOneAsync()
         {
             // Arrange
@@ -99,6 +129,29 @@ namespace api.test
         }
 
         [Test]
+        public void LogsRepository_UpdateAsync_NullLogFileObject_ThrowsException()
+        {
+            // Arrange
+            LogFile update = null;
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsRepository.UpdateAsync(update));
+        }
+
+        [Test]
+        public async Task LogsRepository_UpdateAsync_ReturnsLogFileObject()
+        {
+            // Arrange
+            var log = A.Dummy<LogFile>();
+
+            // Act
+            var result = await _logsRepository.UpdateAsync(log);
+
+            // Assert
+            Assert.IsInstanceOf(typeof(LogFile), result);
+        }
+
+        [Test]
         public async Task LogsRepository_UpdateAsync_CallsMongoFindOneAndReplaceAsync_And_FindAsync()
         {
             // Arrange
@@ -110,10 +163,6 @@ namespace api.test
             // Assert
             A.CallTo(_logCollection)
                 .Where(x => x.Method.Name == "FindOneAndReplaceAsync")
-                .MustHaveHappenedOnceExactly();
-
-            A.CallTo(_logCollection)
-                .Where(x => x.Method.Name == "FindAsync")
                 .MustHaveHappenedOnceExactly();
         }
     }
