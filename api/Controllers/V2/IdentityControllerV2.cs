@@ -27,7 +27,7 @@ namespace API.Controllers.V2
         /// <summary>
         /// Allows a logged-in user to retrieve their own user data
         /// </summary>
-        /// <param name=""Authorization"">JWT from the request headers</param>
+        /// <param name="token">JWT from the request headers</param>
         /// <returns>IdentityUser object for the logged-in user</returns>
         [AllowAnonymous]
         [HttpGet(Contracts.Routes.Identity.V2.Get)]

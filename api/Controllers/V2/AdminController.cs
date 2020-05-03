@@ -76,8 +76,11 @@ namespace API.Controllers.V2
             }
 
             // Create the new user object
-            var newUser = new IdentityUser();
-            newUser.Map<AdminUserRegistrationRequest>(request);
+            var newUser = new IdentityUser
+            {
+                Email = request.Email,
+                UserName = request.Email
+            };
 
             // Save the new user to the identity store
             try
@@ -144,6 +147,7 @@ namespace API.Controllers.V2
         /// </summary>
         /// <param name="id">The ID of the user to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
+        [Authorize(Policy = Contracts.Policies.SelfOwnedResourceExclusionPolicy)]
         [HttpDelete(Contracts.Routes.Administrator.Users.Delete)]
         public async Task<IActionResult> DeleteUser([FromRoute]string id)
         {
@@ -175,8 +179,8 @@ namespace API.Controllers.V2
             return NoContent();
         }
 
-        [Authorize(Policy = Contracts.Policies.RoleChangePolicy)]
-        [HttpPost(Contracts.Routes.Administrator.Users.Roles)]
+        [Authorize(Policy = Contracts.Policies.SelfOwnedResourceExclusionPolicy)]
+        [HttpPut(Contracts.Routes.Administrator.Users.Roles)]
         public async Task<IActionResult> SetUserRoles([FromRoute]string id, [FromBody]AdminUserRolesUpdateRequest request)
         {
             // Validate the ModelState

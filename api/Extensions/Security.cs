@@ -19,14 +19,14 @@ namespace API
                         new ResourceOwnerRequirement()
                     );
                 });
-                options.AddPolicy(Contracts.Policies.RoleChangePolicy, policy => {
+                options.AddPolicy(Contracts.Policies.SelfOwnedResourceExclusionPolicy, policy => {
                     policy.AddRequirements(
-                        new RoleChangeRequirement()
+                        new SelfOwnedResourceExclusionRequirement()
                     );
                 });
             });
 
-            services.AddScoped<IAuthorizationHandler, CannotChangeOwnRolesHandler>();
+            services.AddScoped<IAuthorizationHandler, SelfOwnedResourceExclusionHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessOwnedResourceHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessAdministrativeResourcesHandler>();
         }

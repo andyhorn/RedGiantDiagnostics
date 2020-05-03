@@ -25,8 +25,6 @@ namespace api.test
             return new AdminUserRegistrationRequest
             {
                 Email = A.Dummy<string>(),
-                FirstName = A.Dummy<string>(),
-                LastName = A.Dummy<string>(),
                 Password = A.Dummy<string>(),
                 ConfirmPassword = A.Dummy<string>()
             };

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace API.Security
 {

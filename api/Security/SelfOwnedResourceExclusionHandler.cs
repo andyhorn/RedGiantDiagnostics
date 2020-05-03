@@ -1,20 +1,23 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
 namespace API.Security
 {
-    public class CannotChangeOwnRolesHandler : AuthorizationHandler<RoleChangeRequirement>
+    public class SelfOwnedResourceExclusionHandler 
+        : AuthorizationHandler<SelfOwnedResourceExclusionRequirement>
     {
         private IHttpContextAccessor _httpContextAccessor;
 
-        public CannotChangeOwnRolesHandler(IHttpContextAccessor http)
+        public SelfOwnedResourceExclusionHandler(IHttpContextAccessor http)
         {
             _httpContextAccessor = http;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleChangeRequirement requirement)
+        protected override Task HandleRequirementAsync
+            (AuthorizationHandlerContext context, 
+            SelfOwnedResourceExclusionRequirement requirement)
         {
             // Get the current user's ID
             var currentUser = _httpContextAccessor.HttpContext.User;

@@ -54,23 +54,23 @@ namespace API.Controllers.V2
         /// <summary>
         /// Returns a new LogFile object parsed from a file uploaded through a form
         /// </summary>
-        /// <param name="formFile">The uploaded log file</param>
+        /// <param name="file">The uploaded log file</param>
         /// <returns>A new LogFile object or BadRequest</returns>
         [AllowAnonymous]
         [HttpPost(Contracts.Routes.Logs.V2.Upload)]
-        public async Task<IActionResult> Upload([FromForm]IFormFile formFile)
+        public async Task<IActionResult> Upload([FromForm]IFormFile file)
         {
-            // Validate the ModelState
-            if (!ModelState.IsValid)
+            // Validate the form file
+            if (file == null)
             {
-                return BadRequest(ModelState);
+                return BadRequest("File upload is required");
             }
 
             // Read the form file data
             string data = string.Empty;
             try
             {
-                data = await _fileService.ReadFormFileAsync(formFile);
+                data = await _fileService.ReadFormFileAsync(file);
             }
             catch
             {

@@ -107,11 +107,10 @@ namespace api.test
         }
 
         [Test]
-        public async Task LogsControllerV2_Upload_InvalidModelState_ReturnsBadRequest()
+        public async Task LogsControllerV2_Upload_NullFormFile_ReturnsBadRequest()
         {
             // Arrange
-            var formFile = A.Fake<IFormFile>();
-            _controller.ModelState.AddModelError(string.Empty, "TEST_ERROR");
+            IFormFile formFile = null;
 
             // Act
             var result = await _controller.Upload(formFile);
