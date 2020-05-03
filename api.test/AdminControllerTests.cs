@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests.Admin;
+using API.Contracts.Responses;
 using API.Controllers.V2;
 using API.Entities;
 using API.Exceptions;
@@ -29,6 +30,37 @@ namespace api.test
         }
 
         #region AdminController.Users Tests
+
+        [Test]
+        public async Task AdminController_GetAllUsers_ReturnsOk()
+        {
+            // Arrange
+            var list = A.CollectionOfDummy<IdentityUser>(3);
+            A.CallTo(() => _identityService.GetAllUsersAsync())
+                .Returns(list);
+
+            // Act
+            var result = await _controller.GetAllUsers();
+
+            // Assert
+            Assert.IsInstanceOf(typeof(OkObjectResult), result);
+        }
+
+        [Test]
+        public async Task AdminController_GetAllUsers_ReturnsListOfIdentityUser()
+        {
+            // Arrange
+            var list = A.CollectionOfDummy<IdentityUser>(3);
+            A.CallTo(() => _identityService.GetAllUsersAsync())
+                .Returns(list);
+
+            // Act
+            var result = await _controller.GetAllUsers();
+
+            // Assert
+            var data = (result as OkObjectResult).Value;
+            Assert.IsInstanceOf(typeof(IEnumerable<UserDataResponse>), data);
+        }
 
         [Test]
         public async Task AdminController_RegisterUser_InvalidModelState_ReturnsBadRequest()
@@ -593,7 +625,7 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsInstanceOf(typeof(IdentityUser), data);
+            Assert.IsInstanceOf(typeof(UserDataResponse), data);
         }
 
         [Test]
@@ -672,7 +704,7 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsInstanceOf(typeof(IdentityUser), data);
+            Assert.IsInstanceOf(typeof(UserDataResponse), data);
         }
 
         #endregion

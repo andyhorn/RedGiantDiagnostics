@@ -10,6 +10,7 @@ namespace API.Contracts
             {
                 private const string Base = "users";
                 public const string Register = Base;
+                public const string GetAll = Base;
                 public const string Update = Base + "/{id}";
                 public const string Roles = Base + "/{id}/roles";
                 public const string Delete = Base + "/{id}";

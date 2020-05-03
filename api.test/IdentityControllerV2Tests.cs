@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
+using API.Contracts.Responses;
 using API.Controllers.V2;
 using API.Exceptions;
 using API.Services;
@@ -106,7 +107,7 @@ namespace api.test
 
             // Assert
             var data = (result as OkObjectResult).Value;
-            Assert.IsInstanceOf(typeof(IdentityUser), data);
+            Assert.IsInstanceOf(typeof(UserDataResponse), data);
         }
 
         [Test]

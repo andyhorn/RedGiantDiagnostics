@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
+using API.Contracts.Responses;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -57,7 +58,7 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return the user data
-            return Ok(user);
+            return Ok(new UserDataResponse(user));
         }
 
         /// <summary>

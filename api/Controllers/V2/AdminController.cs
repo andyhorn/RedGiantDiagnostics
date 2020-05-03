@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests.Admin;
+using API.Contracts.Responses;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +27,31 @@ namespace API.Controllers.V2
         {
             _identityService = identity;
             _logsService = logs;
+        }
+
+        [HttpGet(Contracts.Routes.Administrator.Users.GetAll)]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            // Instantiate a list of UserDataResponse object
+            var userList = new List<UserDataResponse>();
+
+            // Retrieve the list of users
+            var users = await _identityService.GetAllUsersAsync();
+
+            // Validate the users object
+            if (users != null)
+            {
+                // Create a UserDataResponse object from each user
+                // and add it to the response list
+                foreach (var user in users)
+                {
+                    var response = new UserDataResponse(user);
+                    userList.Add(response);
+                }
+            }
+
+            // Return the list in an Ok result
+            return Ok(userList);
         }
 
         /// <summary>
@@ -69,7 +95,8 @@ namespace API.Controllers.V2
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return Created(newUser.Id, newUser);
+            var response = new UserDataResponse(newUser);
+            return Created(newUser.Id, response);
         }
 
         /// <summary>
@@ -235,7 +262,7 @@ namespace API.Controllers.V2
             var user = await _identityService.GetUserByIdAsync(id);
 
             // Return an OK containing the user data
-            return Ok(user);
+            return Ok(new UserDataResponse(user));
         }
 
         /// <summary>
@@ -263,7 +290,7 @@ namespace API.Controllers.V2
             var user = await _identityService.GetUserByEmailAsync(email);
 
             // Return an OK with the user object
-            return Ok(user);
+            return Ok(new UserDataResponse(user));
         }
 
         /// <summary>
