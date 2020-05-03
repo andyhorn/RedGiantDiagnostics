@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Contracts.Requests.Admin;
 using API.Contracts.Responses;
 using API.Controllers.V2;
@@ -814,7 +815,7 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<AdminLogUpdateRequest>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
@@ -832,7 +833,7 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<AdminLogUpdateRequest>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
@@ -852,7 +853,7 @@ namespace api.test
             var log = A.Dummy<LogFile>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<AdminLogUpdateRequest>.Ignored))
                 .Returns(log);
 
             // Act

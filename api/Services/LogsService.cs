@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Contracts.Requests;
+using API.Contracts.Requests.Admin;
 using API.Data;
 using API.Entities;
+using API.Exceptions;
 using API.Factories;
 using API.Models;
 
@@ -41,14 +44,29 @@ namespace API.Services
             return;
         }
 
-        public async Task<LogFile> UpdateAsync(LogFile update)
+        public async Task<LogFile> UpdateAsync<T>(string id, T update) where T : ILogUpdateRequest
         {
-            if (update == null)
+            // Validate the ID string
+            if (string.IsNullOrEmpty(id))
             {
-                return null;
+                throw new ArgumentNullException("ID cannot be empty");
             }
 
-            return await _logs.UpdateAsync(update);
+            // Validate the update request object
+            if (update == null)
+            {
+                throw new ArgumentNullException("Update data cannot be null");
+            }
+
+            var log = await _logs.GetByIdAsync(id);
+            if (log == null)
+            {
+                throw new ResourceNotFoundException();
+            }
+
+            log.Update<T>(update);
+
+            return await _logs.UpdateAsync(log);
         }
 
         public async Task<IEnumerable<LogFile>> GetAllLogsAsync()

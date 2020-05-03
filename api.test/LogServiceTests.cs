@@ -5,13 +5,15 @@
 using API.Data;
 using NUnit.Framework;
 using FakeItEasy;
-using API.Models;
 using System.Threading.Tasks;
 using API.Services;
 using System.Linq;
 using API.Factories;
 using API.Entities;
 using System;
+using API.Contracts.Requests;
+using API.Exceptions;
+using API.Contracts.Requests.Admin;
 
 namespace api.test
 {
@@ -379,14 +381,54 @@ namespace api.test
         }
 
         [Test]
+        public void LogsService_UpdateAsync_EmptyIdString_ThrowsException()
+        {
+            // Arrange
+            var id = string.Empty;
+            var request = A.Dummy<LogUpdateRequest>();
+
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.UpdateAsync(id, request));
+        }
+
+        [Test]
+        public void LogsService_UpdateAsync_NullLogUpdate_ThrowsException()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            LogUpdateRequest request = null;
+
+            // Act
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.UpdateAsync(id, request));
+        }
+
+        [Test]
+        public void LogsService_UpdateAsync_InvalidId_ThrowsException()
+        {
+            // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<LogUpdateRequest>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns((LogFile)null);
+
+            // Act and Assert
+            Assert.ThrowsAsync<ResourceNotFoundException>(() => _logsService.UpdateAsync(id, request));
+        }
+
+        [Test]
         public async Task LogsService_UpdateAsync_CallsRepositoryUpdate()
         {
             // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<LogUpdateRequest>();
+            var log = A.Dummy<LogFile>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns(log);
             A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
-                .Returns(Task.FromResult(A.Fake<LogFile>()));
+                .Returns(log);
 
             // Act
-            var result = await _logsService.UpdateAsync(A.Fake<LogFile>());
+            var result = await _logsService.UpdateAsync(id, request);
 
             // Assert
             A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
@@ -397,32 +439,40 @@ namespace api.test
         public async Task LogsService_UpdateAsync_ReturnsSameLogFile()
         {
             // Arrange
+            var request = A.Dummy<LogUpdateRequest>();
             var logFile = A.Fake<LogFile>();
             const string id = "fakeId";
             logFile.Id = id;
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns(logFile);
             A.CallTo(() => _logsRepository.UpdateAsync(logFile))
                 .Returns(logFile);
 
             // Act
-            var result = await _logsService.UpdateAsync(logFile);
+            var result = await _logsService.UpdateAsync(id, request);
 
             // Assert
             Assert.AreSame(logFile, result);
         }
 
         [Test]
-        public async Task LogsService_UpdateAsync_HandlesNullObject()
+        public async Task LogsService_UpdateAsync_HandlesAdminUpdateRequest()
         {
-            // Arrange 
-            LogFile nullObject = null;
-            
+            // Arrange
+            var id = A.Dummy<string>();
+            var request = A.Dummy<AdminLogUpdateRequest>();
+            var log = A.Dummy<LogFile>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns(log);
+            A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
+                .Returns(log);
+
             // Act
-            var result = await _logsService.UpdateAsync(nullObject);
+            var result = await _logsService.UpdateAsync(id, request);
 
             // Assert
-            Assert.IsNull(result);
             A.CallTo(() => _logsRepository.UpdateAsync(A<LogFile>.Ignored))
-                .MustNotHaveHappened();
+                .MustHaveHappenedOnceExactly();
         }
 
         [Test]

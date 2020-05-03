@@ -168,24 +168,10 @@ namespace API.Controllers.V2
                 return NotFound();
             }
 
-            // Retrieve the log from the store
-            var log = await _logsService.GetByIdAsync(id);
-
-            // Map the updated log info <-- This should be moved into the logs service
-            if (!string.IsNullOrEmpty(update.Comments))
-            {
-                log.Comments = update.Comments;
-            }
-
-            if (!string.IsNullOrEmpty(update.Title))
-            {
-                log.Title = update.Title;
-            }
-
             // Update the log data
             try
             {
-                await _logsService.UpdateAsync(log);
+                await _logsService.UpdateAsync(id, update);
             }
             catch
             {

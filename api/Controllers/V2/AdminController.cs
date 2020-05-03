@@ -349,31 +349,12 @@ namespace API.Controllers.V2
                 return NotFound();
             }
 
-            // Retrieve the log
-            var log = await _logsService.GetByIdAsync(id);
-
-            // Map the updated data
-            if (!string.IsNullOrEmpty(request.OwnerId))
-            {
-                log.OwnerId = request.OwnerId;
-            }
-
-            if (!string.IsNullOrEmpty(request.Title))
-            {
-                log.Title = request.Title;
-            }
-
-            if (!string.IsNullOrEmpty(request.Comments))
-            {
-                log.Comments = request.Comments;
-            }
-
             // Update the log data
             try
             {
-                await _logsService.UpdateAsync(log);
+                await _logsService.UpdateAsync(id, request);
             }
-            catch (Exception)
+            catch
             {
                 // If the update fails, return a 500 status code
                 return StatusCode(StatusCodes.Status500InternalServerError);

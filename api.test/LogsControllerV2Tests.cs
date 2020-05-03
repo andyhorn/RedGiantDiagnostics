@@ -472,7 +472,7 @@ namespace api.test
                 .Returns(true);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .Returns(log);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<LogUpdateRequest>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
@@ -491,9 +491,7 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _logsService.LogExists(A<string>.Ignored))
                 .Returns(true);
-            A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
-                .Returns(log);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<LogUpdateRequest>.Ignored))
                 .ThrowsAsync(new Exception());
 
             // Act
@@ -515,7 +513,7 @@ namespace api.test
                 .Returns(true);
             A.CallTo(() => _logsService.GetByIdAsync(A<string>.Ignored))
                 .Returns(log);
-            A.CallTo(() => _logsService.UpdateAsync(A<LogFile>.Ignored))
+            A.CallTo(() => _logsService.UpdateAsync(A<string>.Ignored, A<LogUpdateRequest>.Ignored))
                 .Returns(log);
 
             // Act
