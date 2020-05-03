@@ -54,7 +54,7 @@ namespace api.test
         }
 
         [Test]
-        public async Task LogsRepository_GetById_EmptyIdString_ThrowsException()
+        public void LogsRepository_GetById_EmptyIdString_ThrowsException()
         {
             // Arrange
             var id = string.Empty;

@@ -1,4 +1,4 @@
-//  File:           LogsServiceTest.cs
+﻿//  File:           LogsServiceTests.cs
 //  Author:         Andy Horn
 //  Description:    Tests the LogsService implementation.
 
@@ -18,7 +18,7 @@ using API.Contracts.Requests.Admin;
 namespace api.test
 {
 
-    public class LogsServiceTest
+    public class LogsServiceTests
     {
         private ILogsRepository _logsRepository; // Mock
         private ILogFactory _logFactory; // Mock
@@ -45,8 +45,6 @@ namespace api.test
             var list = await _logsService.GetAllLogsAsync();
 
             // Assert
-            A.CallTo(() => _logsRepository.GetAllLogsAsync()).MustHaveHappenedOnceExactly();
-            Assert.IsNotEmpty(list);
             Assert.AreEqual(numLogs, list.ToList().Count);
         }
 
@@ -61,49 +59,33 @@ namespace api.test
             var list = (await _logsService.GetAllLogsAsync()).ToList();
 
             // Assert
-            A.CallTo(() => _logsRepository.GetAllLogsAsync()).MustHaveHappenedOnceExactly();
             Assert.IsEmpty(list);
         }
 
         [Test]
-        public async Task LogsService_CreateAsync_AddsToList()
+        public void LogsService_CreateAsync_NullLogFileObject_ThrowsException()
         {
             // Arrange
-            const int numOriginalLogs = 3;
-            var fakeLog = A.Fake<LogFile>();
-            var list = A.CollectionOfFake<LogFile>(numOriginalLogs);
-            A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
-                .Invokes((callObject) => {
-                    list.Add(callObject.FakedObject as LogFile);
-                });
+            LogFile log = null;
 
-            // Act
-            var result = await _logsService.CreateAsync(fakeLog);
-
-            // Assert
-            Assert.IsNotNull(result);
-            A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            Assert.AreEqual(numOriginalLogs + 1, list.Count);
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.CreateAsync(log));
         }
 
         [Test]
-        public async Task LogsService_CreateAsync_HandlesNullObject()
+        public void LogsService_CreateAsync_AddError_ThrowsException()
         {
             // Arrange
-            LogFile nullObject = null;
-
-            // Act
-            var result = await _logsService.CreateAsync(nullObject);
-
-            // Assert
-            Assert.IsNull(result);
+            var log = A.Dummy<LogFile>();
             A.CallTo(() => _logsRepository.SaveAsync(A<LogFile>.Ignored))
-                .MustNotHaveHappened();
+                .ThrowsAsync(new Exception());
+
+            // Act and Assert
+            Assert.ThrowsAsync<ActionFailedException>(() => _logsService.CreateAsync(log));
         }
 
         [Test]
-        public async Task LogsService_GetByIdAsync_ReturnsLogWithValidId()
+        public async Task LogsService_GetByIdAsync_ReturnsValidLogFile()
         {
             // Arrange
             var fakeLog = A.Fake<LogFile>();
@@ -114,39 +96,27 @@ namespace api.test
             var retrieved = await _logsService.GetByIdAsync(A.Dummy<string>());
 
             // Assert
-            Assert.IsNotNull(retrieved);
-            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
+            Assert.IsInstanceOf(typeof(LogFile), retrieved);
         }
 
         [Test]
-        public async Task LogsService_GetByIdAsync_HandlesNullId()
+        public void LogsService_GetByIdAsync_NullIdThrowsException()
         {
             // Arrange
             const string nullId = null;
 
-            // Act
-            var result = await _logsService.GetByIdAsync(nullId);
-
-            // Assert
-            Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.GetByIdAsync(nullId));
         }
 
         [Test]
-        public async Task LogsService_GetByIdAsync_HandlesWhitespaceId()
+        public void LogsService_GetByIdAsync_WhitespaceId_ThrowsException()
         {
             // Arrange
             const string emptyId = "    ";
 
-            // Act
-            var result = await _logsService.GetByIdAsync(emptyId);
-
-            // Assert
-            Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.GetByIdAsync(emptyId));
         }
 
         [Test]
@@ -214,29 +184,26 @@ namespace api.test
             const int numMatchingLogs = 5;      // 5 of which will belong to the 'owner'
             const string ownerId = "OwnerId";   // The 'owner' ID to use
 
-                // Create the full list of logs
+            // Create the full list of logs
             var fakeList = A.CollectionOfFake<LogFile>(numTotalLogs).ToList();
 
-                // Set the owner ID on five of the logs in the list
+            // Set the owner ID on five of the logs in the list
             for (var i = 0; i < numMatchingLogs; i++)
             {
                 fakeList[i].OwnerId = ownerId;
             }
 
-                // Make sure the repository uses this fake list
+            // Make sure the repository uses this fake list
             A.CallTo(() => _logsRepository.GetAllLogsAsync())
                 .Returns(Task.FromResult(fakeList));
 
 
             // Act
-                // This should only return logs with a matching owner ID
+            // This should only return logs with a matching owner ID
             var list = await _logsService.GetForUserAsync(ownerId);
 
             // Assert
-            Assert.IsNotEmpty(list);
             Assert.AreEqual(numMatchingLogs, list.Count());
-            A.CallTo(() => _logsRepository.GetAllLogsAsync())
-                .MustHaveHappenedOnceExactly();
         }
 
         [Test]
@@ -259,125 +226,78 @@ namespace api.test
 
             // Assert
             Assert.IsEmpty(result);
-            A.CallTo(() => _logsRepository.GetAllLogsAsync())
-                .MustHaveHappenedOnceExactly();
         }
 
         [Test]
-        public async Task LogsService_GetForUserAsync_HandlesNullUserId()
+        public void LogsService_GetForUserAsync_NullUserId_ThrowsException()
         {
             // Arrange
             const string nullUserId = null;
 
-            // Act
-            var result = await _logsService.GetForUserAsync(nullUserId);
-
-            // Assert
-            Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.GetAllLogsAsync())
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.GetForUserAsync(nullUserId));
         }
 
         [Test]
-        public async Task LogsService_GetForUserAsync_HandlesWhitespaceUserId()
+        public void LogsService_GetForUserAsync_WhitespaceUserId_ThrowsException()
         {
             // Arrange
             const string emptyUserId = "    ";
 
-            // Act
-            var result = await _logsService.GetForUserAsync(emptyUserId);
-
-            // Assert
-            Assert.IsNull(result);
-            A.CallTo(() => _logsRepository.GetAllLogsAsync())
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.GetForUserAsync(emptyUserId));
         }
 
         [Test]
         public async Task LogsService_DeleteAsync_RemovesItemFromList()
         {
             // Arrange
-            const int originalCount = 10;
-            const string idToRemove = "removeMe";
-            var fakeList = A.CollectionOfFake<LogFile>(originalCount).ToList();
-            fakeList[5].Id = idToRemove;
+            const int initialCount = 10;
+            var count = initialCount;
+            var id = A.Dummy<string>();
+            var log = A.Dummy<LogFile>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns(log);
             A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .Invokes(call => {
-                    var toRemove = fakeList.First(x => x.Id == (string)call.Arguments[0]);
-                    fakeList.Remove(toRemove);
-                });
+                .Invokes(() => count--);
 
             // Act
-            await _logsService.DeleteAsync(idToRemove);
+            await _logsService.DeleteAsync(id);
 
             // Assert
-            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            Assert.AreEqual(originalCount - 1, fakeList.Count);
+            Assert.AreEqual(initialCount - 1, count);
         }
 
         [Test]
-        public async Task LogsService_DeleteAsync_HandlesNullId()
+        public void LogsService_DeleteAsync_NullId_ThrowsException()
         {
             // Arrange
             const string nullId = null;
 
-            // Act
-            await _logsService.DeleteAsync(nullId);
-
-            // Assert
-            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
-            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.DeleteAsync(nullId));
         }
 
         [Test]
-        public async Task LogsService_DeleteAsync_HandlesEmptyId()
+        public void LogsService_DeleteAsync_EmptyId_ThrowsException()
         {
             // Arrange
             const string emptyId = "    ";
 
-            // Act
-            await _logsService.DeleteAsync(emptyId);
-
-            // Assert
-            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
-            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.ThrowsAsync<ArgumentNullException>(() => _logsService.DeleteAsync(emptyId));
         }
 
         [Test]
-        public async Task LogsService_DeleteAsync_HandlesNonmatchingId()
+        public void LogsService_DeleteAsync_NoMatch_ThrowsException()
         {
             // Arrange
-            const string invalidId = "noMatchForMe";
-            const int numLogs = 10;
-            bool removed = false;
-            var fakeList = A.CollectionOfFake<LogFile>(numLogs).ToList();
+            var id = A.Dummy<string>();
+            A.CallTo(() => _logsRepository.GetByIdAsync(A<string>.Ignored))
+                .Returns((LogFile)null);
 
-            // Remove any items with a matching ID; There shouldn't be any
-            // with a matching ID, so none should be removed.
-            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .Invokes(call => {
-                    var id = (string)call.Arguments[0];
-                    var item = fakeList.FirstOrDefault(x => x.Id == id);
-                    if (item != null)
-                    {
-                        fakeList.Remove(item);
-                        removed = true;
-                    }
-                });
-            
-            // Act
-            await _logsService.DeleteAsync(invalidId);
-
-            // Assert
-            A.CallTo(() => _logsRepository.RemoveAsync(A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            Assert.AreEqual(numLogs, fakeList.Count);
-            Assert.IsFalse(removed);
+            // Act and Assert
+            Assert.ThrowsAsync<ResourceNotFoundException>(() => _logsService.DeleteAsync(id));
         }
 
         [Test]
@@ -492,34 +412,13 @@ namespace api.test
         }
 
         [Test]
-        public void LogsService_Parse_RejectsNullString()
+        public void LogsService_Parse_NullString_ThrowsException()
         {
             // Arrange
             const string nullString = null;
 
-            // Act
-            var result = _logsService.Parse(nullString);
-
-            // Assert
-            Assert.IsNull(result);
-
-            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
-                .MustNotHaveHappened();
-        }
-
-        [Test]
-        public void LogsService_Parse_RejectsEmptyString()
-        {
-            // Arrange
-            const string emptyString = "   ";
-
-            // Act
-            var result = _logsService.Parse(emptyString);
-
-            // Assert
-            Assert.IsNull(result);
-            A.CallTo(() => _logFactory.Parse(A<string>.Ignored))
-                .MustNotHaveHappened();
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => _logsService.Parse(nullString));
         }
     }
 }
