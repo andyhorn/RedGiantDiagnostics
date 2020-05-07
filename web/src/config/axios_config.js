@@ -1,13 +1,13 @@
-const axios = require('axios')
+const axios = require("axios");
 
-var http
+var http;
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   http = axios.create({
     baseURL: process.env.VUE_APP_BACKEND_URL
-  })
+  });
 } else {
-  http = axios
+  http = axios;
 }
 
-export default http
+export default http;
