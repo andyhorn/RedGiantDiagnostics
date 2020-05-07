@@ -26,6 +26,12 @@ namespace API
                 });
             });
 
+            services.AddCors(options => options.AddPolicy(Contracts.Policies.CorsPolicy, builder => {
+                builder.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
+            }));
+
             services.AddScoped<IAuthorizationHandler, SelfOwnedResourceExclusionHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessOwnedResourceHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessAdministrativeResourcesHandler>();
