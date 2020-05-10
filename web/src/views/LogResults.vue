@@ -1,7 +1,9 @@
 <template>
     <div class="container">
-        <div v-if="log">
-            <h1>Log results!</h1>
+        <div v-if="!!log">
+            <h1>Results</h1>
+            <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
+            <SectionTabs />
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -10,10 +12,14 @@
 </template>
 
 <script>
+import LogHeader from "../components/LogResults/LogHeader.vue";
+import SectionTabs from "../components/LogResults/SectionTabs.vue";
+
 export default {
     name: 'LogResults',
-    data() {
-        
+    components: {
+        LogHeader,
+        SectionTabs
     },
     async beforeMount() {
         if (this.$route.params.id) {
