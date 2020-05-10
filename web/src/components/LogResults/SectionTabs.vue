@@ -1,11 +1,10 @@
 <template>
     <b-tabs content-class="mt-3" fill>
-        <Tab title="Results" :isActive="activeSection" @clicked="onClick" />
-        <Tab title="Licenses" :isActive="activeSection" @clicked="onClick" />
-        <Tab title="License Pools" :isActive="activeSection" @clicked="onClick" />
-        <Tab title="Statistics" :isActive="activeSection" @clicked="onClick" />
-        <Tab title="Logs" :isActive="activeSection" @clicked="onClick" />
-        <Tab title="RLM Instances" :isActive="activeSection" @clicked="onClick" />
+        <Tab v-for="section in sections" 
+            :key="section" 
+            :title="section" 
+            @clicked="onClick"
+            :activeSection="activeSection"/>
     </b-tabs>
 </template>
 
@@ -14,6 +13,7 @@ import Tab from "./SectionTabs/Tab.vue";
 
 export default {
     name: "SectionTabs",
+    props: ["sections"],
     components: {
         Tab
     },

@@ -3,7 +3,7 @@
         <div v-if="!!log">
             <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
-            <SectionTabs @clicked="tabClicked"/>
+            <SectionTabs :sections="sections" @clicked="tabClicked"/>
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -20,6 +20,18 @@ export default {
     components: {
         LogHeader,
         SectionTabs
+    },
+    data() {
+        return {
+            sections: [
+                "Results",
+                "Licenses",
+                "License Pools",
+                "Statistics",
+                "Logs",
+                "RLM Instances"
+            ]
+        }
     },
     async beforeMount() {
         if (this.$route.params.id) {
