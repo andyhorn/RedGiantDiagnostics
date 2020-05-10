@@ -3,7 +3,7 @@
         <div v-if="!!log">
             <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
-            <SectionTabs />
+            <SectionTabs @clicked="tabClicked"/>
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -32,6 +32,11 @@ export default {
     },
     created() {
         this.log = this.$store.getters.log;
+    },
+    methods: {
+        tabClicked(tab) {
+            console.log(`${tab} clicked`)
+        }
     }
 }
 </script>
