@@ -1,5 +1,13 @@
 import Vue from "vue";
 
+const get = async function(uri) {
+    return new Promise((resolve, reject) => {
+        Vue.prototype.$http.get(uri)
+            .then((res) => resolve(res))
+            .catch((err) => reject(err));
+    });
+}
+
 const postFile = async function (file, uri) {
     let headers = fileHeaders();
 
@@ -37,6 +45,7 @@ function headers() {
 }
 
 export {
+    get,
     post,
     postFile
 }

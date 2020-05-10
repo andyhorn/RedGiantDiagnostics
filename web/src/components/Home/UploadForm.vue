@@ -41,7 +41,8 @@ export default {
       formData.append("file", this.file);
       postFile(formData, PostFile)
         .then(value => {
-          this.$store.commit("view_log", value.data);
+          this.$store.commit("log_retrieved", value.data);
+          this.$emit("parsed");
           console.log(value);
         })
         .catch(err => {

@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <UploadForm />
+    <UploadForm @parsed="onParsed"/>
   </div>
 </template>
 
@@ -12,6 +12,11 @@ export default {
   name: "Home",
   components: {
     UploadForm
+  },
+  methods: {
+    onParsed() {
+      this.$router.push({ name: "Log" })
+    }
   }
 };
 </script>
