@@ -3,7 +3,11 @@
         <div v-if="!!log">
             <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
-            <SectionTabs :sections="sections" @clicked="tabClicked"/>
+            <SectionTabs :sections="sections"
+                :activeSection="activeSection" 
+                @clicked="tabClicked"/>
+
+            <Licenses v-if="activeSection == 'Licenses'" :licenses="log.licenses" />
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -15,11 +19,14 @@
 import LogHeader from "../components/LogResults/LogHeader.vue";
 import SectionTabs from "../components/LogResults/SectionTabs.vue";
 
+import Licenses from "../components/LogResults/Licenses.vue";
+
 export default {
     name: 'LogResults',
     components: {
         LogHeader,
-        SectionTabs
+        SectionTabs,
+        Licenses
     },
     data() {
         return {
@@ -30,10 +37,17 @@ export default {
                 "Statistics",
                 "Logs",
                 "RLM Instances"
-            ]
+            ],
+            activeSection: ""
         }
     },
-    async beforeMount() {
+    // Before creating the component, check if there is an ID parameter
+    // in the route path; If there is, ask the Vuex store to retrieve
+    // and save the log data before continuing. If there isn't an ID
+    // parameter, check if there is a log currently saved in the Vuex
+    // store; If there is, continue rendering the view - If not, return
+    // the user to the main Home page.
+    async beforeCreate() {
         if (this.$route.params.id) {
             await this.$store.getLogById(this.$route.params.id);
         }
@@ -42,12 +56,20 @@ export default {
             this.$router.push({ name: "Home" });
         }
     },
+    beforeMount() {
+        // After creating the component, but before mounting it, set
+        // the active section to the first section in the list (Results).
+        this.activeSection = this.sections[0];
+    },
+    // After the component has been created, save a reference to the log
+    // data in this component
     created() {
         this.log = this.$store.getters.log;
     },
     methods: {
-        tabClicked(tab) {
-            console.log(`${tab} clicked`)
+        // When a tab is clicked, set it as the active section
+        tabClicked(sectionTitle) {
+            this.activeSection = sectionTitle;
         }
     }
 }
