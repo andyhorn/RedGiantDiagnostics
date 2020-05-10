@@ -19,6 +19,8 @@
 
 <script>
 import { PostFile } from "../../config/routes";
+import { postFile } from "../../services/webService";
+
 export default {
   name: "UploadForm",
   data() {
@@ -35,22 +37,24 @@ export default {
       }
     },
     onSubmit() {
-        let formData = new FormData();
-        formData.append('file', this.file);
-        this.$http.post(PostFile,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-        )
+      let formData = new FormData();
+      formData.append("file", this.file);
+      postFile(formData, PostFile)
+        // this.$http.post(PostFile,
+        //     formData,
+        //     {
+        //         headers: {
+        //             'Content-Type': 'multipart/form-data'
+        //         }
+        //     }
+        // )
         .then(value => {
-            console.log(value);
+          this.$store.commit("log-parsed", value.data);
+          console.log(value);
         })
         .catch(err => {
-            console.log(err);
-        })
+          console.log(err);
+        });
     }
   }
 };
