@@ -1,6 +1,11 @@
 <template>
     <div class="container">
-        <License v-for="license in licenses" :key="license.name" :data="license"/>
+        <License v-for="(license, index) in licenses" 
+            :key="license.name" 
+            :id="index.toString()" 
+            :data="license"
+            :detectedAddresses="detectedAddresses"
+            :detectedMacs="detectedMacs"/>
     </div>
 </template>
 
@@ -9,7 +14,7 @@ import License from "./Licenses/License.vue";
 
 export default {
     name: "Licenses",
-    props: ["licenses"],
+    props: ["licenses", "detectedAddresses", "detectedMacs"],
     components: {
         License
     }

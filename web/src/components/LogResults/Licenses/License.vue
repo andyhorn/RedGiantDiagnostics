@@ -1,7 +1,11 @@
 <template>
     <b-card>
         <CardHeader :name="data.name" @toggled="onToggled" />
-        <CardBody :isOpen="isOpen" :data="data"/>
+        <CardBody :isOpen="isOpen" 
+            :data="data" 
+            :id="id"
+            :detectedAddresses="detectedAddresses"
+            :detectedMacs="detectedMacs"/>
     </b-card>
 </template>
 
@@ -11,7 +15,7 @@ import CardBody from "./CardBody.vue";
 
 export default {
     name: "License",
-    props: ["data"],
+    props: ["data", "id", "detectedAddresses", "detectedMacs"],
     data() {
         return {
             isOpen: false

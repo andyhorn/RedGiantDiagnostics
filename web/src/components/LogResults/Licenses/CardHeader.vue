@@ -2,8 +2,7 @@
     <b-card-header class="p-2">
         <div class="d-flex justify-content-between align-items-center">
             <h4>{{ name }}</h4>
-            <b-button v-b-toggle="licenseCollapse" 
-                @click="toggleButtonTitle" 
+            <b-button @click="toggleButtonTitle" 
                 variant="info"
                 class="m-0"
             >

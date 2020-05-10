@@ -7,7 +7,10 @@
                 :activeSection="activeSection" 
                 @clicked="tabClicked"/>
 
-            <Licenses v-if="activeSection == 'Licenses'" :licenses="log.licenses" />
+            <Licenses v-if="activeSection == 'Licenses'" 
+                :licenses="log.licenses" 
+                :detectedAddresses="log.hostIpList"
+                :detectedMacs="log.hostMacList"/>
         </div>
         <div v-else>
             <h1>Loading...</h1>
