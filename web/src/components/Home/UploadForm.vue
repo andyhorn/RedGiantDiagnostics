@@ -40,16 +40,8 @@ export default {
       let formData = new FormData();
       formData.append("file", this.file);
       postFile(formData, PostFile)
-        // this.$http.post(PostFile,
-        //     formData,
-        //     {
-        //         headers: {
-        //             'Content-Type': 'multipart/form-data'
-        //         }
-        //     }
-        // )
         .then(value => {
-          this.$store.commit("log-parsed", value.data);
+          this.$store.commit("view_log", value.data);
           console.log(value);
         })
         .catch(err => {
