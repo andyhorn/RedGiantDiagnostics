@@ -11,6 +11,9 @@
                 :licenses="log.licenses" 
                 :detectedAddresses="log.hostIpList"
                 :detectedMacs="log.hostMacList"/>
+
+            <LicensePools v-if="activeSection == 'License Pools'"
+                :isvStatistics="log.isvStatistics" />
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -23,13 +26,15 @@ import LogHeader from "../components/LogResults/LogHeader.vue";
 import SectionTabs from "../components/LogResults/SectionTabs.vue";
 
 import Licenses from "../components/LogResults/Licenses.vue";
+import LicensePools from "../components/LogResults/LicensePools.vue";
 
 export default {
     name: 'LogResults',
     components: {
         LogHeader,
         SectionTabs,
-        Licenses
+        Licenses,
+        LicensePools
     },
     data() {
         return {

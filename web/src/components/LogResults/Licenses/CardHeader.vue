@@ -11,7 +11,7 @@
         </div>
         </b-card-title>
         <b-card-sub-title>
-            <p :class="new Date() > new Date(expiration) ? 'text-danger' : 'text-success'"
+            <p :class="expirationClass(expiration)"
                 class="m-0 p-0">
                 Expiration Date: {{ expiration }}
             </p>
@@ -35,6 +35,18 @@ export default {
                 : "Open";
             
             this.$emit("toggled", this.buttonTitle, this.name);
+        },
+        expirationClass(value) {
+            if (value == "None found") {
+                return "text-danger";
+            }
+
+            let today = new Date();
+            let cardDate = new Date(value);
+
+            return today > cardDate 
+                ? "text-danger"
+                : "text-success";
         }
     }
 }
