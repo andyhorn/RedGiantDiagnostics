@@ -1,21 +1,28 @@
 <template>
     <b-card-header class="p-2">
+        <b-card-title>
         <div class="d-flex justify-content-between align-items-center">
             <h4>{{ name }}</h4>
             <b-button @click="toggleButtonTitle" 
                 variant="info"
-                class="m-0"
-            >
+                class="m-0">
                 {{ buttonTitle }}
             </b-button>
         </div>
+        </b-card-title>
+        <b-card-sub-title>
+            <p :class="new Date() > new Date(expiration) ? 'text-danger' : 'text-success'"
+                class="m-0 p-0">
+                Expiration Date: {{ expiration }}
+            </p>
+        </b-card-sub-title>
     </b-card-header>
 </template>
 
 <script>
 export default {
     name: "CardHeader",
-    props: ["name"],
+    props: ["name", "expiration"],
     data() {
         return {
             buttonTitle: "Open"
@@ -32,3 +39,7 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+
+</style>

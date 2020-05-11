@@ -9,17 +9,20 @@
                 :isvPort="data.isvPort"
                 :hostPort="data.hostPort"
             />
+            <ProductsTable :productList="data.productLicenses" />
         </b-card>
     </b-collapse>
 </template>
 
 <script>
 import ServerDetails from "./ServerDetails.vue";
+import ProductsTable from "./ProductsTable.vue";
 
 export default {
     name: "CardBody",
     components: {
-        ServerDetails
+        ServerDetails,
+        ProductsTable
     },
     props: ["isOpen", "data", "id", "detectedAddresses", "detectedMacs"]
 }

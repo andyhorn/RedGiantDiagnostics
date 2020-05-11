@@ -1,6 +1,6 @@
 <template>
     <b-card>
-        <CardHeader :name="data.name" @toggled="onToggled" />
+        <CardHeader :name="data.name" @toggled="onToggled" :expiration="expiration()"/>
         <CardBody :isOpen="isOpen" 
             :data="data" 
             :id="id"
@@ -28,6 +28,16 @@ export default {
     methods: {
         onToggled() {
             this.isOpen = !this.isOpen;
+        },
+        expiration() {
+            let product = this.data.productLicenses[0];
+            if (product == null || product == undefined) {
+                return "None found";
+            } else {
+                let date = product.expirationDate;
+                let dateString = new Date(date).toLocaleDateString();
+                return dateString;
+            }
         }
     }
 }
