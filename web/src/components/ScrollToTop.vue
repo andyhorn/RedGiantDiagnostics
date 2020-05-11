@@ -13,7 +13,7 @@ export default {
     },
     methods: {
         onClick() {
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         isShown() {
             return this.position > TRIGGER ? 'show' : 'hide';
