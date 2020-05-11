@@ -33,6 +33,6 @@ export default {
 }
 .name {
     font-family: 'Courier New', Courier, monospace;
-    font-weight: 400;
+    font-weight: 500;
 }
 </style>

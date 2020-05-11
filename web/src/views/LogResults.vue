@@ -14,6 +14,9 @@
 
             <LicensePools v-if="activeSection == 'License Pools'"
                 :isvStatistics="log.isvStatistics" />
+
+            <Statistics v-if="activeSection == 'Statistics'"
+                :statistics="log.isvStatistics.concat(log.rlmStatistics)" />
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -27,6 +30,7 @@ import SectionTabs from "../components/LogResults/SectionTabs.vue";
 
 import Licenses from "../components/LogResults/Licenses.vue";
 import LicensePools from "../components/LogResults/LicensePools.vue";
+import Statistics from "../components/LogResults/Statistics.vue";
 
 export default {
     name: 'LogResults',
@@ -34,7 +38,8 @@ export default {
         LogHeader,
         SectionTabs,
         Licenses,
-        LicensePools
+        LicensePools,
+        Statistics
     },
     data() {
         return {
