@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row my-3">
         <div class="col">
             <h2>Log date</h2>
             <p>{{ new Date(this.date).toLocaleString() }}</p>
