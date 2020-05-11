@@ -3,11 +3,18 @@ const formatSuiteName = function(suite) {
         return "";
     }
 
-    let indexOfSuite = suite.indexOf("suite");
-    let suiteName = suite.substring(0, indexOfSuite);
-    let suiteTitle = `${suiteName[0].toUpperCase()}${suiteName.substring(1)}`;
-    let fullSuiteTitle = `${suiteTitle} Suite`;
+    let suiteName = suite;
+    let includesSuite = false;
+    if (suite.includes("suite")) {
+        let indexOfSuite = suite.indexOf("suite");
+        suiteName = suite.substring(0, indexOfSuite);
+        includesSuite = true;
+    }
 
+    let suiteTitle = `${suiteName[0].toUpperCase()}${suiteName.substring(1)}`;
+
+    let fullSuiteTitle = includesSuite ? `${suiteTitle} Suite` : suiteTitle;
+    
     return fullSuiteTitle;
 }
 

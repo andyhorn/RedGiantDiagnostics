@@ -11,8 +11,6 @@
 
 <script>
 import License from "./Licenses/License.vue";
-import getFileName from "../../helpers/getFileName";
-
 export default {
     name: "Licenses",
     props: ["licenses", "detectedAddresses", "detectedMacs"],
