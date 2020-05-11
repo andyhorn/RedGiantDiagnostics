@@ -17,6 +17,12 @@
 
             <Statistics v-if="activeSection == 'Statistics'"
                 :statistics="log.isvStatistics.concat(log.rlmStatistics)" />
+
+            <Logs v-if="activeSection == 'Logs'"
+                :debugLogs="debugLogs" />
+
+
+            <ScrollToTop />
         </div>
         <div v-else>
             <h1>Loading...</h1>
@@ -27,10 +33,12 @@
 <script>
 import LogHeader from "../components/LogResults/LogHeader.vue";
 import SectionTabs from "../components/LogResults/SectionTabs.vue";
+import ScrollToTop from "../components/ScrollToTop.vue";
 
 import Licenses from "../components/LogResults/Licenses.vue";
 import LicensePools from "../components/LogResults/LicensePools.vue";
 import Statistics from "../components/LogResults/Statistics.vue";
+import Logs from "../components/LogResults/Logs.vue";
 
 export default {
     name: 'LogResults',
@@ -39,7 +47,9 @@ export default {
         SectionTabs,
         Licenses,
         LicensePools,
-        Statistics
+        Statistics,
+        Logs,
+        ScrollToTop
     },
     data() {
         return {
@@ -51,7 +61,8 @@ export default {
                 "Logs",
                 "RLM Instances"
             ],
-            activeSection: ""
+            activeSection: "",
+            debugLogs: []
         }
     },
     // Before creating the component, check if there is an ID parameter
@@ -79,10 +90,19 @@ export default {
     created() {
         this.log = this.$store.getters.log;
     },
+    mounted() {
+        this.concatLogs();
+    },
     methods: {
         // When a tab is clicked, set it as the active section
         tabClicked(sectionTitle) {
             this.activeSection = sectionTitle;
+        },
+        concatLogs() {
+            this.debugLogs = [
+                ...this.log.isvLogs,
+                this.log.rlmLog
+            ];
         }
     }
 }
