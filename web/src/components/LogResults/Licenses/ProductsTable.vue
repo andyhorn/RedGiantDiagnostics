@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import formatSuiteName from "../../../helpers/formatSuiteName";
+
 export default {
     name: "ProductsTable",
     props: ["productList"],
@@ -49,10 +51,7 @@ export default {
             }
         },
         formatName(suite) {
-            if (suite == "" || suite == null || suite == undefined) return;
-            let name = suite.substring(0, suite.indexOf("suite"));
-            name = `${name[0].toUpperCase()}${name.substring(1)} Suite`;
-            return name;
+            return formatSuiteName(suite);
         }
     }
 }
