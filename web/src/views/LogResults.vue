@@ -21,6 +21,8 @@
             <Logs v-if="activeSection == 'Logs'"
                 :debugLogs="debugLogs" />
 
+            <RlmInstances v-if="activeSection == 'RLM Instances'"
+                :rlmInstances="log.rlmInstances" />
 
             <ScrollToTop />
         </div>
@@ -39,6 +41,7 @@ import Licenses from "../components/LogResults/Licenses.vue";
 import LicensePools from "../components/LogResults/LicensePools.vue";
 import Statistics from "../components/LogResults/Statistics.vue";
 import Logs from "../components/LogResults/Logs.vue";
+import RlmInstances from "../components/LogResults/RlmInstances.vue";
 
 export default {
     name: 'LogResults',
@@ -49,7 +52,8 @@ export default {
         LicensePools,
         Statistics,
         Logs,
-        ScrollToTop
+        ScrollToTop,
+        RlmInstances
     },
     data() {
         return {

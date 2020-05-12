@@ -34,5 +34,9 @@ export default {
 </script>
 
 <style scoped>
-
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 </style>
