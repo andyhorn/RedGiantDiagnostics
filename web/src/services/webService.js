@@ -1,8 +1,27 @@
 import Vue from "vue";
 
-const get = async function(uri) {
+const put = async function(uri, data) {
+    let headers = header();
     return new Promise((resolve, reject) => {
-        Vue.prototype.$http.get(uri)
+        Vue.prototype.$http.put(uri, data, { headers })
+            .then((res) => resolve(res))
+            .catch((err) => reject(err));
+    });
+}
+
+const del = async function(uri) {
+    let headers = headers();
+    return new Promise((resolve, reject) => {
+        Vue.prototype.$http.delete(uri, { headers })
+            .then((res) => resolve(res))
+            .catch(err => reject(err));
+    });
+}
+
+const get = async function(uri) {
+    let headers = headers();
+    return new Promise((resolve, reject) => {
+        Vue.prototype.$http.get(uri, { headers })
             .then((res) => resolve(res))
             .catch((err) => reject(err));
     });
@@ -47,5 +66,7 @@ function headers() {
 export {
     get,
     post,
-    postFile
+    postFile,
+    put,
+    del
 }

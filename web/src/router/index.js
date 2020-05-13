@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import LogResults from "../views/LogResults.vue";
+import store from "../store/index";
 
 Vue.use(VueRouter);
 
@@ -28,5 +29,13 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.name === "Log" && to.params.id !== null
+    && Object.keys(store.getters.log).length == 0)
+    next({ name: "Home" });
+  else
+    next();
+})
 
 export default router;

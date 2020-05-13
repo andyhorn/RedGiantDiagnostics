@@ -21,6 +21,15 @@ export default new Vuex.Store({
       state.status = "retrieving...";
       state.log = null;
     },
+    saving_log(state) {
+      state.status = "saving log...";
+    },
+    log_saved(state) {
+      state.status = "log saved";
+    },
+    log_save_failure(state) {
+      state.status = "log not saved";
+    },
     log_retrieved(state, logData) {
       state.status = "log retrieved";
       state.log = logData;
@@ -65,7 +74,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    getLogById({ commit }, id) {
+    get_log_by_id({ commit }, id) {
       return new Promise(() => {
         commit("retrieving_log");
         logService.getById(id)
@@ -107,6 +116,28 @@ export default new Vuex.Store({
             commit("fetch_failure", err);
           });
       }
+    },
+    async save_log({ commit }, log) {
+      commit("saving_log");
+
+      let logId = "";
+      let success = false;
+      
+      if (this.state.log.id) {
+        success = await logService.updateLog(log) !== "";
+        logId = log.id;
+      } else {
+        logId = await logService.saveLog(log);
+        success = logId !== "";
+      }
+
+      if (success) {
+        commit("log_saved");
+        this.dispatch("get_log_by_id", logId);
+      } else {
+        commit("log_save_failure");
+      }
+
     },
     logout({ commit }) {
       commit("logout");
