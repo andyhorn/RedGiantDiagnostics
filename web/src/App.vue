@@ -11,13 +11,13 @@
           <b-nav-item to="/">Home</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav v-if="isLoggedIn">
+        <b-navbar-nav v-if="isAuthenticated">
           <b-nav-item v-if="isAdmin" to="/admin">Manage</b-nav-item>
           <b-nav-item to="/profile">Profile</b-nav-item>
           <b-nav-item @click="onLogout">Logout</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav v-if="!isLoggedIn">
+        <b-navbar-nav v-if="!isAuthenticated">
           <Login />
         </b-navbar-nav>
 
@@ -37,8 +37,8 @@ export default {
     Login
   },
   computed: {
-    isLoggedIn() {
-      return this.$store.getters.token.length > 0;
+    isAuthenticated() {
+      return this.$store.getters.isAuthenticated;
     },
     isAdmin() {
       if (this.$store.getters.user.roles)

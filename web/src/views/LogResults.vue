@@ -1,7 +1,10 @@
 <template>
     <div class="container">
         <div v-if="!!log">
-            <h1>Results</h1>
+            <div class="row d-flex justify-content-between">
+                <h1>Results</h1>
+                <LogSave v-if="isAuthenticated" :logId="log.id" @saveLog="onSaveLog" />
+            </div>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
                 :activeSection="activeSection" 
@@ -43,6 +46,8 @@ import Statistics from "../components/LogResults/Statistics.vue";
 import Logs from "../components/LogResults/Logs.vue";
 import RlmInstances from "../components/LogResults/RlmInstances.vue";
 
+import LogSave from "../components/LogResults/LogSave.vue";
+
 export default {
     name: 'LogResults',
     components: {
@@ -53,7 +58,8 @@ export default {
         Statistics,
         Logs,
         ScrollToTop,
-        RlmInstances
+        RlmInstances,
+        LogSave
     },
     data() {
         return {
@@ -75,7 +81,7 @@ export default {
     // parameter, check if there is a log currently saved in the Vuex
     // store; If there is, continue rendering the view - If not, return
     // the user to the main Home page.
-    async beforeCreate() {
+    async beforeMount() {
         if (this.$route.params.id) {
             await this.$store.getLogById(this.$route.params.id);
         }
@@ -83,16 +89,22 @@ export default {
         if (!this.$store.getters.log) {
             this.$router.push({ name: "Home" });
         }
-    },
-    beforeMount() {
-        // After creating the component, but before mounting it, set
-        // the active section to the first section in the list (Results).
+
         this.activeSection = this.sections[0];
     },
     // After the component has been created, save a reference to the log
     // data in this component
-    created() {
-        this.log = this.$store.getters.log;
+    computed: {
+        log() {
+            if (this && this.$store && this.$store.getters.log) {
+                return this.$store.getters.log;
+            } else {
+                return {}
+            }
+        },
+        isAuthenticated() {
+             return this && this.$store && this.$store.getters.isAuthenticated;
+        }
     },
     mounted() {
         this.concatLogs();
@@ -107,6 +119,11 @@ export default {
                 ...this.log.isvLogs,
                 this.log.rlmLog
             ];
+        },
+        onSaveLog(data) {
+            this.log.title = data.title;
+            this.log.comments = data.comments;
+            this.$store.dispatch("save_log", this.log);
         }
     }
 }

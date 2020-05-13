@@ -13,7 +13,8 @@ export default new Vuex.Store({
     user: {},
     userId: "",
     error: "",
-    token: localStorage.getItem("red-giant-token") || ""
+    token: localStorage.getItem("red-giant-token") || "",
+    isAuthenticated: false
   },
   mutations: {
     retrieving_log(state) {
@@ -35,10 +36,12 @@ export default new Vuex.Store({
       state.status = "authenticated";
       state.token = data.token;
       state.userId = data.userId;
+      state.isAuthenticated = true;
     },
     authentication_failure(state, err) {
       state.status = "authentication failed";
       state.error = err;
+      state.isAuthenticated = false;
     },
     fetching_user(state) {
       state.status = "fetching user data";
@@ -58,6 +61,7 @@ export default new Vuex.Store({
       state.error = "";
       state.token = "";
       localStorage.removeItem("red-giant-token");
+      state.isAuthenticated = false;
     }
   },
   actions: {
@@ -112,7 +116,8 @@ export default new Vuex.Store({
     log: (state) => state.log || false,
     user: (state) => state.user,
     userId: state => state.userId,
-    token: state => state.token
+    token: state => state.token,
+    isAuthenticated: state => state.isAuthenticated
   },
   modules: {
 
