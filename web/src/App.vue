@@ -18,7 +18,9 @@
         </b-navbar-nav>
 
         <b-navbar-nav else>
-          <b-nav-item to="/login">Login</b-nav-item>
+          <b-dropdown id="login-dropdown" text="Login" right>
+            <Login />
+          </b-dropdown>
         </b-navbar-nav>
 
       </b-collapse>
@@ -29,8 +31,13 @@
 </template>
 
 <script>
+import Login from "@/views/Login";
+
 export default {
   name: 'App',
+  components: {
+    Login
+  },
   data() {
     return {
       isLoggedIn: false,
