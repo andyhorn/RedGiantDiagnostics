@@ -1,49 +1,19 @@
 <template>
-    <b-dropdown-form inline @submit.prevent="onLogin">
-        <b-form-group 
-            label="Email"
-            label-for="email-address-input"
-            class="m-2"
-        >
-            <b-input 
-                id="email-address-input" 
-                placeholder="email@domain.com" 
-                v-model="email"
-                type="email"
-                size="sm"
-                required
-            />
-        </b-form-group>
+<div>
+    <b-dropdown right id="dropdown-form" text="Login">
+        <b-dropdown-form @submit.prevent="onLogin">
+            <b-form-group label="Email" label-for="email-address-input" @submit.stop.prevent>
+                <b-form-input size="sm" id="email-address-input" type="email" placeholder="email@domain.com" />
+            </b-form-group>
+            <b-form-group label="Password" label-for="password-input">
+                <b-form-input size="sm" id="password-input" type="password" placeholder="password" />
+            </b-form-group>
 
-        <b-form-group
-            label="Password"
-            label-for="password-input"
-            class="m-2"
-        >
-            <b-input 
-                id="password-input" 
-                placeholder="password" 
-                v-model="password"
-                type="password"
-                size="sm"
-                required
-            />
-        </b-form-group>
-
-        <b-form-group 
-            label="Remember Me"
-            label-for="remember-me-checkbox"
-            class="m-2"
-        >
-            <b-form-checkbox 
-                id="remember-me-checkbox" 
-                v-model="rememberMe"
-                class="mx-2"
-            />
-        </b-form-group>
-
-        <b-button type="submit" @click.prevent="onLogin">Login</b-button>
-    </b-dropdown-form>   
+            <b-form-checkbox class="mb-3">Remember me</b-form-checkbox>
+            <b-button class="float-right" variant="primary" type="submit">Login</b-button>
+        </b-dropdown-form>
+    </b-dropdown>
+</div>
 </template>
 
 <script>
@@ -51,8 +21,8 @@ export default {
     name: 'Login',
     data() {
         return {
-            email: "",
-            password: "",
+            email: null,
+            password: null,
             rememberMe: false
         }
     },
@@ -65,5 +35,7 @@ export default {
 </script>
 
 <style scoped>
-
+.b-dropdown-form {
+    width: 25vw;
+}
 </style>

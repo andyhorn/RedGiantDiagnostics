@@ -18,9 +18,7 @@
         </b-navbar-nav>
 
         <b-navbar-nav else>
-          <b-dropdown id="login-dropdown" text="Login" right>
-            <Login />
-          </b-dropdown>
+          <Login />
         </b-navbar-nav>
 
       </b-collapse>
