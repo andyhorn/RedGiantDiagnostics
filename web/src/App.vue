@@ -14,10 +14,10 @@
         <b-navbar-nav v-if="isLoggedIn">
           <b-nav-item v-if="isAdmin" to="/admin">Manage</b-nav-item>
           <b-nav-item to="/profile">Profile</b-nav-item>
-          <b-nav-item to="/logout">Logout</b-nav-item>
+          <b-nav-item @click="onLogout">Logout</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav else>
+        <b-navbar-nav v-if="!isLoggedIn">
           <Login />
         </b-navbar-nav>
 
@@ -36,21 +36,20 @@ export default {
   components: {
     Login
   },
-  data() {
-    return {
-      isLoggedIn: this.$store.getters.token,
-      isAdmin: false
+  computed: {
+    isLoggedIn() {
+      return this.$store.getters.token.length > 0;
+    },
+    isAdmin() {
+      if (this.$store.getters.user.roles)
+        return this.$store.getters.user.roles.includes("Administrator");
+      else return false;
     }
   },
-  mounted() {
-    this.$store.watch((state) => {
-      if (state.userId !== "" && Object.keys(state.user).length === 0) {
-        this.$store.dispatch("fetch_user");
-      }
-      if (Object.keys(state.user).length > 0) {
-        this.isAdmin = this.$store.getters.user.roles.includes("Admin");
-      }
-    })
+  methods: {
+    onLogout() {
+      this.$store.dispatch("logout");
+    }
   }
 }
 </script>

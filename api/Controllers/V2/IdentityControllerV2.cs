@@ -58,7 +58,7 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return the user data
-            return Ok(new UserDataResponse(user));
+            return Ok(new UserDataResponse(user, _identityService));
         }
 
         /// <summary>

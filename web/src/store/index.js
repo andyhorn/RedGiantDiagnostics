@@ -82,6 +82,8 @@ export default new Vuex.Store({
           if (data.rememberMe) {
             localStorage.setItem("red-giant-token", res.data.token);
           }
+
+          this.dispatch("fetch_user");
         })
         .catch((err) => {
           console.log("authentication failed")
