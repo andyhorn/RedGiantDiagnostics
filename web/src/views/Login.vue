@@ -31,6 +31,18 @@ export default {
             console.log(this.email)
             console.log(this.password)
             console.log(this.rememberMe)
+            let loginData = { 
+                email: this.email,
+                password: this.password,
+                rememberMe: this.rememberMe
+            };
+            this.clear();
+            this.$store.dispatch("login", loginData);
+        },
+        clear() {
+            this.email = null;
+            this.password = null;
+            this.rememberMe = false;
         }
     }
 }

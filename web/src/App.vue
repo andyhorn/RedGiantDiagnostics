@@ -38,9 +38,19 @@ export default {
   },
   data() {
     return {
-      isLoggedIn: false,
+      isLoggedIn: this.$store.getters.token,
       isAdmin: false
     }
+  },
+  mounted() {
+    this.$store.watch((state) => {
+      if (state.userId !== "" && Object.keys(state.user).length === 0) {
+        this.$store.dispatch("fetch_user");
+      }
+      if (Object.keys(state.user).length > 0) {
+        this.isAdmin = this.$store.getters.user.roles.includes("Admin");
+      }
+    })
   }
 }
 </script>

@@ -85,11 +85,18 @@ namespace API.Controllers.V2
             }
 
             // Login and retrieve a token
-            var token = await _identityService.LoginAsync(loginRequest.Email, loginRequest.Password);
-            if (string.IsNullOrEmpty(token))
+            var token = string.Empty;
+            try
             {
-                // If the login failed, return Unauthorized
-                return Unauthorized();
+                token = await _identityService.LoginAsync(loginRequest.Email, loginRequest.Password);
+            }
+            catch (ArgumentException)
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    // If the login failed, return Unauthorized
+                    return Unauthorized();
+                }
             }
 
             // Return Ok with the token and user ID
