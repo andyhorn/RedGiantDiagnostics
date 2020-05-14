@@ -14,16 +14,11 @@ const getById = async function(id) {
 
 const saveLog = async function(log) {
     let uri = `${postLog}`;
-    console.log("Saving log at uri " + uri)
     try {
         let response = await postFile(uri, log);
-        console.log("Save response:")
-        console.log(response)
         return response.data;
     }
-    catch (err) {
-        console.log("Error saving log")
-        console.log(err)
+    catch {
         return {};
     }
 }

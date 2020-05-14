@@ -25,14 +25,10 @@ const get = async function(uri) {
 }
 
 const postFile = async function (uri, file) {
-    console.log("Sending HTTP POST request to " + uri)
-    console.log(file)
     return new Promise((resolve, reject) => {
-        Vue.prototype.$http.post(uri, file, {
-            // headers: fileHeaders()
-        })
-        .then(res => resolve(res))
-        .catch(err => reject(err));
+        Vue.prototype.$http.post(uri, file)
+            .then(res => resolve(res))
+            .catch(err => reject(err));
     });
 }
 
@@ -47,12 +43,6 @@ const post = async function(body, uri) {
             });
     });
 }
-
-// function fileHeaders() {
-//     return {
-//         "Content-Type": "multipart/form-data"
-//     }
-// }
 
 export {
     get,
