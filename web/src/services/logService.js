@@ -1,4 +1,4 @@
-import { get, post, put, del } from "./webService";
+import { get, postFile, put, del } from "./webService";
 import { getLogById, postLog, putLog, deleteLog as deleteLogUri } from "../config/routes";
 
 const getById = async function(id) {
@@ -14,11 +14,16 @@ const getById = async function(id) {
 
 const saveLog = async function(log) {
     let uri = `${postLog}`;
+    console.log("Saving log at uri " + uri)
     try {
-        let response = await post(uri, log);
-        return response.location;
+        let response = await postFile(uri, log);
+        console.log("Save response:")
+        console.log(response)
+        return response.data;
     }
-    catch {
+    catch (err) {
+        console.log("Error saving log")
+        console.log(err)
         return {};
     }
 }

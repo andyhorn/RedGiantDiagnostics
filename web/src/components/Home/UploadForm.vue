@@ -39,7 +39,7 @@ export default {
     onSubmit() {
       let formData = new FormData();
       formData.append("file", this.file);
-      postFile(formData, PostFile)
+      postFile(PostFile, formData)
         .then(value => {
           this.$store.commit("log_retrieved", value.data);
           this.$emit("parsed");

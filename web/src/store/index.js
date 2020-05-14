@@ -11,6 +11,7 @@ const defaultState = function() {
   return {
     status: "",
     log: null,
+    logId: null,
     user: null,
     userId: null,
     error: null,
@@ -22,15 +23,18 @@ const defaultState = function() {
 export default new Vuex.Store({
   state: defaultState(),
   mutations: {
-    retrieving_log(state) {
+    retrieving_log(state, id) {
       state.status = "retrieving...";
+      state.logId = id;
       state.log = null;
     },
     saving_log(state) {
       state.status = "saving log...";
     },
-    log_saved(state) {
+    log_saved(state, log) {
       state.status = "log saved";
+      state.log = log;
+      state.logId = log.id;
     },
     log_save_failure(state) {
       state.status = "log not saved";
@@ -75,7 +79,7 @@ export default new Vuex.Store({
   actions: {
     get_log_by_id({ commit }, id) {
       return new Promise(() => {
-        commit("retrieving_log");
+        commit("retrieving_log", id);
         logService.getById(id)
           .then((log) => commit("retrieved", log))
           .catch((err) => commit("retrieval_failure", err));
@@ -119,20 +123,17 @@ export default new Vuex.Store({
     async save_log({ commit }, log) {
       commit("saving_log");
 
-      let logId = "";
-      let success = false;
-      
-      if (this.state.log.id) {
-        success = await logService.updateLog(log) !== "";
-        logId = log.id;
+      let logResponse = null;
+      if (this.getters.log.id) {
+        // If the current log already has an ID, then this is an update request
+        logResponse = await logService.updateLog(log);
       } else {
-        logId = await logService.saveLog(log);
-        success = logId !== "";
+        // If the current log doesn't have an ID, then this is a new save request
+        logResponse = await logService.saveLog(log);
       }
 
-      if (success) {
-        commit("log_saved");
-        this.dispatch("get_log_by_id", logId);
+      if (logResponse) {
+        commit("log_saved", logResponse);
       } else {
         commit("log_save_failure");
       }
