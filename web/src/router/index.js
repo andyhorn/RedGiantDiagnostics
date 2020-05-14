@@ -31,8 +31,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name === "Log" && to.params.id !== null
-    && Object.keys(store.getters.log).length == 0)
+  if (to.name === "Log" && to.params.id == null && !store.getters.hasLog)
     next({ name: "Home" });
   else
     next();

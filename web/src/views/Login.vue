@@ -28,9 +28,6 @@ export default {
     methods: {
         onLogin() {
             this.$refs.loginDropdown.hide();
-            console.log(this.email)
-            console.log(this.password)
-            console.log(this.rememberMe)
             let loginData = { 
                 email: this.email,
                 password: this.password,

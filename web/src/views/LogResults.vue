@@ -86,24 +86,20 @@ export default {
             await this.$store.getLogById(this.$route.params.id);
         }
 
-        if (!this.$store.getters.log) {
-            this.$router.push({ name: "Home" });
-        }
-
         this.activeSection = this.sections[0];
     },
     // After the component has been created, save a reference to the log
     // data in this component
     computed: {
         log() {
-            if (this && this.$store && this.$store.getters.log) {
+            if (this.$store.getters.hasLog) {
                 return this.$store.getters.log;
             } else {
                 return {}
             }
         },
         isAuthenticated() {
-             return this && this.$store && this.$store.getters.isAuthenticated;
+             return this.$store && this.$store.getters.isAuthenticated;
         }
     },
     mounted() {

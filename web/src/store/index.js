@@ -3,19 +3,24 @@ import Vuex from "vuex";
 const logService = require("../services/logService");
 const authenticationService = require('../services/authenticationService');
 const userService = require("../services/userService");
+const http = require("@/config/axios_config");
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-  state: {
+const defaultState = function() {
+  return {
     status: "",
-    log: {},
-    user: {},
-    userId: "",
-    error: "",
-    token: localStorage.getItem("red-giant-token") || "",
+    log: null,
+    user: null,
+    userId: null,
+    error: null,
+    token: localStorage.getItem("red-giant-token") || null,
     isAuthenticated: false
-  },
+  }
+}
+
+export default new Vuex.Store({
+  state: defaultState(),
   mutations: {
     retrieving_log(state) {
       state.status = "retrieving...";
@@ -63,14 +68,8 @@ export default new Vuex.Store({
       state.status = "failed to fetch user data";
       state.error = err;
     },
-    logout(state) {
-      state.status = "";
-      state.user = {};
-      state.userId = "";
-      state.error = "";
-      state.token = "";
-      localStorage.removeItem("red-giant-token");
-      state.isAuthenticated = false;
+    logout() {
+      this.replaceState(defaultState());
     }
   },
   actions: {
@@ -90,7 +89,7 @@ export default new Vuex.Store({
           console.log(res)
           commit("authentication_success", res.data);
 
-          Vue.prototype.$http.defaults.headers.common["Authorization"] = res.data.token;
+          http.addAuthorization(res.data.token);
 
           if (data.rememberMe) {
             localStorage.setItem("red-giant-token", res.data.token);
@@ -107,9 +106,9 @@ export default new Vuex.Store({
     fetch_user({ commit }) {
       if (this.state.userId != "") {
         commit("fetching_user");
-        // userService.getUserById(this.state.userId)
         userService.getUserData()
           .then((res) => {
+            console.log(res);
             commit("fetch_success", res.data);
           })
           .catch((err) => {
@@ -141,14 +140,23 @@ export default new Vuex.Store({
     },
     logout({ commit }) {
       commit("logout");
+      http.removeAuthorization();
     }
   },
   getters: {
-    log: (state) => state.log || false,
+    log: (state) => state.log,
+    hasLog: state => state.log !== null,
     user: (state) => state.user,
     userId: state => state.userId,
     token: state => state.token,
-    isAuthenticated: state => state.isAuthenticated
+    isAuthenticated: state => state.isAuthenticated,
+    isAdmin: state => {
+      if (state.user) {
+        return state.user.roles.includes("Administrator");
+      } else {
+        return false;
+      }
+    }
   },
   modules: {
 

@@ -41,15 +41,10 @@ export default {
       return this.$store.getters.isAuthenticated;
     },
     isAdmin() {
-      if (this.$store.getters.user.roles)
-        return this.$store.getters.user.roles.includes("Administrator");
-      else return false;
+      return this.$store.getters.isAdmin;
     },
     hasLog() {
-      if (this.$store.getters.log && Object.keys(this.$store.getters.log).length > 0)
-        return true;
-      else
-        return false;
+      return this.$store.getters.hasLog;
     }
   },
   methods: {

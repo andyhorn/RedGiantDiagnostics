@@ -1,20 +1,24 @@
 const routes = require('../config/routes');
 const webService = require("./webService");
 
-const getUserData = function() {
+const getUserData = async function() {
     try {
-        let user = webService.get(routes.getUserData);
+        console.log("Retrieving user data...")
+        let user = await webService.get(routes.getUserData);
+        console.log(user)
         return user;
     }
-    catch
+    catch (err)
     {
+        console.log("Error retrieving user data")
+        console.log(err)
         return {};
     }
 }
 
-const getUserById = function(id) {
+const getUserById = async function(id) {
     try {
-        let user = webService.get(`${routes.getUserById}/${id}`);
+        let user = await webService.get(`${routes.getUserById}/${id}`);
         return user;
     }
     catch 
