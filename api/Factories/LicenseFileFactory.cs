@@ -28,8 +28,8 @@ namespace API.Factories
         {
             var licenseFile = New;
 
-            // licenseFile.Name = GetLicenseName(data);
-            licenseFile.Name = _utilities.GetLineValue("LICENSE FILE", 2, data);
+            licenseFile.Name = GetLicenseName(data);
+            // licenseFile.Name = _utilities.GetLineValue("LICENSE FILE", 2, data);
             // licenseFile.UUID = GetLicenseUuid(data);
             licenseFile.UUID = _utilities.GetLineValue("license uuid", 3, data);
             // licenseFile.HostAddress = GetLicenseHostAddress(data);
@@ -43,6 +43,29 @@ namespace API.Factories
             licenseFile.ProductLicenses = GetLicenseProducts(data);
 
             return licenseFile;
+        }
+
+        private string GetLicenseName(string[] data) 
+        {
+            var fileNameLine = data.FirstOrDefault(line => line.Contains("LICENSE FILE"));
+
+            var filename = fileNameLine.Substring("LICENSE FILE: ".Length);
+
+            if (filename.Contains(" ---- contents"))
+                filename = filename.Substring(0, filename.Length - " ---- contents".Length);
+
+            if (filename.Contains("/"))
+            {
+                var sections = filename.Split("/");
+                filename = sections[sections.Length - 1];
+            }
+            else if (filename.Contains("\\"))
+            {
+                var sections = filename.Split("\\");
+                filename = sections[sections.Length - 1];
+            }
+
+            return filename;
         }
 
         private string GetLicenseHostMac(string[] data)
