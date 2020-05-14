@@ -1,11 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from "vuex-persistedstate";
 const logService = require("../services/logService");
 const authenticationService = require('../services/authenticationService');
 const userService = require("../services/userService");
 const http = require("@/config/axios_config");
 
 Vue.use(Vuex);
+
+const persistedStateOptions = {}
 
 const defaultState = function() {
   return {
@@ -161,5 +164,8 @@ export default new Vuex.Store({
   },
   modules: {
 
-  }
+  },
+  plugins: [
+    createPersistedState(persistedStateOptions)
+  ]
 });
