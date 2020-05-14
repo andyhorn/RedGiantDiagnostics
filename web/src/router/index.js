@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import LogResults from "../views/LogResults.vue";
+import Profile from "@/views/Profile.vue";
 import store from "../store/index";
 
 Vue.use(VueRouter);
@@ -21,6 +22,11 @@ const routes = [
     path: "/log/:id",
     name: "LogById",
     component: LogResults
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: Profile
   }
 ];
 
