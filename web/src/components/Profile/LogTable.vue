@@ -20,6 +20,9 @@
                     <strong>Loading...</strong>
                 </div>
             </template>
+            <template v-slot:cell(uploadDate)="data">
+                {{ new Date(data.item.uploadDate).toLocaleString() }}
+            </template>
             <template v-slot:cell(options)="data">
                 <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">Delete</b-button>
             </template>
