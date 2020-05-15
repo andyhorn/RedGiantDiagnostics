@@ -150,10 +150,12 @@ export default new Vuex.Store({
       }
 
     },
-    async fetchUserLogs({ commit }) {
-      commit("fetching_user_logs");
-      let logs = await logService.getLogsForCurrentUser();
-      commit("user_logs_retrieved", logs);
+    async fetchUserLogs({ commit }, force = false) {
+      if (!this.state.userLogs || force) {
+        commit("fetching_user_logs");
+        let logs = await logService.getLogsForCurrentUser();
+        commit("user_logs_retrieved", logs);
+      }
     },
     logout({ commit }) {
       commit("logout");

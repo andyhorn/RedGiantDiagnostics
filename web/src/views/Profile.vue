@@ -2,12 +2,17 @@
     <div class="container mt-5">
         <h1>Welcome, {{ currentUser.email }}</h1>
         <p>{{ userLogs && userLogs.length }} available</p>
+        <LogTable :logs="userLogs" />
     </div>
 </template>
 
 <script>
+import LogTable from "@/components/Profile/LogTable";
 export default {
     name: 'Profile',
+    components: {
+        LogTable
+    },
     data() {
         return {
 
