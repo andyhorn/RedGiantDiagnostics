@@ -19,6 +19,11 @@ const removeAuthorization = function() {
   http.defaults.headers.common["Authorization"] = null;
 }
 
+const token = localStorage.getItem("red-giant-token");
+if (token) {
+  addAuthorization(token);
+}
+
 export {
   http,
   addAuthorization,

@@ -8,6 +8,9 @@ const http = require("@/config/axios_config");
 
 Vue.use(Vuex);
 
+const COOKIE_KEY = "X-RedGiant-Token-X";
+const TOKEN_KEY = "red-giant-token";
+
 const persistedStateOptions = {}
 
 const defaultState = function() {
@@ -59,6 +62,7 @@ export default new Vuex.Store({
       state.token = data.token;
       state.userId = data.userId;
       state.isAuthenticated = true;
+      localStorage.setItem(TOKEN_KEY, data.token);
     },
     authentication_failure(state, err) {
       state.status = "authentication failed";
@@ -85,6 +89,8 @@ export default new Vuex.Store({
     },
     logout() {
       this.replaceState(defaultState());
+      localStorage.removeItem(TOKEN_KEY);
+      Vue.prototype.$cookies.remove(COOKIE_KEY);
     }
   },
   actions: {
@@ -107,7 +113,7 @@ export default new Vuex.Store({
           http.addAuthorization(res.data.token);
 
           if (data.rememberMe) {
-            localStorage.setItem("red-giant-token", res.data.token);
+            Vue.prototype.$cookies.set()
           }
 
           this.dispatch("fetch_user");

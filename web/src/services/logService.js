@@ -49,8 +49,6 @@ const getLogsForCurrentUser = async function() {
     let uri = currentUserLogs;
     try {
         let logs = await get(uri);
-        console.log("Logs retrieved for current user")
-        console.log(logs)
         return logs.data;
     } catch {
         return null;

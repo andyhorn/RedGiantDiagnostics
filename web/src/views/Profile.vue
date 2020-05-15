@@ -13,11 +13,6 @@ export default {
     components: {
         LogTable
     },
-    data() {
-        return {
-
-        }
-    },
     mounted() {
         this.$store.dispatch("fetchUserLogs");
     },
