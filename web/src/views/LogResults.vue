@@ -71,8 +71,7 @@ export default {
                 "Logs",
                 "RLM Instances"
             ],
-            activeSection: "",
-            debugLogs: []
+            activeSection: null
         }
     },
     // Before creating the component, check if there is an ID parameter
@@ -83,9 +82,10 @@ export default {
     // the user to the main Home page.
     async beforeMount() {
         if (this.$route.params.id) {
-            await this.$store.getLogById(this.$route.params.id);
+            await this.$store.dispatch("getLogById", this.$route.params.id);
         }
-
+    },
+    mounted() {
         this.activeSection = this.sections[0];
     },
     // After the component has been created, save a reference to the log
@@ -100,21 +100,19 @@ export default {
         },
         isAuthenticated() {
              return this.$store && this.$store.getters.isAuthenticated;
+        },
+        debugLogs() {
+            if (this.$store.getters.hasLog) {
+                return [...this.log.isvLogs, this.log.rlmLog];
+            } else {
+                return [];
+            }
         }
-    },
-    mounted() {
-        this.concatLogs();
     },
     methods: {
         // When a tab is clicked, set it as the active section
         tabClicked(sectionTitle) {
             this.activeSection = sectionTitle;
-        },
-        concatLogs() {
-            this.debugLogs = [
-                ...this.log.isvLogs,
-                this.log.rlmLog
-            ];
         },
         onSaveLog(data) {
             this.log.title = data.title;

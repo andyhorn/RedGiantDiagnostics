@@ -19,6 +19,7 @@ const removeAuthorization = function() {
   http.defaults.headers.common["Authorization"] = null;
 }
 
+// If a token is present on launch, add it to the headers
 const token = localStorage.getItem("red-giant-token");
 if (token) {
   addAuthorization(token);

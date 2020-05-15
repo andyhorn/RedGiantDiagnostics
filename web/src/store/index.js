@@ -11,7 +11,9 @@ Vue.use(Vuex);
 const COOKIE_KEY = "X-RedGiant-Token-X";
 const TOKEN_KEY = "red-giant-token";
 
-const persistedStateOptions = {}
+const persistedStateOptions = {
+  paths: ['log', 'user', 'userId', 'isAuthenticated']
+}
 
 const defaultState = function() {
   return {
@@ -22,7 +24,7 @@ const defaultState = function() {
     userId: null,
     userLogs: null,
     error: null,
-    token: localStorage.getItem("red-giant-token") || null,
+    token: null,
     isAuthenticated: false
   }
 }
@@ -94,11 +96,11 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    get_log_by_id({ commit }, id) {
+    getLogById({ commit }, id) {
       return new Promise(() => {
         commit("retrieving_log", id);
         logService.getById(id)
-          .then((log) => commit("retrieved", log))
+          .then((log) => commit("log_retrieved", log))
           .catch((err) => commit("retrieval_failure", err));
       })
     },
@@ -106,8 +108,6 @@ export default new Vuex.Store({
       commit("authenticating");
       authenticationService.login(data.email, data.password)
         .then((res) => {
-          console.log("authentication successful")
-          console.log(res)
           commit("authentication_success", res.data);
 
           http.addAuthorization(res.data.token);
@@ -115,21 +115,16 @@ export default new Vuex.Store({
           if (data.rememberMe) {
             Vue.prototype.$cookies.set()
           }
-
-          this.dispatch("fetch_user");
         })
         .catch((err) => {
-          console.log("authentication failed")
-          console.log(err)
           commit("authentication_failure", err);
         });
     },
-    fetch_user({ commit }) {
+    fetchUser({ commit }) {
       if (this.state.userId != "") {
         commit("fetching_user");
         userService.getUserData()
           .then((res) => {
-            console.log(res);
             commit("fetch_success", res.data);
           })
           .catch((err) => {

@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-pagination v-model="currentPage"
-            :total-rows="logs.length"
+            :total-rows="logs ? logs.length : 0"
             :per-page="perPage"
             aria-controls="log-table"
             first-number
@@ -10,7 +10,7 @@
         <b-table :items="logs" 
             :fields="fields" 
             id="log-table"
-            :busy="logs.length == 0" 
+            :busy="!logs" 
             :per-page="perPage"
             sort-icon-left
             responsiveness="sm">
@@ -21,7 +21,7 @@
                 </div>
             </template>
             <template v-slot:cell(uploadDate)="data">
-                {{ new Date(data.item.uploadDate).toLocaleString() }}
+                {{ data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString() }}
             </template>
             <template v-slot:cell(options)="data">
                 <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">Delete</b-button>

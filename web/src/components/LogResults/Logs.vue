@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <LogCard v-for="(log, index) in debugLogs" :key="index" :debugLog="log" :id="index.toString()"/>
+        <LogCard v-for="(log, index) in debugLogs" :key="index" :debugLog="log" :id="index.toString()" class="my-2"/>
     </div>
 </template>
 

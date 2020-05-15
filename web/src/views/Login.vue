@@ -26,7 +26,7 @@ export default {
         }
     },
     methods: {
-        onLogin() {
+        async onLogin() {
             this.$refs.loginDropdown.hide();
             let loginData = { 
                 email: this.email,
@@ -34,7 +34,8 @@ export default {
                 rememberMe: this.rememberMe
             };
             this.clear();
-            this.$store.dispatch("login", loginData);
+            await this.$store.dispatch("login", loginData);
+            this.$store.dispatch("fetchUser");
         },
         clear() {
             this.email = null;

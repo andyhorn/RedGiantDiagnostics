@@ -21,7 +21,7 @@ export default {
             return this.$store.getters.user;
         },
         userLogs() {
-            return this.$store.getters.userLogs;
+            return this.$store.getters.userLogs || [];
         }
     }
 }
