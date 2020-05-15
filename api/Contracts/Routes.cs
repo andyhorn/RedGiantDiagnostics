@@ -35,6 +35,7 @@ namespace API.Contracts
                 public const string Delete = "{id}";
                 public const string Save = "";
                 public const string Upload = "upload";
+                public const string GetLogsForCurrentUser = "";
             }
             public const string Get = "";
             public const string GetById = "{id}";

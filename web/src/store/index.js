@@ -17,6 +17,7 @@ const defaultState = function() {
     logId: null,
     user: null,
     userId: null,
+    userLogs: null,
     error: null,
     token: localStorage.getItem("red-giant-token") || null,
     isAuthenticated: false
@@ -74,6 +75,13 @@ export default new Vuex.Store({
     fetch_failure(state, err) {
       state.status = "failed to fetch user data";
       state.error = err;
+    },
+    fetching_user_logs(state) {
+      state.status = "retrieving user logs";
+    },
+    user_logs_retrieved(state, logs) {
+      state.status = "logs retrieved";
+      state.userLogs = logs;
     },
     logout() {
       this.replaceState(defaultState());
@@ -142,6 +150,11 @@ export default new Vuex.Store({
       }
 
     },
+    async fetchUserLogs({ commit }) {
+      commit("fetching_user_logs");
+      let logs = await logService.getLogsForCurrentUser();
+      commit("user_logs_retrieved", logs);
+    },
     logout({ commit }) {
       commit("logout");
       http.removeAuthorization();
@@ -152,6 +165,7 @@ export default new Vuex.Store({
     hasLog: state => state.log !== null,
     user: (state) => state.user,
     userId: state => state.userId,
+    userLogs: state => state.userLogs,
     token: state => state.token,
     isAuthenticated: state => state.isAuthenticated,
     isAdmin: state => {

@@ -1,5 +1,5 @@
 import { get, postFile, put, del } from "./webService";
-import { getLogById, postLog, putLog, deleteLog as deleteLogUri } from "../config/routes";
+import { getLogById, postLog, putLog, deleteLog as deleteLogUri, currentUserLogs } from "../config/routes";
 
 const getById = async function(id) {
     let uri = `${getLogById}/${id}`;
@@ -45,9 +45,22 @@ const deleteLog = async function(id) {
     }
 }
 
+const getLogsForCurrentUser = async function() {
+    let uri = currentUserLogs;
+    try {
+        let logs = await get(uri);
+        console.log("Logs retrieved for current user")
+        console.log(logs)
+        return logs.data;
+    } catch {
+        return null;
+    }
+}
+
 export {
     getById,
     saveLog,
     updateLog,
-    deleteLog
+    deleteLog,
+    getLogsForCurrentUser
 }
