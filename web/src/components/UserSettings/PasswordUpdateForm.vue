@@ -1,14 +1,24 @@
 <template>
     <div class="container">
         <b-form @submit.prevent="onSubmit" @reset="onReset">
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col">
-                    <label for="password-input">Password</label>
+                    <label for="current-password-input">Current Password</label>
                 </div>
             </div>
             <div class="row">
                 <div class="col-10">
-                    <b-input id="password-input" type="password" required v-model="password" />
+                    <b-input id="current-password-input" type="password" required v-model="currentPassword" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <label for="new-password-input">New Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <b-input id="new-password-input" type="password" required v-model="newPassword" />
                 </div>
             </div>
             <div class="row mt-3">
@@ -18,7 +28,7 @@
             </div>
             <div class="row">
                 <div class="col-10">
-                    <b-input id="password-confirm-input" type="password" required v-model="passwordConfirm" />
+                    <b-input id="password-confirm-input" type="password" required v-model="confirmNewPassword" />
                 </div>
                 <div class="col-2">
                     <b-button type="submit" variant="primary" :disabled="submitDisabled">Save</b-button>
@@ -33,26 +43,35 @@ export default {
     name: 'PasswordUpdateForm',
     data() {
         return {
-            password: "",
-            passwordConfirm: ""
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: ""
         }
     },
     computed: {
         submitDisabled() {
-            return this.password == "" || !this.passwordsMatch;
+            return this.currentPassword == "" || this.newPassword == "" || !this.passwordsMatch;
         },
         passwordsMatch() {
-            return this.password == this.passwordConfirm;
+            return this.newPassword == this.confirmNewPassword;
         }
     },
     methods: {
         onSubmit() {
-            if (!this.submitDisabed)
-                this.$emit("submit", this.password);
+            if (!this.submitDisabed) {
+                let data = {
+                    currentPassword: this.currentPassword,
+                    newPassword: this.newPassword,
+                    confirmNewPassword: this.confirmNewPassword
+                };
+
+                this.$emit("submit", data);
+            }
         },
         onReset() {
-            this.password = "";
-            this.passwordConfirm = "";
+            this.currentPassword = "";
+            this.newPassword = "";
+            this.confirmNewPassword = "";
         }
     }
 }

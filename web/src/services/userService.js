@@ -6,8 +6,7 @@ const getUserData = async function() {
         let user = await webService.get(routes.getUserData);
         return user;
     }
-    catch (err)
-    {
+    catch (err) {
         return {};
     }
 }
@@ -17,13 +16,29 @@ const getUserById = async function(id) {
         let user = await webService.get(`${routes.getUserById}/${id}`);
         return user;
     }
-    catch 
-    {
+    catch {
         return {};
+    }
+}
+
+const changeUserPassword = async function(userId, currentPassword, newPassword, confirmNewPassword) {
+    try {
+        let uri = routes.changePassword;
+        uri.replace("{id}", userId);
+        await webService.post(uri, {
+            currentPassword,
+            newPassword,
+            confirmNewPassword
+        });
+        return true;
+    }
+    catch {
+        return false;
     }
 }
 
 export {
     getUserById,
-    getUserData
+    getUserData,
+    changeUserPassword
 }

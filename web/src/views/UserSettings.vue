@@ -15,6 +15,7 @@
 <script>
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
 import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
+import { changeUserPassword } from "@/services/userService.js";
 
 export default {
     name: 'UserSettings',
@@ -42,13 +43,25 @@ export default {
             console.log(this.$store.getters.user);
             this.user = this.$store.getters.user;
         },
-        onPasswordChange() {
-            this.$bvToast.toast("Your password has been successfully changed.", {
-                title: "Password saved!",
-                noCloseButton: true,
-                variant: 'success'
-            });
-            this.$refs.passwordForm.onReset();
+        async onPasswordChange(passwordData) {
+            let success = await changeUserPassword(
+                this.user.id, passwordData.currentPassword, 
+                passwordData.newPassword, passwordData.confirmNewPassword);
+            
+            if (success) {
+                this.$bvToast.toast("Your password has been successfully changed.", {
+                    title: "Password saved!",
+                    noCloseButton: true,
+                    variant: 'success'
+                });
+                this.$refs.passwordForm.onReset();
+            } else {
+                this.$bvToast.toast("There was an error changing your password, double check everything and try again.", {
+                    title: "Password not saved",
+                    noCloseButton: true,
+                    variant: 'danger'
+                });
+            }
         },
         onEmailChange() {
 
