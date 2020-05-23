@@ -50,7 +50,8 @@ export default {
   methods: {
     onLogout() {
       this.$store.dispatch("logout");
-      this.$router.push({ name: "Home" });
+      if (this.$route.name != "Home")
+        this.$router.push({ name: "Home" });
     }
   }
 }

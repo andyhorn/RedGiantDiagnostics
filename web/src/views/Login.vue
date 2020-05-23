@@ -29,8 +29,7 @@ export default {
         }
     },
     methods: {
-        onLogin(e) {
-            e.preventDefault();
+        onLogin() {
             this.isError = false;
             this.errorMessage = "";
 
