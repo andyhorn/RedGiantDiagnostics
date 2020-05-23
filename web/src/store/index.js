@@ -125,9 +125,9 @@ export default new Vuex.Store({
           });
       })
     },
-    fetchUser({ commit }, force = false) {
+    fetchUser({ commit }, force) {
       return new Promise((resolve, reject) => {
-        if (this.state.userId != "" && (this.state.user == null || force)) {
+        if (force || (this.state.userId != "" && this.state.user == null)) {
           commit("fetching_user");
           userService.getUserData()
             .then((res) => {
@@ -175,13 +175,6 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    log: (state) => state.log,
-    hasLog: state => state.log !== null,
-    user: (state) => state.user,
-    userId: state => state.userId,
-    userLogs: state => state.userLogs,
-    token: state => state.token,
-    isAuthenticated: state => state.isAuthenticated,
     isAdmin: state => {
       if (state.user) {
         return state.user.roles.includes("Administrator");
