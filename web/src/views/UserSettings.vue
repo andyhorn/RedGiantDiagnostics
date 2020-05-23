@@ -1,8 +1,14 @@
 <template>
     <div class="container mt-5">
         <h1>Account Settings</h1>
-        <EmailUpdateForm :currentEmail="user.email" />
-        <PasswordUpdateForm />
+        <div class="my-4 p-4 border rounded">
+            <h2>Update Email Address</h2>
+            <EmailUpdateForm :currentEmail="user.email" />
+        </div>
+        <div class="my-4 p-4 border rounded">
+            <h2>Update Password</h2>
+            <PasswordUpdateForm />
+        </div>
     </div>    
 </template>
 
@@ -41,5 +47,7 @@ export default {
 </script>
 
 <style scoped>
-
+h2 {
+    font-size: 1.2rem;
+}
 </style>

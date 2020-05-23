@@ -7,7 +7,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col-10">
                     <b-input id="password-input" type="password" required v-model="password" />
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <template>
-    <div class="container rounded p-3">
+    <div class="container">
         <b-form @submit.prevent="onSubmit" @reset="reset">
             <div class="row">
                 <div class="col">
