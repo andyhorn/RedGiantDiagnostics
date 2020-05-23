@@ -1,6 +1,9 @@
 <template>
     <div class="container mt-5">
-        <h1>Welcome, {{ currentUser.email }}</h1>
+        <div class="d-flex justify-content-between align-items-end">
+            <h1>Welcome, {{ currentUser.email }}</h1>
+            <a href="/profile/settings">Account Settings</a>
+        </div>
         <p>{{ userLogs && userLogs.length }} available</p>
         <LogTable :logs="userLogs" />
     </div>
