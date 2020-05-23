@@ -76,10 +76,7 @@ export default {
     },
     // Before creating the component, check if there is an ID parameter
     // in the route path; If there is, ask the Vuex store to retrieve
-    // and save the log data before continuing. If there isn't an ID
-    // parameter, check if there is a log currently saved in the Vuex
-    // store; If there is, continue rendering the view - If not, return
-    // the user to the main Home page.
+    // and save the log data before continuing.
     async beforeMount() {
         if (this.$route.params.id) {
             await this.$store.dispatch("getLogById", this.$route.params.id);

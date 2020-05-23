@@ -105,20 +105,30 @@ export default new Vuex.Store({
       })
     },
     login({ commit }, data) {
+      console.log("Logging in...")
       commit("authenticating");
-      authenticationService.login(data.email, data.password)
-        .then((res) => {
-          commit("authentication_success", res.data);
+      return new Promise((resolve, reject) => {
+        authenticationService.login(data.email, data.password)
+          .then((res) => {
+            console.log("Authenticated. Data:")
+            console.log(res)
+            commit("authentication_success", res.data);
+  
+            http.addAuthorization(res.data.token);
+  
+            if (data.rememberMe) {
+              Vue.prototype.$cookies.set()
+            }
 
-          http.addAuthorization(res.data.token);
-
-          if (data.rememberMe) {
-            Vue.prototype.$cookies.set()
-          }
-        })
-        .catch((err) => {
-          commit("authentication_failure", err);
-        });
+            return resolve();
+          })
+          .catch((err) => {
+            console.log("Unable to authenticate")
+            console.log(err)
+            commit("authentication_failure", err);
+            return reject();
+          });
+      })
     },
     fetchUser({ commit }) {
       if (this.state.userId != "") {
