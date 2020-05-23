@@ -142,6 +142,28 @@ namespace API.Controllers.V2
             return Ok();
         }
 
+        [HttpPost(Contracts.Routes.Administrator.Users.SetPassword)]
+        public async Task<IActionResult> SetUserPassword([FromBody]AdminPasswordResetRequest request)
+        {
+            // Validate the Model State
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Verify the user exists
+            var exists = await _identityService.UserExistsWithIdAsync(request.UserId);
+            if (!exists) 
+            {
+                return NotFound();
+            }
+
+            var user = await _identityService.GetUserByIdAsync(request.UserId);
+            await _identityService.SetUserPasswordAsync(user, request.NewPassword);
+
+            return Ok();
+        }
+
         /// <summary>
         /// Delete a user from the identity store
         /// </summary>

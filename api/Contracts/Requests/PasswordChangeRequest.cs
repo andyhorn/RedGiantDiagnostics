@@ -11,6 +11,8 @@ namespace API.Contracts.Requests
 
         [Required]
         [DataType(DataType.Password)]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
+        [MaxLength(24, ErrorMessage = "Password cannot be greater than 24 characters")]
         [Display(Name = "New password")]
         public string NewPassword { get; set; }
         

@@ -1,5 +1,6 @@
 <template>
     <div class="container mt-5">
+        <ErrorToast :title="errorToastTitle" :message="errorToastMessage" :errorList="errorToastList" :visible="errorVisible" @hidden="onErrorHide" />
         <h1>Account Settings</h1>
         <div class="my-4 p-4 border rounded">
             <h2>Update Email Address</h2>
@@ -15,17 +16,23 @@
 <script>
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
 import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
+import ErrorToast from "@/components/ErrorToast.vue";
 import { changeUserPassword } from "@/services/userService.js";
 
 export default {
     name: 'UserSettings',
     components: {
         EmailUpdateForm,
-        PasswordUpdateForm
+        PasswordUpdateForm,
+        ErrorToast
     },
     data() {
         return {
-            user: {}
+            user: {},
+            errorToastTitle: "",
+            errorToastMessage: "",
+            errorToastList: [],
+            errorVisible: false
         }
     },
     mounted() {
@@ -44,11 +51,12 @@ export default {
             this.user = this.$store.getters.user;
         },
         async onPasswordChange(passwordData) {
-            let success = await changeUserPassword(
-                this.user.id, passwordData.currentPassword, 
-                passwordData.newPassword, passwordData.confirmNewPassword);
+            let result = await changeUserPassword(
+                passwordData.currentPassword, 
+                passwordData.newPassword, 
+                passwordData.confirmNewPassword);
             
-            if (success) {
+            if (result.success) {
                 this.$bvToast.toast("Your password has been successfully changed.", {
                     title: "Password saved!",
                     noCloseButton: true,
@@ -56,15 +64,51 @@ export default {
                 });
                 this.$refs.passwordForm.onReset();
             } else {
-                this.$bvToast.toast("There was an error changing your password, double check everything and try again.", {
-                    title: "Password not saved",
-                    noCloseButton: true,
-                    variant: 'danger'
-                });
+                let errorToastTitle = "Password Change Failed";
+
+                let message = "There ";
+                if (Object.keys(result.errors) > 1) {
+                    message += `were ${result.errors.length} errors `;
+                } else {
+                    message += "was an error ";
+                }
+
+                message += "with your password change request:";
+
+                this.makeErrorToast(errorToastTitle, message, result.errors);
             }
+        },
+        createElement(type, classes, content) {
+            const node = this.$createElement(
+                type, { class: [...classes] },
+                content
+            );
+            return node;
+        },
+        makeErrorToast(title, message, errors) {
+            const messageNode = this.createElement('p', [], message);
+            const titleNode = this.createElement('strong', [], title);
+            let errorListItems = [];
+            for (let error of errors) {
+                const listItem = this.createElement('li', [], error)
+                errorListItems.push(listItem);
+            }
+            const errorList = this.createElement('ul', [], errorListItems);
+            const bodyNode = this.createElement('div', [], [messageNode, errorList])
+            this.$bvToast.toast(bodyNode, {
+                title: titleNode,
+                variant: 'danger'
+            });
         },
         onEmailChange() {
 
+        },
+        onErrorHide() {
+            console.log("toast hidden")
+            this.errorToastTitle = "",
+            this.errorToastMessage = "",
+            this.errorToastList = [],
+            this.errorVisible = false
         }
     }
 }

@@ -21,20 +21,41 @@ const getUserById = async function(id) {
     }
 }
 
-const changeUserPassword = async function(userId, currentPassword, newPassword, confirmNewPassword) {
+const changeUserPassword = async function(currentPassword, newPassword, confirmNewPassword) {
     try {
         let uri = routes.changePassword;
-        uri.replace("{id}", userId);
-        await webService.post(uri, {
+        console.log("sending password change request to " + uri)
+        await webService.post({
             currentPassword,
             newPassword,
             confirmNewPassword
-        });
-        return true;
+        }, uri);
+        return { success: true, errors: null };
     }
-    catch {
-        return false;
+    catch (err) {
+        let errors = processErrors(err);
+        console.log("Errors parsed:")
+        console.log(errors)
+        return { success: false, errors };
     }
+}
+
+const processErrors = function(err) {
+    let data = err.response.data;
+
+    if (typeof(data) == "string") {
+        return [data];
+    } else if (Array.isArray(data)) {
+        return data;
+    } else if (typeof(data) == "object") {
+        let errors = [];
+        data = data.errors;
+        for (let error of Object.keys(data)) {
+            errors.push(data[error]);
+        }
+
+        return errors;
+    } 
 }
 
 export {

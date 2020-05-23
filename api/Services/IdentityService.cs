@@ -244,6 +244,11 @@ namespace API.Services
         /// <returns></returns>
         public async Task SetUserPasswordAsync(IdentityUser user, string password)
         {
+            var validator = new PasswordValidator<IdentityUser>();
+            var isValid = await validator.ValidateAsync(_userManager, null, password);
+
+            if (!isValid.Succeeded) throw new ArgumentException("Invalid password");
+
             // Validate user object
             if (user == null)
             {
@@ -271,7 +276,15 @@ namespace API.Services
             }
 
             // Set the new password
-            var setResult = await _userManager.AddPasswordAsync(user, password);
+            IdentityResult setResult = null;
+            try
+            {
+                setResult = await _userManager.AddPasswordAsync(user, password);
+            }
+            catch (Exception e) 
+            {
+                throw new ActionFailedException();
+            }
 
             if (!setResult.Succeeded)
             {

@@ -1,12 +1,12 @@
 <template>
 <div>
     <b-dropdown right id="dropdown-form" text="Login" ref="loginDropdown">
-        <b-dropdown-form @submit.prevent="onLogin" @keydown="() => {}">
+        <b-dropdown-form @submit.prevent.stop="onLogin" v-on:keydown.enter="$event.stopPropagation()"> 
             <b-form-group label="Email" label-for="email-address-input">
-                <b-form-input size="sm" v-model="email" id="email-address-input" type="email" placeholder="email@domain.com" />
+                <b-form-input size="sm" v-model="email" id="email-address-input" type="email" placeholder="email@domain.com" @keydown.enter.stop />
             </b-form-group>
             <b-form-group label="Password" label-for="password-input">
-                <b-form-input size="sm" v-model="password" id="password-input" type="password" placeholder="password" />
+                <b-form-input size="sm" v-model="password" id="password-input" type="password" placeholder="password" @keydown.enter.stop/>
             </b-form-group>
             <b-form-checkbox v-model="rememberMe" class="mb-3">Remember me</b-form-checkbox>
             <b-button class="float-right" variant="primary" type="submit">Login</b-button>
@@ -29,7 +29,8 @@ export default {
         }
     },
     methods: {
-        onLogin() {
+        onLogin(e) {
+            e.preventDefault();
             this.isError = false;
             this.errorMessage = "";
 

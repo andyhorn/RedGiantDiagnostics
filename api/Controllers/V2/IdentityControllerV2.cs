@@ -90,7 +90,7 @@ namespace API.Controllers.V2
             {
                 token = await _identityService.LoginAsync(loginRequest.Email, loginRequest.Password);
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 if (string.IsNullOrEmpty(token))
                 {
@@ -153,6 +153,7 @@ namespace API.Controllers.V2
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpPost(Contracts.Routes.Identity.V2.ChangePassword)]
         public async Task<IActionResult> ChangePassword([FromBody]PasswordChangeRequest request, [FromHeader(Name = "Authorization")]string jwt)
         {
@@ -163,12 +164,26 @@ namespace API.Controllers.V2
             }
 
             // Retrieve the user object
+            if (jwt.Contains("Bearer")) {
+                jwt = jwt.Substring("Bearer ".Length);
+            }
+
             var user = await _identityService.GetUserFromToken(jwt);
 
             // Verify the existence of the user
             if (user == null)
             {
                 return NotFound();
+            }
+
+            // Verify the current password
+            try
+            {
+                await _identityService.LoginAsync(user.Email, request.CurrentPassword);
+            }
+            catch (ArgumentException) 
+            {
+                return Unauthorized("Invalid current password");
             }
 
             // Set the new password
