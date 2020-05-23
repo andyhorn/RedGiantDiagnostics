@@ -15,7 +15,7 @@
 <script>
 export default {
     name: 'LogSave',
-    props: ["logId"],
+    props: ["logId", "currentTitle", "currentComments"],
     data() {
         return {
             title: "",
@@ -31,6 +31,13 @@ export default {
         onSave() {
             this.$emit("saveLog", { title: this.title, comments: this.comments });
         }
+    },
+    mounted() {
+        console.log("Setting current title and comments")
+        console.log(this.currentTitle)
+        console.log(this.currentComments)
+        this.title = this.currentTitle;
+        this.comments = this.currentComments;
     }
 }
 </script>

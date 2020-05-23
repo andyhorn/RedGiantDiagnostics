@@ -3,7 +3,11 @@
         <div v-if="!!log">
             <div class="row d-flex justify-content-between">
                 <h1>Results</h1>
-                <LogSave v-if="isAuthenticated" :logId="log.id" @saveLog="onSaveLog" />
+                <LogSave v-if="isAuthenticated" 
+                    :logId="log.id" 
+                    :currentTitle="log.title"
+                    :currentComments="log.comments"
+                    @saveLog="onSaveLog" />
             </div>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
