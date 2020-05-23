@@ -105,7 +105,6 @@ export default new Vuex.Store({
       })
     },
     login({ commit }, data) {
-      console.log("Logging in...")
       commit("authenticating");
       return new Promise((resolve, reject) => {
         authenticationService.login(data.email, data.password)
@@ -126,7 +125,7 @@ export default new Vuex.Store({
           });
       })
     },
-    fetchUser({ commit }) {
+    fetchUser({ commit }, attempts = 3) {
       if (this.state.userId != "") {
         commit("fetching_user");
         userService.getUserData()
@@ -135,6 +134,8 @@ export default new Vuex.Store({
           })
           .catch((err) => {
             commit("fetch_failure", err);
+            if (attempts > 0)
+              this.fetchUser(commit, attempts - 1);
           });
       }
     },

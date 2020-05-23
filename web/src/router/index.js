@@ -14,13 +14,8 @@ const routes = [
     component: Home
   },
   {
-    path: "/log",
+    path: "/log/:id?",
     name: "Log",
-    component: LogResults
-  },
-  {
-    path: "/log/:id",
-    name: "LogById",
     component: LogResults
   },
   {

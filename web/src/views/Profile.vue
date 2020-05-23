@@ -18,7 +18,7 @@ export default {
     },
     computed: {
         currentUser() {
-            return this.$store.getters.user;
+            return this.$store.getters.user || {};
         },
         userLogs() {
             return this.$store.getters.userLogs || [];
