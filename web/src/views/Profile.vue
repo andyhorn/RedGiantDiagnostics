@@ -2,7 +2,7 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-end">
             <h1>Welcome, {{ currentUser.email }}</h1>
-            <a href="/profile/settings">Account Settings</a>
+            <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>
         </div>
         <p>{{ userLogs && userLogs.length }} available</p>
         <LogTable :logs="userLogs" />

@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import LogResults from "../views/LogResults.vue";
 import Profile from "@/views/Profile.vue";
+import UserSettings from "@/views/UserSettings.vue";
 import store from "../store/index";
 
 Vue.use(VueRouter);
@@ -22,6 +23,11 @@ const routes = [
     path: "/profile",
     name: "Profile",
     component: Profile
+  },
+  {
+    path: "/settings",
+    name: "UserSettings",
+    component: UserSettings
   }
 ];
 
