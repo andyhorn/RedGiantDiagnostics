@@ -25,11 +25,15 @@ export default {
             password: "",
             rememberMe: false,
             isError: false,
-            errorMessage: ""
+            errorMessage: "",
+            dropdown: null
         }
     },
+    mounted() {
+        this.dropdown = this.$refs.loginDropdown;
+    },
     methods: {
-        onLogin() {
+        async onLogin() {
             this.isError = false;
             this.errorMessage = "";
 
@@ -39,17 +43,16 @@ export default {
                 rememberMe: this.rememberMe
             };
 
-            this.$store.dispatch("login", loginData)
-                .then(() => {
-                    this.clear();
-                    this.$refs.loginDropdown.hide();
-                    this.$store.dispatch("fetchUser");
-                })
-                .catch(() => {
-                    // Login failed
-                    this.isError = true;
-                    this.errorMessage = "Login attempt failed.";
-                });
+            console.log("Logging in")
+            try {
+                await this.$store.dispatch("login", loginData);
+                this.clear();
+                this.dropdown.hide();
+                await this.$store.dispatch("fetchUser", true);
+            } catch {
+                this.isError = true;
+                this.errorMessage = "Login attempt failed.";
+            }
         },
         clear() {
             this.email = null;
