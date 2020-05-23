@@ -10,6 +10,7 @@
             </b-form-group>
             <b-form-checkbox v-model="rememberMe" class="mb-3">Remember me</b-form-checkbox>
             <b-button class="float-right" variant="primary" type="submit">Login</b-button>
+            <p v-if="isError" class="text-danger">{{ errorMessage }}</p>
         </b-dropdown-form>
     </b-dropdown>
 </div>
@@ -22,28 +23,40 @@ export default {
         return {
             email: "",
             password: "",
-            rememberMe: false
+            rememberMe: false,
+            isError: false,
+            errorMessage: ""
         }
     },
     methods: {
-        async onLogin() {
-            this.$refs.loginDropdown.hide();
+        onLogin() {
+            this.isError = false;
+            this.errorMessage = "";
+
             let loginData = { 
                 email: this.email,
                 password: this.password,
                 rememberMe: this.rememberMe
             };
-            console.log("Submitting login request with data:")
-            console.log(loginData);
-            this.clear();
-            await this.$store.dispatch("login", loginData);
-            console.log("login complete, fetching user...")
-            this.$store.dispatch("fetchUser");
+
+            this.$store.dispatch("login", loginData)
+                .then(() => {
+                    this.clear();
+                    this.$refs.loginDropdown.hide();
+                    this.$store.dispatch("fetchUser");
+                })
+                .catch(() => {
+                    // Login failed
+                    this.isError = true;
+                    this.errorMessage = "Login attempt failed.";
+                });
         },
         clear() {
             this.email = null;
             this.password = null;
             this.rememberMe = false;
+            this.isError = false;
+            this.errorMessage = "";
         }
     }
 }

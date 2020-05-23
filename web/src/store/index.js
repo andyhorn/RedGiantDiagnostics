@@ -110,8 +110,6 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         authenticationService.login(data.email, data.password)
           .then((res) => {
-            console.log("Authenticated. Data:")
-            console.log(res)
             commit("authentication_success", res.data);
   
             http.addAuthorization(res.data.token);
@@ -123,8 +121,6 @@ export default new Vuex.Store({
             return resolve();
           })
           .catch((err) => {
-            console.log("Unable to authenticate")
-            console.log(err)
             commit("authentication_failure", err);
             return reject();
           });
