@@ -1,5 +1,5 @@
 <template>
-    <div class="container mt-5">
+    <div class="container mt-5" v-if="currentUser != null">
         <div class="d-flex justify-content-between align-items-end">
             <h1>Welcome, {{ currentUser.email }}</h1>
             <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>
@@ -18,13 +18,20 @@ export default {
     },
     mounted() {
         this.$store.dispatch("fetchUserLogs");
+        this.$store.dispatch("fetchUser");
     },
     computed: {
         currentUser() {
-            return this.$store.getters.user || {};
+            return this.$store.state.user;
         },
         userLogs() {
-            return this.$store.getters.userLogs || [];
+            return this.$store.state.userLogs;
+        }
+    },
+    methods: {
+        async init() {
+            await this.$store.dispatch("fetchUser");
+            await this.$store.dispatch("fetchUserLogs");
         }
     }
 }
