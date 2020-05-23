@@ -1,12 +1,39 @@
 <template>
-    <div>
-        <h1>settings</h1>
+    <div class="container mt-5">
+        <h1>Account Settings</h1>
+        <EmailUpdateForm :currentEmail="user.email" />
     </div>    
 </template>
 
 <script>
+import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
+
 export default {
-    name: 'UserSettings'
+    name: 'UserSettings',
+    components: {
+        EmailUpdateForm
+    },
+    data() {
+        return {
+            user: {}
+        }
+    },
+    mounted() {
+        this.fetchUser();
+    },
+    methods: {
+        async fetchUser() {
+            console.log("fetching user")
+            if (this.$store.getters.user == null) {
+                console.log("retrieving user from api")
+                await this.$store.dispatch("fetchUser");
+            }
+            
+            console.log("setting user data")
+            console.log(this.$store.getters.user);
+            this.user = this.$store.getters.user;
+        }
+    }
 }
 </script>
 

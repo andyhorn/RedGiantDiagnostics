@@ -125,19 +125,23 @@ export default new Vuex.Store({
           });
       })
     },
-    fetchUser({ commit }, attempts = 3) {
-      if (this.state.userId != "") {
-        commit("fetching_user");
-        userService.getUserData()
-          .then((res) => {
-            commit("fetch_success", res.data);
-          })
-          .catch((err) => {
-            commit("fetch_failure", err);
-            if (attempts > 0)
-              this.fetchUser(commit, attempts - 1);
-          });
-      }
+    fetchUser({ commit }, force = false) {
+      return new Promise((resolve, reject) => {
+        if (this.state.userId != "" && (this.state.user == null || force)) {
+          commit("fetching_user");
+          userService.getUserData()
+            .then((res) => {
+              commit("fetch_success", res.data);
+              return resolve();
+            })
+            .catch((err) => {
+              commit("fetch_failure", err);
+              return reject();
+            });
+        } else {
+          return resolve();
+        }
+      })
     },
     async save_log({ commit }, log) {
       commit("saving_log");
