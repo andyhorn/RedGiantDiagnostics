@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-10" :class="{ 'input-modified' : modified }">
                     <b-input id="email-input" type="email" v-model="emailAddress"
-                        :class="{ 'input-modified': modified }" />
+                        :class="{ 'input-modified': modified }" ref="emailInput" />
                 </div>
                 <div class="col-2">
                     <b-button type="submit" variant="primary" :disabled="!modified">Save</b-button>
@@ -36,8 +36,16 @@ export default {
 
         }
     },
+    watch: {
+        currentEmail: {
+            immediate: true,
+            handler: function() {
+                this.emailAddress = this.currentEmail;
+            }
+        }
+    },
     mounted() {
-        this.emailAddress = this.currentEmail;
+        this.$refs.emailInput = this.currentEmail;
     },
     computed: {
         modified() {

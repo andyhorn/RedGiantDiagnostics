@@ -2,16 +2,19 @@
     <div class="container mt-5">
         <h1>Account Settings</h1>
         <EmailUpdateForm :currentEmail="user.email" />
+        <PasswordUpdateForm />
     </div>    
 </template>
 
 <script>
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
+import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
 
 export default {
     name: 'UserSettings',
     components: {
-        EmailUpdateForm
+        EmailUpdateForm,
+        PasswordUpdateForm
     },
     data() {
         return {
