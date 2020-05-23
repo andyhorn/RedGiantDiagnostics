@@ -21,7 +21,7 @@
                     <b-input id="password-confirm-input" type="password" required v-model="passwordConfirm" />
                 </div>
                 <div class="col-2">
-                    <b-button type="submit" variant="primary" :disabled="!passwordsMatch">Save</b-button>
+                    <b-button type="submit" variant="primary" :disabled="submitDisabled">Save</b-button>
                 </div>
             </div>
         </b-form>
@@ -33,11 +33,14 @@ export default {
     name: 'PasswordUpdateForm',
     data() {
         return {
-            password: null,
-            passwordConfirm: null
+            password: "",
+            passwordConfirm: ""
         }
     },
     computed: {
+        submitDisabled() {
+            return this.password == "" || !this.passwordsMatch;
+        },
         passwordsMatch() {
             return this.password == this.passwordConfirm;
         }
