@@ -11,7 +11,7 @@
                     <b-input id="password-input" type="password" required v-model="password" />
                 </div>
             </div>
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col">
                     <label for="password-confirm-input">Confirm password</label>
                 </div>
@@ -47,10 +47,12 @@ export default {
     },
     methods: {
         onSubmit() {
-
+            if (!this.submitDisabed)
+                this.$emit("submit", this.password);
         },
         onReset() {
-
+            this.password = "";
+            this.passwordConfirm = "";
         }
     }
 }

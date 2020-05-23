@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <b-form @submit.prevent="onSubmit" @reset="reset">
+        <b-form @submit.prevent="onSubmit" @reset="onReset">
             <div class="row">
                 <div class="col">
                     <label for="email-input">Email address</label>
@@ -30,10 +30,10 @@ export default {
     },
     methods: {
         onSubmit() {
-
+            this.$emit("submit", this.emailAddress);
         },
-        reset() {
-
+        onReset() {
+            this.emailAddress = this.currentEmail;
         }
     },
     watch: {

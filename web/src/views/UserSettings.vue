@@ -3,11 +3,11 @@
         <h1>Account Settings</h1>
         <div class="my-4 p-4 border rounded">
             <h2>Update Email Address</h2>
-            <EmailUpdateForm :currentEmail="user.email" />
+            <EmailUpdateForm :currentEmail="user.email" @submit="onEmailChange" />
         </div>
         <div class="my-4 p-4 border rounded">
             <h2>Update Password</h2>
-            <PasswordUpdateForm />
+            <PasswordUpdateForm @submit="onPasswordChange" ref="passwordForm" />
         </div>
     </div>    
 </template>
@@ -41,6 +41,17 @@ export default {
             console.log("setting user data")
             console.log(this.$store.getters.user);
             this.user = this.$store.getters.user;
+        },
+        onPasswordChange() {
+            this.$bvToast.toast("Your password has been successfully changed.", {
+                title: "Password saved!",
+                noCloseButton: true,
+                variant: 'success'
+            });
+            this.$refs.passwordForm.onReset();
+        },
+        onEmailChange() {
+
         }
     }
 }
