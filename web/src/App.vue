@@ -38,13 +38,10 @@ export default {
   },
   computed: {
     isAuthenticated() {
-      return this.$store.getters.isAuthenticated;
+      return this.$store.state.isAuthenticated;
     },
-    isAdmin() {
+    isAdmin () {
       return this.$store.getters.isAdmin;
-    },
-    hasLog() {
-      return this.$store.getters.hasLog;
     }
   },
   methods: {
