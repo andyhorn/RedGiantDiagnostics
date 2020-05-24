@@ -5,13 +5,14 @@ import { getLogById,
     deleteLog as deleteLogUri, 
     currentUserLogs,
     getAllLogsUri,
-    updateLogAdminUri
+    updateLogAdminUri,
+    deleteLogAdminUri
 } from "../config/routes";
 
 const updateLogAdmin = async function(log) {
     let uri = updateLogAdminUri;
     uri = uri.replace("{id}", log.id);
-    console.log("admin updating log at uri: " + uri);
+
     try {
         await put(uri, log);
         return true;
@@ -19,6 +20,13 @@ const updateLogAdmin = async function(log) {
         console.log('error saving log')
         return false
     }
+}
+
+const deleteLogAdmin = async function(id) {
+    let uri = deleteLogAdminUri;
+    uri = uri.replace("{id}", id);
+
+    await del(uri);
 }
 
 const getById = async function(id) {
@@ -95,5 +103,6 @@ export {
     deleteLog,
     getLogsForCurrentUser,
     getAllLogs,
-    updateLogAdmin
+    updateLogAdmin,
+    deleteLogAdmin
 }

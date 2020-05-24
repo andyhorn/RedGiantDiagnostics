@@ -12,3 +12,4 @@ module.exports.deleteLog = "logs";
 module.exports.getAllLogsUri = "admin/logs";
 module.exports.getAllUsersUri = "admin/users";
 module.exports.updateLogAdminUri = "admin/logs/{id}";
+module.exports.deleteLogAdminUri = "admin/logs/{id}";

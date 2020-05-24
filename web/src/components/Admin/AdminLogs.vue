@@ -2,7 +2,7 @@
     <div class="container">
         <h1>Log Management</h1>
         <p>{{ logs.length }} logs currently saved to database.</p>
-        <LogTable v-if="logs.length > 0" :logs="logs" @deleteLog="onLogDelete" />
+        <LogTable v-if="logs.length > 0" :logs="logs" @deleteLog="onDeleteLog" />
     </div>
 </template>
 
@@ -25,6 +25,10 @@ export default {
     methods: {
         async fetchLogs() {
             await this.$store.dispatch("fetchAllLogs");
+            this.logs = this.$store.state.logList;
+        },
+        async onDeleteLog(id) {
+            await this.$store.dispatch("deleteLogAdmin", id);
             this.logs = this.$store.state.logList;
         }
     }

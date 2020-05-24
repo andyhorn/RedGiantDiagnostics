@@ -307,6 +307,30 @@ export default new Vuex.Store({
         commit("log_save_failure");
       }
     },
+    async deleteLogAdmin({ commit }, id) {
+      commit("deleting_log", id);
+
+      return new Promise((resolve, reject) => {
+        logService.deleteLogAdmin(id)
+          .then(() => {
+            commit("log_deleted");
+
+            // Remove log from store
+            for (let i = 0; i < this.state.logList.length; i++) {
+              if (this.state.logList[i].logId == id) {
+                this.state.logList.splice(i, 1);
+                break;
+              }
+            }
+
+            return resolve();
+          })
+          .catch(() => {
+            commit("log_delete_failed");
+            return reject();
+          })
+      })
+    },
     async fetchUserLogs({ commit }, force = false) {
       if (!this.state.userLogs || force) {
         commit("fetching_user_logs");
