@@ -3,7 +3,7 @@
         <div id="left-nav">
             <AdminNavigation :activeSection="activeSection" />
         </div>
-        <div id="admin-view">
+        <div id="admin-view" class="pt-5">
             <router-view />
         </div>
     </div>    

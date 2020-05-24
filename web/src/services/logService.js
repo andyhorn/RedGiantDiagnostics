@@ -1,5 +1,11 @@
 import { get, postFile, put, del } from "./webService";
-import { getLogById, postLog, putLog, deleteLog as deleteLogUri, currentUserLogs } from "../config/routes";
+import { getLogById, 
+    postLog, 
+    putLog, 
+    deleteLog as deleteLogUri, 
+    currentUserLogs,
+    getAllLogsUri
+} from "../config/routes";
 
 const getById = async function(id) {
     let uri = `${getLogById}/${id}`;
@@ -58,10 +64,21 @@ const getLogsForCurrentUser = async function() {
     }
 }
 
+const getAllLogs = async function() {
+    let uri = getAllLogsUri;
+    try {
+        let logs = await get(uri);
+        return logs.data;
+    } catch (err) {
+        return null;
+    }
+}
+
 export {
     getById,
     saveLog,
     updateLog,
     deleteLog,
-    getLogsForCurrentUser
+    getLogsForCurrentUser,
+    getAllLogs
 }

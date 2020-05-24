@@ -19,6 +19,7 @@ const defaultState = function() {
   return {
     status: "",
     log: null,
+    logList: null,
     logId: null,
     user: null,
     userId: null,
@@ -145,6 +146,24 @@ export default new Vuex.Store({
         toaster: "b-toaster-top-center"
       });
     },
+    fetch_all_logs(state) {
+      state.status = "fetching all logs";
+      state.logList = null;
+    },
+    fetch_all_logs_failure(state) {
+      state.status = "failed to retrieve all logs";
+      state.logList = null;
+      new Vue().$bvToast.toast("Unabled to retrieve log data. Refresh and try again.", {
+        title: "Error",
+        variant: "warning",
+        autoHideDelay: 3000,
+        toaster: "b-toaster-top-center"
+      });
+    },
+    fetch_all_logs_success(state, logs) {
+      state.status = "all logs retrieved";
+      state.logList = logs;
+    },
     logout(state) {
       state.userLogs = null;
       state.user = null;
@@ -152,6 +171,7 @@ export default new Vuex.Store({
       state.error = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.logList = null;
       state.status = "logged out";
       localStorage.removeItem(TOKEN_KEY);
       Vue.prototype.$cookies.remove(COOKIE_KEY);
@@ -250,6 +270,29 @@ export default new Vuex.Store({
         let logs = await logService.getLogsForCurrentUser();
         commit("user_logs_retrieved", logs);
       }
+    },
+    async fetchAllLogs({ commit }) {
+      return new Promise((resolve, reject) => {
+        commit("fetching_all_logs");
+        logService.getAllLogs()
+          .then((logs) => {
+            commit("fetch_all_logs_success", logs);
+            return resolve();
+          })
+          .catch(() => {
+            commit("fetch_all_logs_failure");
+            return reject();
+          })
+        // let logs = await logService.getAllLogs();
+
+        // if (logs == null) {
+        //   commit("fetch_all_logs_failure");
+        //   return reject();
+        // } else {
+        //   commit("fetch_all_logs_success", logs);
+        //   return resolve();
+        // }
+      })
     },
     logout({ commit }) {
       commit("logout");

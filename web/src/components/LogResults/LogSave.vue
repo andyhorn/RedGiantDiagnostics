@@ -7,6 +7,14 @@
             <b-form-group label="Comments" label-for="log-notes-input">
                 <b-form-textarea id="log-notes-input" v-model="comments" placeholder="Comments..." rows="3" max-rows="10"  @keydown.enter="$event.stopPropagation()"/>
             </b-form-group>
+            <b-form-group v-if="$store.getters.isAdmin">
+                <b-form-select 
+                    v-model="assignedUser" 
+                    :options="users"
+                    :value-field="id"
+                    :text-field="email"
+                />
+            </b-form-group>
             <b-button type="submit" variant="primary" size="sm">{{ buttonText }} <b-icon-check /></b-button>
         </b-dropdown-form>
     </b-dropdown>
@@ -20,7 +28,8 @@ export default {
         return {
             title: "",
             comments: "",
-            dropdown: null
+            dropdown: null,
+            users: []
         }
     },
     computed: {
@@ -32,12 +41,20 @@ export default {
         onSave() {
             this.$emit("saveLog", { title: this.title, comments: this.comments });
             this.dropdown.hide();
+        },
+        async fetchUsers() {
+            let users = await this.$store.dispatch("fetchAllUsers");
+            this.users = users;
         }
     },
     mounted() {
         this.title = this.currentTitle;
         this.comments = this.currentComments;
         this.dropdown = this.$refs.dropdown;
+        
+        if (this.$store.getters.isAdmin) {
+            this.fetchUsers();
+        }
     }
 }
 </script>
