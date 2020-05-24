@@ -4,6 +4,9 @@ import Home from "../views/Home.vue";
 import LogResults from "../views/LogResults.vue";
 import Profile from "@/views/Profile.vue";
 import UserSettings from "@/views/UserSettings.vue";
+import Admin from "@/views/Admin.vue";
+import AdminUsers from "@/components/Admin/AdminUsers.vue";
+import AdminLogs from "@/components/Admin/AdminLogs.vue";
 import store from "../store/index";
 
 Vue.use(VueRouter);
@@ -28,6 +31,23 @@ const routes = [
     path: "/settings",
     name: "UserSettings",
     component: UserSettings
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
+    children: [
+      {
+        path: '/admin/users',
+        name: 'AdminUsers',
+        component: AdminUsers
+      },
+      {
+        path: '/admin/logs',
+        name: 'AdminLogs',
+        component: AdminLogs
+      }
+    ]
   }
 ];
 
