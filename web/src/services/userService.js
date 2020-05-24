@@ -24,7 +24,6 @@ const getUserById = async function(id) {
 const changeUserPassword = async function(currentPassword, newPassword, confirmNewPassword) {
     try {
         let uri = routes.changePassword;
-        console.log("sending password change request to " + uri)
         await webService.post({
             currentPassword,
             newPassword,

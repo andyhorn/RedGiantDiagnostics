@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <b-form @submit.prevent="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset="onReset" @keydown.enter="$event.stopPropagation">
             <div class="row mt-3">
                 <div class="col">
                     <label for="current-password-input">Current Password</label>
