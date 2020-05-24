@@ -7,8 +7,8 @@
             <b-form-group label="Comments" label-for="log-notes-input">
                 <b-form-textarea id="log-notes-input" v-model="comments" placeholder="Comments..." rows="3" max-rows="10"  @keydown.enter="$event.stopPropagation()"/>
             </b-form-group>
-            <b-form-group v-if="$store.getters.isAdmin">
-                <b-form-select 
+            <b-form-group v-if="$store.getters.isAdmin" label="Assigned to" label-for="log-owner">
+                <b-form-select id="log-owner"
                     v-model="assignedUser" 
                     :options="users"
                     :value-field="'userId'"
@@ -61,7 +61,7 @@ export default {
             this.fetchUsers();
         }
         
-        this.assignedUser = this.$store.state.user;
+        this.assignedUser = this.$store.state.user.userId;
     }
 }
 </script>

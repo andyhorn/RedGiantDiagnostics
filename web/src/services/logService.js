@@ -11,12 +11,13 @@ import { getLogById,
 const updateLogAdmin = async function(log) {
     let uri = updateLogAdminUri;
     uri = uri.replace("{id}", log.id);
-
+    console.log("admin updating log at uri: " + uri);
     try {
-        let response = await put(uri, log);
-        return response.data;
+        await put(uri, log);
+        return true;
     } catch {
-        return null;
+        console.log('error saving log')
+        return false
     }
 }
 

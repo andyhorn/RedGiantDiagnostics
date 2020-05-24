@@ -123,6 +123,7 @@ export default {
             this.log.comments = data.comments;
             this.log.ownerId = data.assignedUser.userId;
             await this.$store.dispatch("saveLogAdmin", this.log);
+            await this.$store.dispatch("fetchAllLogs");
         }
     }
 }

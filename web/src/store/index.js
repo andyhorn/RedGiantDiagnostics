@@ -298,11 +298,11 @@ export default new Vuex.Store({
         log.ownerId = ownerId;
 
       // Update the log through the AdminController
-      let response = await logService.updateLogAdmin(log);
+      let success = await logService.updateLogAdmin(log);
 
       // Commit the result
-      if (response != null) {
-        commit("log_saved", response);
+      if (success) {
+        commit("log_saved", log);
       } else {
         commit("log_save_failure");
       }
