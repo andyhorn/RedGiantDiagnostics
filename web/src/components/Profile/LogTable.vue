@@ -56,7 +56,8 @@ export default {
     },
     methods: {
         onDelete(id) {
-            this.$emit("deleteLog", id);
+            if (confirm("Are you sure you want to delete this log?"))
+                this.$emit("deleteLog", id);
         }
     }
 }
