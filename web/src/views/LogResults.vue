@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container mt-5">
         <div v-if="!!log">
             <div class="row d-flex justify-content-between">
                 <h1>Results</h1>
@@ -93,17 +93,13 @@ export default {
     // data in this component
     computed: {
         log() {
-            if (this.$store.getters.hasLog) {
-                return this.$store.getters.log;
-            } else {
-                return {}
-            }
+            return this.$store.state.log || {};
         },
         isAuthenticated() {
-             return this.$store && this.$store.getters.isAuthenticated;
+             return this.$store && this.$store.state.isAuthenticated;
         },
         debugLogs() {
-            if (this.$store.getters.hasLog) {
+            if (this.log != null) {
                 return [...this.log.isvLogs, this.log.rlmLog];
             } else {
                 return [];

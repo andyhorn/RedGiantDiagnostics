@@ -15,10 +15,13 @@ const getById = async function(id) {
 const saveLog = async function(log) {
     let uri = `${postLog}`;
     try {
+        console.log("saving log")
         let response = await postFile(uri, log);
         return response.data;
     }
-    catch {
+    catch (err) {
+        console.log("error")
+        console.log(err)
         return {};
     }
 }

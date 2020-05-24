@@ -147,7 +147,7 @@ export default new Vuex.Store({
       commit("saving_log");
 
       let logResponse = null;
-      if (this.getters.log.id) {
+      if (this.state.log.id) {
         // If the current log already has an ID, then this is an update request
         logResponse = await logService.updateLog(log);
       } else {
