@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Contracts.Requests.Admin;
 using API.Contracts.Responses;
 using API.Exceptions;
@@ -356,7 +357,7 @@ namespace API.Controllers.V2
         /// <param name="request">LogUpdateRequest containing updated information</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Logs.Update)]
-        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]AdminLogUpdateRequest request)
+        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]LogUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)

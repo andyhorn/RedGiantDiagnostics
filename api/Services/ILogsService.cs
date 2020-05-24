@@ -14,7 +14,7 @@ namespace API.Services
         Task<LogFile> GetByIdAsync(string id);
         Task<bool> LogExists(string id);
         Task<IEnumerable<LogFile>> GetForUserAsync(string userId);
-        Task<LogFile> UpdateAsync<T>(string id, T update) where T : ILogUpdateRequest;
+        Task<LogFile> UpdateAsync(string id, LogUpdateRequest update);
         // Task<LogFile> UpdateAsync(string id, AdminLogUpdateRequest update);
         Task DeleteAsync(string id);
         LogFile Parse(string data);

@@ -215,6 +215,12 @@ namespace API.Controllers.V2
                 return NotFound();
             }
 
+            // Only administrators can change the owner's ID
+            if (!string.IsNullOrEmpty(update.OwnerId))
+            {
+                update.OwnerId = null;
+            }
+
             // Update the log data
             try
             {

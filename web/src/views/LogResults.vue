@@ -93,7 +93,7 @@ export default {
     // data in this component
     computed: {
         log() {
-            return this.$store.state.log || {};
+            return this.$store.state.log;
         },
         isAuthenticated() {
              return this.$store && this.$store.state.isAuthenticated;
@@ -111,10 +111,12 @@ export default {
         tabClicked(sectionTitle) {
             this.activeSection = sectionTitle;
         },
-        onSaveLog(data) {
+        async onSaveLog(data) {
             this.log.title = data.title;
             this.log.comments = data.comments;
-            this.$store.dispatch("save_log", this.log);
+            await this.$store.dispatch("save_log", this.log);
+            await this.$store.dispatch("fetchUserLogs");
+            this.log = this.$store.state.log;
         }
     }
 }
