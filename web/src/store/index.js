@@ -153,7 +153,7 @@ export default new Vuex.Store({
         title: "Logout Successful",
         variant: "success",
         autoHideDelay: 3000,
-        toaster: "b-toaster-top-full"
+        toaster: "b-toaster-bottom-right"
       });
     }
   },

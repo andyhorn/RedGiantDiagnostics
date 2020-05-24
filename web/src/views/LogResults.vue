@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-5">
-        <router-link :to="{ name: 'Profile' }">Back to profile</router-link>
+        <router-link v-if="isAuthenticated" :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
         <div v-if="!!log">
             <div class="d-flex justify-content-between">
                 <h1>Results</h1>

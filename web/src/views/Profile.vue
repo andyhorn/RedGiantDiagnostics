@@ -1,10 +1,10 @@
 <template>
     <div class="container mt-5" v-if="currentUser != null">
-        <div class="d-flex justify-content-between align-items-end">
+        <div class="d-flex flex-column">
             <h1>Welcome, {{ currentUser.email }}</h1>
-            <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>
+            <router-link :to="{ name: 'UserSettings' }" class="text-subtle">Account Settings</router-link>
+            <p class="mt-3">{{ userLogs && userLogs.length }} logs available</p>
         </div>
-        <p>{{ userLogs && userLogs.length }} available</p>
         <LogTable :logs="userLogs" @deleteLog="onLogDelete"/>
     </div>
 </template>

@@ -63,4 +63,19 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Roboto', 'Segoe UI', sans-serif;
   font-weight: 400;
 }
+
+a {
+  font-weight: 350;
+  font-size: 1.1rem;
+}
+
+.text-subtle {
+  font-weight: 300;
+  font-size: .9rem;
+}
+
+.text-bold {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
 </style>
