@@ -1,6 +1,5 @@
 <template>
     <div class="container mt-5">
-        
         <h1>Account Settings</h1>
         <div class="my-4 p-4 border rounded">
             <h2>Update Email Address</h2>
@@ -16,7 +15,6 @@
 <script>
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
 import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
-// import ErrorToast from "@/components/ErrorToast.vue";
 import { changeUserPassword } from "@/services/userService.js";
 import { makeToast } from "@/services/toastService.js";
 
@@ -24,8 +22,7 @@ export default {
     name: 'UserSettings',
     components: {
         EmailUpdateForm,
-        PasswordUpdateForm,
-        // ErrorToast
+        PasswordUpdateForm
     },
     data() {
         return {
@@ -33,11 +30,13 @@ export default {
             title: "",
             errorToastMessage: "",
             errorToastList: [],
-            errorVisible: false
+            errorVisible: false,
+            passwordForm: null
         }
     },
     mounted() {
         this.fetchUser();
+        this.passwordForm = this.$refs.passwordForm;
     },
     methods: {
         async fetchUser() {
@@ -67,17 +66,10 @@ export default {
                     noCloseButton: true,
                     variant: 'success'
                 });
-                this.$refs.passwordForm.onReset();
+                this.passwordForm.onReset();
             } else {
                 this.makeErrorToast(result.errors);
             }
-        },
-        createElement(type, classes, content) {
-            const node = this.$createElement(
-                type, { class: [...classes] },
-                content
-            );
-            return node;
         },
         makeErrorToast(errors) {
             let title = "Password Change Failed";

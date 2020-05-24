@@ -34,8 +34,6 @@ const changeUserPassword = async function(currentPassword, newPassword, confirmN
     }
     catch (err) {
         let errors = processErrors(err);
-        console.log("Errors parsed:")
-        console.log(errors)
         return { success: false, errors };
     }
 }
