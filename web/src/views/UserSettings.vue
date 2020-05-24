@@ -69,18 +69,7 @@ export default {
                 });
                 this.$refs.passwordForm.onReset();
             } else {
-                let title = "Password Change Failed";
-
-                let message = "There ";
-                if (Object.keys(result.errors) > 1) {
-                    message += `were ${result.errors.length} errors `;
-                } else {
-                    message += "was an error ";
-                }
-
-                message += "with your password change request:";
-
-                this.makeErrorToast(title, message, result.errors);
+                this.makeErrorToast(result.errors);
             }
         },
         createElement(type, classes, content) {
@@ -90,7 +79,17 @@ export default {
             );
             return node;
         },
-        makeErrorToast(title, message, errors) {
+        makeErrorToast(errors) {
+            let title = "Password Change Failed";
+
+            let message = "There ";
+            if (Object.keys(errors) > 1) {
+                message += `were ${errors.length} errors `;
+            } else {
+                message += "was an error ";
+            }
+
+            message += "with your password change request:";
             makeToast(title, message, errors, { variant: 'danger' });
         },
         onEmailChange() {
