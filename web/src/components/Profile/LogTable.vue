@@ -9,6 +9,8 @@
             size="sm" />
         <b-table :items="logs"
             fixed
+            :sort-by="sortBy"
+            :sort-desc="sortDesc"
             :fields="fields"
             id="log-table"
             :busy="!logs" 
@@ -47,7 +49,9 @@ export default {
                 { key: 'options', display: 'Options', thStyle: { width: '10%' }}
             ],
             perPage: 10,
-            currentPage: 1
+            currentPage: 1,
+            sortBy: 'uploadDate',
+            sortDesc: true
         }
     },
     methods: {
