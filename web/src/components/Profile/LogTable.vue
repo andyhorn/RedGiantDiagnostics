@@ -7,8 +7,9 @@
             first-number
             last-number 
             size="sm" />
-        <b-table :items="logs" 
-            :fields="fields" 
+        <b-table :items="logs"
+            fixed
+            :fields="fields"
             id="log-table"
             :busy="!logs" 
             :per-page="perPage"
@@ -40,10 +41,10 @@ export default {
     data() {
         return {
             fields: [
-                { key: 'logTitle', display: 'Title', sortable: true },
-                'comments',
-                { key: 'uploadDate', display: 'Upload Date', sortable: true },
-                'options'
+                { key: 'logTitle', display: 'Title', sortable: true, thStyle: { width: '20%' }},
+                { key: 'comments', display: 'Comments', thStyle: { width: '50%' }},
+                { key: 'uploadDate', display: 'Upload Date', sortable: true, tdClass: 'w-20' },
+                { key: 'options', display: 'Options', thStyle: { width: '10%' }}
             ],
             perPage: 10,
             currentPage: 1

@@ -47,7 +47,7 @@ export default {
   methods: {
     onLogout() {
       this.$store.dispatch("logout");
-      if (this.$route.name != "Home")
+      if (this.$route.name != "Home" && this.$route.name != "Log")
         this.$router.push({ name: "Home" });
     }
   }

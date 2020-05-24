@@ -145,8 +145,14 @@ export default new Vuex.Store({
         toaster: "b-toaster-top-center"
       });
     },
-    logout() {
-      this.replaceState(defaultState());
+    logout(state) {
+      state.userLogs = null;
+      state.user = null;
+      state.userId = null;
+      state.error = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.status = "logged out";
       localStorage.removeItem(TOKEN_KEY);
       Vue.prototype.$cookies.remove(COOKIE_KEY);
       new Vue().$bvToast.toast("You have been logged out.", {

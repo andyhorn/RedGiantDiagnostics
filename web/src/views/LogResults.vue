@@ -1,15 +1,15 @@
 <template>
-    <div class="container mt-5">
-        <router-link v-if="isAuthenticated" :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
-        <div v-if="!!log">
-            <div class="d-flex justify-content-between">
-                <h1>Results</h1>
-                <LogSave v-if="isAuthenticated" 
-                    :logId="log.id" 
-                    :currentTitle="log.title"
-                    :currentComments="log.comments"
-                    @saveLog="onSaveLog" />
-            </div>
+    <div class="container">
+        <div v-if="isAuthenticated" class="d-flex flex-row justify-content-between align-items-center mt-3">
+            <router-link v-if="isAuthenticated" :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
+            <LogSave v-if="isAuthenticated" 
+                :logId="log.id" 
+                :currentTitle="log.title"
+                :currentComments="log.comments"
+                @saveLog="onSaveLog" />
+        </div>
+        <div v-if="!!log" class="mt-2">
+            <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
                 :activeSection="activeSection" 
