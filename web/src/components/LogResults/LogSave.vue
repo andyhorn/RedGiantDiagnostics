@@ -7,7 +7,7 @@
             <b-form-group label="Comments" label-for="log-notes-input">
                 <b-form-textarea id="log-notes-input" v-model="comments" placeholder="Comments..." rows="3" max-rows="10"  @keydown.enter="$event.stopPropagation()"/>
             </b-form-group>
-            <b-button type="submit" variant="primary" size="sm">{{ buttonText }}</b-button>
+            <b-button type="submit" variant="primary" size="sm">{{ buttonText }} <b-icon-check /></b-button>
         </b-dropdown-form>
     </b-dropdown>
 </template>

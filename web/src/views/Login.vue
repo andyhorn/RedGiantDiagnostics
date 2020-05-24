@@ -1,6 +1,9 @@
 <template>
 <div>
-    <b-dropdown right id="dropdown-form" text="Login" ref="loginDropdown">
+    <b-dropdown right id="dropdown-form" ref="loginDropdown" no-caret>
+        <template v-slot:button-content>
+            <b-icon icon="arrow-right" aria-hidden="true"/> Login
+        </template>
         <b-dropdown-form @submit.prevent.stop="onLogin" v-on:keydown.enter="$event.stopPropagation()"> 
             <b-form-group label="Email" label-for="email-address-input">
                 <b-form-input size="sm" v-model="email" id="email-address-input" type="email" placeholder="email@domain.com" @keydown.enter.stop />
@@ -9,7 +12,7 @@
                 <b-form-input size="sm" v-model="password" id="password-input" type="password" placeholder="password" @keydown.enter.stop/>
             </b-form-group>
             <b-form-checkbox v-model="rememberMe" class="mb-3">Remember me</b-form-checkbox>
-            <b-button class="float-right" variant="primary" type="submit">Login</b-button>
+            <b-button class="float-right" variant="primary" type="submit">Login <b-icon-check /></b-button>
             <p v-if="isError" class="text-danger">{{ errorMessage }}</p>
         </b-dropdown-form>
     </b-dropdown>

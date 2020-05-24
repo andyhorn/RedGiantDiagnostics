@@ -45,7 +45,7 @@ export default new Vuex.Store({
       state.log = log;
       state.logId = log.id;
       new Vue().$bvToast.toast("Log saved successfully!", {
-        title: "Log saved",
+        title: "Log Saved",
         variant: "success",
         isStatus: true,
         autoHideDelay: 3000,

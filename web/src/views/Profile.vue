@@ -1,8 +1,8 @@
 <template>
     <div class="container mt-5" v-if="currentUser != null">
         <div class="d-flex flex-column">
-            <h1>Welcome, {{ currentUser.email }}</h1>
-            <router-link :to="{ name: 'UserSettings' }" class="text-subtle">Account Settings</router-link>
+            <h1>Your saved logs</h1>
+            <router-link :to="{ name: 'UserSettings' }" class="text-subtle"><b-icon-tools /> Account Settings</router-link>
             <p class="mt-3">{{ userLogs && userLogs.length }} logs available</p>
         </div>
         <LogTable :logs="userLogs" @deleteLog="onLogDelete"/>

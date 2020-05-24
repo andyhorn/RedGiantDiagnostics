@@ -27,7 +27,7 @@
                 {{ data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString() }}
             </template>
             <template v-slot:cell(options)="data">
-                <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">Delete</b-button>
+                <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">Delete <b-icon-x/></b-button>
             </template>
             <template v-slot:cell(logTitle)="data">
                 <a :href="'log/' + data.item.logId">{{ data.item.logTitle }}</a>
