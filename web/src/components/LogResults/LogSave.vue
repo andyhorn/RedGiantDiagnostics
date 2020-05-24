@@ -1,5 +1,5 @@
 <template>
-    <b-dropdown right id="log-save-dropdown-form" :text="buttonText" ref="log-save-dropdown" class="m-2" size="sm">
+    <b-dropdown right id="log-save-dropdown-form" :text="buttonText" ref="dropdown" class="m-2" size="sm">
         <b-dropdown-form @submit.prevent="onSave">
             <b-form-group label="Title" label-for="log-title-input" @submit.stop.prevent>
                 <b-form-input id="log-title-input" placeholder="Title" v-model="title" />
@@ -19,7 +19,8 @@ export default {
     data() {
         return {
             title: "",
-            comments: ""
+            comments: "",
+            dropdown: null
         }
     },
     computed: {
@@ -30,6 +31,7 @@ export default {
     methods: {
         onSave() {
             this.$emit("saveLog", { title: this.title, comments: this.comments });
+            this.dropdown.hide();
         }
     },
     mounted() {
@@ -38,6 +40,7 @@ export default {
         console.log(this.currentComments)
         this.title = this.currentTitle;
         this.comments = this.currentComments;
+        this.dropdown = this.$refs.dropdown;
     }
 }
 </script>

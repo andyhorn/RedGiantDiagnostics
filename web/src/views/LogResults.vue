@@ -1,7 +1,8 @@
 <template>
     <div class="container mt-5">
+        <router-link :to="{ name: 'Profile' }">Back to profile</router-link>
         <div v-if="!!log">
-            <div class="row d-flex justify-content-between">
+            <div class="d-flex justify-content-between">
                 <h1>Results</h1>
                 <LogSave v-if="isAuthenticated" 
                     :logId="log.id" 
@@ -116,12 +117,6 @@ export default {
             this.log.comments = data.comments;
             await this.$store.dispatch("save_log", this.log);
             await this.$store.dispatch("fetchUserLogs");
-            this.log = this.$store.state.log;
-            this.$bvToast.toast("Log saved successfully!", {
-                title: "Log saved!",
-                variant: "success"
-            });
-            
         }
     }
 }

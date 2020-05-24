@@ -44,9 +44,19 @@ export default new Vuex.Store({
       state.status = "log saved";
       state.log = log;
       state.logId = log.id;
+      new Vue().$bvToast.toast("Log saved successfully!", {
+        title: "Log saved",
+        variant: "success",
+        isStatus: true,
+        autoHideDelay: 3000
+      });
     },
     log_save_failure(state) {
       state.status = "log not saved";
+      new Vue().$bvToast.toast("There was an error saving the log.", {
+        title: "Log Save Error",
+        variant: "danger"
+      });
     },
     log_retrieved(state, logData) {
       state.status = "log retrieved";
@@ -65,6 +75,12 @@ export default new Vuex.Store({
       state.userId = data.userId;
       state.isAuthenticated = true;
       localStorage.setItem(TOKEN_KEY, data.token);
+      new Vue().$bvToast.toast("Login was successful!", {
+        title: "Logged In",
+        variant: "success",
+        isStatus: true,
+        autoHideDelay: 3000
+      });
     },
     authentication_failure(state, err) {
       state.status = "authentication failed";
@@ -93,6 +109,11 @@ export default new Vuex.Store({
       this.replaceState(defaultState());
       localStorage.removeItem(TOKEN_KEY);
       Vue.prototype.$cookies.remove(COOKIE_KEY);
+      new Vue().$bvToast.toast("You have been logged out.", {
+        title: "Logout Successful",
+        variant: "success",
+        autoHideDelay: 3000
+      });
     }
   },
   actions: {

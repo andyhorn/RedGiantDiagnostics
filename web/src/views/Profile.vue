@@ -17,8 +17,7 @@ export default {
         LogTable
     },
     mounted() {
-        this.$store.dispatch("fetchUserLogs");
-        this.$store.dispatch("fetchUser");
+        this.init();
     },
     computed: {
         currentUser() {
