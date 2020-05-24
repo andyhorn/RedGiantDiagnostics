@@ -2,7 +2,7 @@
 <div>
     <b-dropdown right id="dropdown-form" ref="loginDropdown" no-caret>
         <template v-slot:button-content>
-            <b-icon icon="arrow-right" aria-hidden="true"/> Login
+            <b-icon icon="person-check-fill" aria-hidden="true"/> Login
         </template>
         <b-dropdown-form @submit.prevent.stop="onLogin" v-on:keydown.enter="$event.stopPropagation()"> 
             <b-form-group label="Email" label-for="email-address-input">
