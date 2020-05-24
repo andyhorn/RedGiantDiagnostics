@@ -117,6 +117,11 @@ export default {
             await this.$store.dispatch("save_log", this.log);
             await this.$store.dispatch("fetchUserLogs");
             this.log = this.$store.state.log;
+            this.$bvToast.toast("Log saved successfully!", {
+                title: "Log saved!",
+                variant: "success"
+            });
+            
         }
     }
 }
