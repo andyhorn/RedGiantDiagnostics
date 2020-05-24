@@ -116,7 +116,7 @@ export default {
             this.log.title = data.title;
             this.log.comments = data.comments;
             await this.$store.dispatch("save_log", this.log);
-            await this.$store.dispatch("fetchUserLogs");
+            await this.$store.dispatch("fetchUserLogs", true);
         }
     }
 }

@@ -124,6 +124,27 @@ export default new Vuex.Store({
       state.status = "logs retrieved";
       state.userLogs = logs;
     },
+    deleting_log(state, id) {
+      state.status = "deleting log: " + id;
+    },
+    log_deleted(state) {
+      state.status = "log deleted";
+      new Vue().$bvToast.toast("Log successfully deleted.", {
+        title: "Log Deleted",
+        variant: "success",
+        autoHideDelay: 3000,
+        toaster: "b-toaster-bottom-right"
+      });
+    },
+    log_delete_failed(state) {
+      state.status = "log delete failed";
+      new Vue().$bvToast.toast("There was an error deleting the log.", {
+        title: "Error",
+        variant: "danger",
+        autoHideDelay: 3000,
+        toaster: "b-toaster-top-center"
+      });
+    },
     logout() {
       this.replaceState(defaultState());
       localStorage.removeItem(TOKEN_KEY);
@@ -143,6 +164,20 @@ export default new Vuex.Store({
         logService.getById(id)
           .then((log) => commit("log_retrieved", log))
           .catch((err) => commit("retrieval_failure", err));
+      })
+    },
+    async deleteLogById({ commit }, id) {
+      return new Promise((resolve, reject) => {
+        commit("deleting_log", id);
+        logService.deleteLog(id)
+          .then(() => {
+            commit("log_deleted");
+            return resolve();
+          })
+          .catch((err) => {
+            commit("log_delete_failed", err);
+            return reject();
+          })
       })
     },
     login({ commit }, data) {

@@ -5,7 +5,7 @@
             <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>
         </div>
         <p>{{ userLogs && userLogs.length }} available</p>
-        <LogTable :logs="userLogs" />
+        <LogTable :logs="userLogs" @deleteLog="onLogDelete"/>
     </div>
 </template>
 
@@ -31,6 +31,10 @@ export default {
         async init() {
             await this.$store.dispatch("fetchUser");
             await this.$store.dispatch("fetchUserLogs");
+        },
+        async onLogDelete(id) {
+            await this.$store.dispatch("deleteLogById", id);
+            await this.$store.dispatch("fetchUserLogs", true);
         }
     }
 }
