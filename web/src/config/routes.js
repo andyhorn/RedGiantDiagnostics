@@ -7,3 +7,4 @@ module.exports.postLog = "logs";
 module.exports.putLog = "logs";
 module.exports.currentUserLogs = "logs";
 module.exports.changePassword = "identity/password";
+module.exports.changeEmail = "identity/{id}";

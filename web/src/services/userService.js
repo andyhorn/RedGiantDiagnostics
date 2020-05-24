@@ -21,6 +21,22 @@ const getUserById = async function(id) {
     }
 }
 
+const changeUserEmail = async function(id, newEmail) {
+    let uri = routes.changeEmail;
+    uri = uri.replace("{id}", id);
+
+    console.log("changing user email to " + newEmail)
+    console.log("uri: " + uri)
+    try {
+        await webService.put(uri, { email: newEmail });
+        return { success: true, errors: null };
+    } catch (err) {
+        console.log(err)
+        let errors = processErrors(err);
+        return { success: false, errors };
+    }
+}
+
 const changeUserPassword = async function(currentPassword, newPassword, confirmNewPassword) {
     try {
         let uri = routes.changePassword;
@@ -58,5 +74,6 @@ const processErrors = function(err) {
 export {
     getUserById,
     getUserData,
-    changeUserPassword
+    changeUserPassword,
+    changeUserEmail
 }

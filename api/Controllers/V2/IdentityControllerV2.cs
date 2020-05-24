@@ -7,12 +7,13 @@ using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
 {
     [ApiController]
-    [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
+    
     [Route(Contracts.Routes.ControllerV2)]
     [Route(Contracts.Routes.ControllerV1)]
     public class IdentityController : ControllerBase
@@ -112,6 +113,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to update</param>
         /// <param name="updateRequest">The UserUpdateRequest object containing changed information</param>
         /// <returns>BadRequest, NotFound, or Ok</returns>
+        [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPut(Contracts.Routes.Identity.V2.Update)]
         public async Task<IActionResult> Update([FromRoute]string id, [FromBody]UserUpdateRequest updateRequest)
         {
@@ -153,7 +155,7 @@ namespace API.Controllers.V2
             return Ok();
         }
 
-        [AllowAnonymous]
+        [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPost(Contracts.Routes.Identity.V2.ChangePassword)]
         public async Task<IActionResult> ChangePassword([FromBody]PasswordChangeRequest request, [FromHeader(Name = "Authorization")]string jwt)
         {
