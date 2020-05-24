@@ -39,12 +39,8 @@ export default {
         this.passwordForm = this.$refs.passwordForm;
     },
     methods: {
-        async fetchUser() {
-            // If the user data isn't loaded, fetch it
-            if (this.$store.state.user == null) {
-                console.log("retrieving user from api")
-                await this.$store.dispatch("fetchUser");
-            }
+        async fetchUser(force = false) {
+            await this.$store.dispatch("fetchUser", force);
 
             // If the user data couldn't be loaded, display an error toast
             if (this.$store.state.user == null) {
@@ -107,6 +103,7 @@ export default {
                     noCloseButton: true,
                     variant: "success"
                 });
+                this.fetchUser(true);
             } else {
                 this.showEmailErrorToast(result.errors);
             }

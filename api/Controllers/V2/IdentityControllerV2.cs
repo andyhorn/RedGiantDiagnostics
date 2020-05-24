@@ -138,7 +138,12 @@ namespace API.Controllers.V2
 
             // Update the user data
             var user = await _identityService.GetUserByIdAsync(id);
-            user.Map<UserUpdateRequest>(updateRequest);
+            
+            if (!string.IsNullOrEmpty(updateRequest.Email))
+            {
+                user.Email = updateRequest.Email;
+                user.UserName = updateRequest.Email;
+            }
 
             // Save the updated data to the identity store
             try
