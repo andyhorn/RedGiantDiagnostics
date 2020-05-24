@@ -48,14 +48,17 @@ export default new Vuex.Store({
         title: "Log saved",
         variant: "success",
         isStatus: true,
-        autoHideDelay: 3000
+        autoHideDelay: 3000,
+        toaster: "b-toaster-bottom-right"
       });
     },
     log_save_failure(state) {
       state.status = "log not saved";
       new Vue().$bvToast.toast("There was an error saving the log.", {
         title: "Log Save Error",
-        variant: "danger"
+        variant: "danger",
+        autoHideDelay: 3000,
+        toaster: "b-toaster-top-center"
       });
     },
     log_retrieved(state, logData) {
@@ -65,6 +68,11 @@ export default new Vuex.Store({
     retrieval_failure(state, err) {
       state.status = "failed to retrieve log";
       state.err = err;
+      new Vue().$bvToast.toast("There was an error downloading this log file. Refresh and try again.", {
+        title: "Error",
+        variant: "warning",
+        autoHideDelay: 3000
+      });
     },
     authenticating(state) {
       state.status = "authenticating";
@@ -75,17 +83,23 @@ export default new Vuex.Store({
       state.userId = data.userId;
       state.isAuthenticated = true;
       localStorage.setItem(TOKEN_KEY, data.token);
-      new Vue().$bvToast.toast("Login was successful!", {
+      new Vue().$bvToast.toast("You have been logged in.", {
         title: "Logged In",
         variant: "success",
         isStatus: true,
-        autoHideDelay: 3000
+        autoHideDelay: 3000,
+        toaster: "b-toaster-bottom-right"
       });
     },
     authentication_failure(state, err) {
       state.status = "authentication failed";
       state.error = err;
       state.isAuthenticated = false;
+      new Vue().$bvToast.toast("There was an error logging in. Check your credentials and try again.", {
+        title: "Login Failed",
+        variant: "danger",
+        toaster: "b-toaster-top-center"
+      });
     },
     fetching_user(state) {
       state.status = "fetching user data";
@@ -97,6 +111,11 @@ export default new Vuex.Store({
     fetch_failure(state, err) {
       state.status = "failed to fetch user data";
       state.error = err;
+      new Vue().$bvToast.toast("There was an error retrieving your user data. Refresh to try again.", {
+        title: "Error",
+        variant: "danger",
+        toaster: "b-toaster-top-center"
+      });
     },
     fetching_user_logs(state) {
       state.status = "retrieving user logs";
@@ -112,7 +131,8 @@ export default new Vuex.Store({
       new Vue().$bvToast.toast("You have been logged out.", {
         title: "Logout Successful",
         variant: "success",
-        autoHideDelay: 3000
+        autoHideDelay: 3000,
+        toaster: "b-toaster-top-full"
       });
     }
   },
