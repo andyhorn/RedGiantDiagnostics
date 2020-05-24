@@ -1,12 +1,12 @@
 <template>
     <div class="container">
-        <div v-if="isAuthenticated" class="d-flex flex-row justify-content-between align-items-center mt-3">
-            <router-link v-if="isAuthenticated" :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
+        <div v-if="isAuthenticated" class="d-flex flex-row justify-content-end align-items-center mt-3">
             <LogSave v-if="isAuthenticated" 
                 :logId="log.id" 
                 :currentTitle="log.title"
                 :currentComments="log.comments"
-                @saveLog="onSaveLog" />
+                @saveLog="onSaveLog"
+                @adminSave="onAdminSave" />
         </div>
         <div v-if="!!log" class="mt-2">
             <h1>Results</h1>
@@ -115,8 +115,14 @@ export default {
         async onSaveLog(data) {
             this.log.title = data.title;
             this.log.comments = data.comments;
-            await this.$store.dispatch("save_log", this.log);
+            await this.$store.dispatch("saveLog", this.log);
             await this.$store.dispatch("fetchUserLogs", true);
+        },
+        async onAdminSave(data) {
+            this.log.title = data.title;
+            this.log.comments = data.comments;
+            this.log.ownerId = data.assignedUser.userId;
+            await this.$store.dispatch("saveLogAdmin", this.log);
         }
     }
 }

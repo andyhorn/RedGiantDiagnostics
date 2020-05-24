@@ -1,6 +1,15 @@
 const routes = require('../config/routes');
 const webService = require("./webService");
 
+const getAllUsers = async function() {
+    try {
+        let users = await webService.get(routes.getAllUsersUri);
+        return users.data;
+    } catch (err) {
+        return null;
+    }
+}
+
 const getUserData = async function() {
     try {
         let user = await webService.get(routes.getUserData);
@@ -75,5 +84,6 @@ export {
     getUserById,
     getUserData,
     changeUserPassword,
-    changeUserEmail
+    changeUserEmail,
+    getAllUsers
 }

@@ -11,8 +11,8 @@
                 <b-form-select 
                     v-model="assignedUser" 
                     :options="users"
-                    :value-field="id"
-                    :text-field="email"
+                    :value-field="'userId'"
+                    :text-field="'email'"
                 />
             </b-form-group>
             <b-button type="submit" variant="primary" size="sm">{{ buttonText }} <b-icon-check /></b-button>
@@ -29,7 +29,8 @@ export default {
             title: "",
             comments: "",
             dropdown: null,
-            users: []
+            users: [],
+            assignedUser: null
         }
     },
     computed: {
@@ -39,12 +40,16 @@ export default {
     },
     methods: {
         onSave() {
-            this.$emit("saveLog", { title: this.title, comments: this.comments });
+            if (this.$store.getters.isAdmin)
+                this.$emit("adminSave", { title: this.title, comments: this.comments, assignedUser: this.assignedUser })
+            else
+                this.$emit("saveLog", { title: this.title, comments: this.comments });
+            
             this.dropdown.hide();
         },
         async fetchUsers() {
-            let users = await this.$store.dispatch("fetchAllUsers");
-            this.users = users;
+            await this.$store.dispatch("fetchAllUsers");
+            this.users = this.$store.state.userList;
         }
     },
     mounted() {
@@ -55,6 +60,8 @@ export default {
         if (this.$store.getters.isAdmin) {
             this.fetchUsers();
         }
+        
+        this.assignedUser = this.$store.state.user;
     }
 }
 </script>

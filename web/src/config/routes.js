@@ -10,3 +10,5 @@ module.exports.changePassword = "identity/password";
 module.exports.changeEmail = "identity/{id}";
 module.exports.deleteLog = "logs";
 module.exports.getAllLogsUri = "admin/logs";
+module.exports.getAllUsersUri = "admin/users";
+module.exports.updateLogAdminUri = "admin/logs/{id}";

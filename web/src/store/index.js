@@ -24,6 +24,7 @@ const defaultState = function() {
     user: null,
     userId: null,
     userLogs: null,
+    userList: null,
     error: null,
     token: null,
     isAuthenticated: false
@@ -164,6 +165,23 @@ export default new Vuex.Store({
       state.status = "all logs retrieved";
       state.logList = logs;
     },
+    fetch_all_users(state) {
+      state.status = "fetching all user data";
+      state.userList = null;
+    },
+    fetch_all_users_failure(state) {
+      state.status = "failed to retrieve all users";
+      new Vue().$bvToast.toast("Unable to retrieve user data. Refresh and try again.", {
+        title: "Error",
+        variant: "danger",
+        autoHideDelay: 3000,
+        toaster: "b-toaster-top-center"
+      });
+    },
+    fetch_all_users_success(state, users) {
+      state.status = "all users data retrieved";
+      state.userList = users;
+    },
     logout(state) {
       state.userLogs = null;
       state.user = null;
@@ -245,7 +263,7 @@ export default new Vuex.Store({
         }
       })
     },
-    async save_log({ commit }, log) {
+    async saveLog({ commit }, log) {
       commit("saving_log");
 
       let logResponse = null;
@@ -264,6 +282,31 @@ export default new Vuex.Store({
       }
 
     },
+    async saveLogAdmin({ commit }, log) {
+      commit("saving_log");
+
+      // Save the owner id value
+      let ownerId = log.ownerId;
+
+      // If the log hasn't been saved before, save it
+      if (log.id == null) {
+        log = await logService.saveLog(log);
+      }
+
+      // Restore the desired ownerId (if necessary)
+      if (log.ownerId != ownerId)
+        log.ownerId = ownerId;
+
+      // Update the log through the AdminController
+      let response = await logService.updateLogAdmin(log);
+
+      // Commit the result
+      if (response != null) {
+        commit("log_saved", response);
+      } else {
+        commit("log_save_failure");
+      }
+    },
     async fetchUserLogs({ commit }, force = false) {
       if (!this.state.userLogs || force) {
         commit("fetching_user_logs");
@@ -273,7 +316,7 @@ export default new Vuex.Store({
     },
     async fetchAllLogs({ commit }) {
       return new Promise((resolve, reject) => {
-        commit("fetching_all_logs");
+        commit("fetch_all_logs");
         logService.getAllLogs()
           .then((logs) => {
             commit("fetch_all_logs_success", logs);
@@ -282,16 +325,21 @@ export default new Vuex.Store({
           .catch(() => {
             commit("fetch_all_logs_failure");
             return reject();
+          });
+      })
+    },
+    async fetchAllUsers({ commit }) {
+      return new Promise((resolve, reject) => {
+        commit("fetch_all_users");
+        userService.getAllUsers()
+          .then((users) => {
+            commit("fetch_all_users_success", users);
+            return resolve();
           })
-        // let logs = await logService.getAllLogs();
-
-        // if (logs == null) {
-        //   commit("fetch_all_logs_failure");
-        //   return reject();
-        // } else {
-        //   commit("fetch_all_logs_success", logs);
-        //   return resolve();
-        // }
+          .catch(() => {
+            commit("fetch_all_users_failure");
+            return reject();
+          })
       })
     },
     logout({ commit }) {

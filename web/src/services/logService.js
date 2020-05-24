@@ -4,8 +4,21 @@ import { getLogById,
     putLog, 
     deleteLog as deleteLogUri, 
     currentUserLogs,
-    getAllLogsUri
+    getAllLogsUri,
+    updateLogAdminUri
 } from "../config/routes";
+
+const updateLogAdmin = async function(log) {
+    let uri = updateLogAdminUri;
+    uri = uri.replace("{id}", log.id);
+
+    try {
+        let response = await put(uri, log);
+        return response.data;
+    } catch {
+        return null;
+    }
+}
 
 const getById = async function(id) {
     let uri = `${getLogById}/${id}`;
@@ -80,5 +93,6 @@ export {
     updateLog,
     deleteLog,
     getLogsForCurrentUser,
-    getAllLogs
+    getAllLogs,
+    updateLogAdmin
 }
