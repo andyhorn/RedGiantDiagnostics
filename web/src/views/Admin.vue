@@ -30,6 +30,8 @@ export default {
                 return 'logs';
             else if (this.$route.name == 'AdminUsers')
                 return 'users';
+            else if (this.$route.name == 'RegisterNewUser')
+                return 'register';
             else
                 return '';
         }

@@ -1,10 +1,7 @@
 <template>
     <div class="container">
         <h1 class="title">User Management</h1>
-        <div class="d-flex justify-content-between">
-            <p class="subtitle">Select a user from the list below to edit their information.</p>
-            <router-link :to="{ name: 'RegisterNewUser' }">Create New User</router-link>
-        </div>
+        <p class="subtitle">Select a user from the list below to edit their information.</p>
         <b-table outlined
             head-variant="dark"
             v-if="users.length > 0"

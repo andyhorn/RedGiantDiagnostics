@@ -20,6 +20,12 @@
             >
                 <div>Users</div>
             </b-list-group-item>
+            <b-list-group-item
+                :active="isActive('register')"
+                :to="{ name: 'RegisterNewUser' }"
+            >
+                <div>Registration</div>
+            </b-list-group-item>
         </b-list-group>
     </div>
 </template>
