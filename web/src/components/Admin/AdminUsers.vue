@@ -6,13 +6,15 @@
             <router-link :to="{ name: 'RegisterNewUser' }">Create New User</router-link>
         </div>
         <b-table striped
+            v-if="users.length > 0"
             :items="users"
             :fields="tableFields"
             selectable
             select-mode="single"
             @row-selected="onRowSelected">
-            <template v-slot:cell(options)="{ data }">
-                <b-button @click="onDelete(data.userId)" variant="danger" size="sm">Delete</b-button>
+            <template v-slot:cell(options)="data">
+                <b-button v-if="!isCurrentUser(data.item.userId)" @click="onDelete(data.item.userId)"
+                    variant="danger" size="sm">Delete</b-button>
             </template>
             <template v-slot:cell(roles)="data">
                 {{ makeRoles(data.item.roles) }}
@@ -32,6 +34,7 @@
 
 <script>
 import AdminUserEdit from "@/components/Admin/AdminUserEdit.vue";
+const userService = "@/services/userService";
 
 export default {
     name: 'AdminUsers',
@@ -40,7 +43,7 @@ export default {
     },
     data() {
         return {
-            // users: [],
+            users: [],
             selectedUser: [],
             tableFields: ['email', 'roles', 'options']
         }
@@ -49,16 +52,14 @@ export default {
         this.fetchUsers();
     },
     computed: {
-        users() {
-            return this.$store.state.userList;
-        }
+        // users() {
+        //     return this.$store.state.userList;
+        // }
     },
     methods: {
         async fetchUsers() {
             await this.$store.dispatch("fetchAllUsers");
-            // this.users = this.$store.state.userList;
-
-            // return 0;
+            this.users = this.$store.state.userList;
         },
         onRowSelected(item) {
             this.selectedUser = item;
@@ -78,6 +79,18 @@ export default {
         },
         onRefresh() {
             this.fetchUsers();
+        },
+        async onDelete(userId) {
+            if (userId == this.$store.state.user.userId) return;
+
+            if (confirm("Are you sure you want to permanently delete this user? " +
+            "You can also disable their User status to prevent them from logging in.")) {
+                await userService.deleteUserAdmin(userId);
+                this.fetchUsers();
+            }
+        },
+        isCurrentUser(id) {
+            return id == this.$store.state.user.userId;
         }
     }
 }

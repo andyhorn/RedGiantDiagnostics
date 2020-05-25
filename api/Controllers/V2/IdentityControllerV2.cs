@@ -88,6 +88,14 @@ namespace API.Controllers.V2
                 return NotFound();
             }
 
+            // Verify the user is an active "User"
+            var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
+            var roles = await _identityService.GetUserRolesAsync(user);
+            if (!roles.Contains(Contracts.Roles.User))
+            {
+                return Unauthorized();
+            }
+
             // Login and retrieve a token
             var token = string.Empty;
             try
@@ -104,7 +112,7 @@ namespace API.Controllers.V2
             }
 
             // Return Ok with the token and user ID
-            var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
+            // var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
             var response = new TokenResponse(user.Id, token);
 
             return Ok(response);

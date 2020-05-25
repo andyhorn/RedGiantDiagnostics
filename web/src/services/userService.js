@@ -116,6 +116,18 @@ const getUserByIdAdmin = async function(id) {
     }
 }
 
+const deleteUserAdmin = async function(id) {
+    let uri = routes.deleteUserAdminUri;
+    uri = uri.replace("{id}", id);
+
+    try {
+        await webService.del(uri);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 const processErrors = function(err) {
     let data = err.response.data;
 
@@ -144,5 +156,6 @@ export {
     setUserRoles,
     updateUserAdmin,
     setUserPasswordAdmin,
-    getUserByIdAdmin
+    getUserByIdAdmin,
+    deleteUserAdmin
 }

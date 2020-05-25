@@ -10,14 +10,14 @@
                     v-model="isAdmin"
                     :value="true"
                     :unchecked-value="false">
-                    Administrator
+                    Administrator (Enabling this will give this user full Administrative rights)
                 </b-form-checkbox>
                 <b-form-checkbox switch
                     id="user-user-role-input"
                     v-model="isUser"
                     :value="true"
                     :unchecked-value="false">
-                    Active User
+                    Active User (Disabling this will prevent this user from logging in)
                 </b-form-checkbox>
             </b-form-group>
             <b-button type="submit" variant="primary" :disabled="!submitEnabled">Save</b-button>
