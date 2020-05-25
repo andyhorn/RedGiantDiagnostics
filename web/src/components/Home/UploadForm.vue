@@ -30,11 +30,10 @@ export default {
     return {
       file: null,
       messages: [
-        'Work some Magic!',
-        "Let's see what you got!",
+        'Magic!',
+        "Show me what you got!",
         "Analyze this!",
         "Brilliant!",
-        "Get it!",
         "Send it to space!",
         "THE RIG!"
       ]
