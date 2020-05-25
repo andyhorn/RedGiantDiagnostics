@@ -1,7 +1,7 @@
 <template>
     <div>
         <EmailUpdateForm :currentEmail="user.email" @submit="onEmailSubmit"/>
-        <UserRolesForm :userId="user.userId" />
+        <UserRolesForm :userId="user.userId" @updated="refresh"/>
         <PasswordUpdateForm :requiresCurrentPassword="false" @submit="onPasswordSubmit" />
     </div>
 </template>
@@ -42,6 +42,9 @@ export default {
             } else {
                 toastService.errorToast("Error", "There was an error updating the user's password.");
             }
+        },
+        refresh() {
+            this.$emit("refresh");
         }
     }
 }

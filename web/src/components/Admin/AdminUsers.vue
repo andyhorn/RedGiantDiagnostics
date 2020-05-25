@@ -24,7 +24,7 @@
                     to make changes to your own account.</p>
             </div>
             <div v-else>
-                <AdminUserEdit :user="selectedUser[0]" />
+                <AdminUserEdit :user="selectedUser[0]" @refresh="onRefresh" />
             </div>
         </div>
     </div>
@@ -75,6 +75,9 @@ export default {
             }
 
             return str;
+        },
+        onRefresh() {
+            this.fetchUsers();
         }
     }
 }

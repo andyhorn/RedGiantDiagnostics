@@ -20,13 +20,14 @@
                     Active User
                 </b-form-checkbox>
             </b-form-group>
-            <b-button type="submit" variant="primary" :disabled="!submitEnabled()">Save</b-button>
+            <b-button type="submit" variant="primary" :disabled="!submitEnabled">Save</b-button>
         </b-form>
     </div>
 </template>
 
 <script>
 const userService = require("@/services/userService");
+const toastService = require("@/services/toastService");
 
 export default {
     name: 'UserRolesForm',
@@ -43,11 +44,15 @@ export default {
         isUser: function() {
             if (!this.isUser)
                 this.isAdmin = false;
-            this.submitEnabled();
         }
     },
     mounted() {
         this.fetchUserData();
+    },
+    computed: {
+        submitEnabled() {
+            return (this.isUser != this.currentUserSetting) || (this.isAdmin != this.currentAdminSetting);
+        }
     },
     methods: {
         async fetchUserData() {
@@ -57,8 +62,23 @@ export default {
             this.currentAdminSetting = userData.roles.includes("Administrator");
             this.currentUserSetting = userData.roles.includes("User");
         },
-        submitEnabled() {
-            return (this.isUser != this.currentUserSetting) || (this.isAdmin != this.currentAdminSetting);
+        async onSubmit() {
+            if (!this.submitEnabled) return;
+
+            let roles = [];
+            if (this.isUser)
+                roles.push("User");
+            if (this.isAdmin)
+                roles.push("Administrator");
+
+            let success = await userService.setUserRoles(this.userId, roles);
+            if (success) {
+                toastService.successToast("Saved", "User roles have been updated!");
+                this.fetchUserData();
+                this.$emit("updated");
+            } else {
+                toastService.errorToast("Error", "There was an error saving the user roles.");
+            }
         }
     }
 }
