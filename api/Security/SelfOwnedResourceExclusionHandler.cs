@@ -20,8 +20,15 @@ namespace API.Security
             SelfOwnedResourceExclusionRequirement requirement)
         {
             // Get the current user's ID
+
             var currentUser = _httpContextAccessor.HttpContext.User;
-            var currentUserId = currentUser.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId)).Value;
+            var currentUserIdClaim = currentUser.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId));
+            if (currentUserIdClaim == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            var currentUserId = currentUserIdClaim.Value;
 
             // Get the target ID
             var targetUserId = _httpContextAccessor.HttpContext.Request.RouteValues["id"].ToString();

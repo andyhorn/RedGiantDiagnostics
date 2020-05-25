@@ -16,6 +16,7 @@ namespace API.Contracts
                 public const string Delete = Base + "/{id}";
                 public const string GetById = Base + "/{id}";
                 public const string GetByEmail = Base + "/email/{email}";
+                public const string SetPassword = Base + "/{id}/password";
             }
 
             public static class Logs
@@ -35,6 +36,7 @@ namespace API.Contracts
                 public const string Delete = "{id}";
                 public const string Save = "";
                 public const string Upload = "upload";
+                public const string GetLogsForCurrentUser = "";
             }
             public const string Get = "";
             public const string GetById = "{id}";
@@ -52,7 +54,7 @@ namespace API.Contracts
                 public const string Get = "";
                 public const string Update = "{id}";
                 public const string Login = "Login";
-                public const string ChangePassword = "/{id}/password";
+                public const string ChangePassword = "Password";
             }
             public const string GetAllUsers = "";
             public const string GetUserById = "{id}";

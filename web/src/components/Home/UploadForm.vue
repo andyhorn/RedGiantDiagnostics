@@ -12,7 +12,7 @@
           :file-name-formatter="fileNameFormatter"
         />
       </b-form-group>
-      <b-button type="submit" variant="success">Go!</b-button>
+      <b-button type="submit" variant="success">Go! <b-icon icon="lightning-fill" /></b-button>
     </b-form>
   </div>
 </template>

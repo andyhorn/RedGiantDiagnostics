@@ -1,10 +1,15 @@
 <template>
     <div class="container">
-        <div v-if="!!log">
-            <div class="row d-flex justify-content-between">
-                <h1>Results</h1>
-                <LogSave v-if="isAuthenticated" :logId="log.id" @saveLog="onSaveLog" />
-            </div>
+        <div v-if="isAuthenticated" class="d-flex flex-row justify-content-end align-items-center mt-3">
+            <LogSave v-if="isAuthenticated" 
+                :logId="log.id" 
+                :currentTitle="log.title"
+                :currentComments="log.comments"
+                @saveLog="onSaveLog"
+                @adminSave="onAdminSave" />
+        </div>
+        <div v-if="!!log" class="mt-2">
+            <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
                 :activeSection="activeSection" 
@@ -71,55 +76,54 @@ export default {
                 "Logs",
                 "RLM Instances"
             ],
-            activeSection: "",
-            debugLogs: []
+            activeSection: null
         }
     },
     // Before creating the component, check if there is an ID parameter
     // in the route path; If there is, ask the Vuex store to retrieve
-    // and save the log data before continuing. If there isn't an ID
-    // parameter, check if there is a log currently saved in the Vuex
-    // store; If there is, continue rendering the view - If not, return
-    // the user to the main Home page.
+    // and save the log data before continuing.
     async beforeMount() {
         if (this.$route.params.id) {
-            await this.$store.getLogById(this.$route.params.id);
+            await this.$store.dispatch("getLogById", this.$route.params.id);
         }
-
+    },
+    mounted() {
         this.activeSection = this.sections[0];
     },
     // After the component has been created, save a reference to the log
     // data in this component
     computed: {
         log() {
-            if (this.$store.getters.hasLog) {
-                return this.$store.getters.log;
-            } else {
-                return {}
-            }
+            return this.$store.state.log;
         },
         isAuthenticated() {
-             return this.$store && this.$store.getters.isAuthenticated;
+             return this.$store && this.$store.state.isAuthenticated;
+        },
+        debugLogs() {
+            if (this.log != null) {
+                return [...this.log.isvLogs, this.log.rlmLog];
+            } else {
+                return [];
+            }
         }
-    },
-    mounted() {
-        this.concatLogs();
     },
     methods: {
         // When a tab is clicked, set it as the active section
         tabClicked(sectionTitle) {
             this.activeSection = sectionTitle;
         },
-        concatLogs() {
-            this.debugLogs = [
-                ...this.log.isvLogs,
-                this.log.rlmLog
-            ];
-        },
-        onSaveLog(data) {
+        async onSaveLog(data) {
             this.log.title = data.title;
             this.log.comments = data.comments;
-            this.$store.dispatch("save_log", this.log);
+            await this.$store.dispatch("saveLog", this.log);
+            await this.$store.dispatch("fetchUserLogs", true);
+        },
+        async onAdminSave(data) {
+            this.log.title = data.title;
+            this.log.comments = data.comments;
+            this.log.ownerId = data.assignedUser.userId;
+            await this.$store.dispatch("saveLogAdmin", this.log);
+            await this.$store.dispatch("fetchAllLogs");
         }
     }
 }

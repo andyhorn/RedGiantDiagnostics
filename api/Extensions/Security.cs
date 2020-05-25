@@ -24,6 +24,11 @@ namespace API
                         new SelfOwnedResourceExclusionRequirement()
                     );
                 });
+                options.AddPolicy(Contracts.Policies.IsSelfPolicy, policy => {
+                    policy.AddRequirements(
+                        new IsSelfRequirement()
+                    );
+                });
             });
 
             services.AddCors(options => options.AddPolicy(Contracts.Policies.CorsPolicy, builder => {
@@ -35,6 +40,7 @@ namespace API
             services.AddScoped<IAuthorizationHandler, SelfOwnedResourceExclusionHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessOwnedResourceHandler>();
             services.AddScoped<IAuthorizationHandler, CanAccessAdministrativeResourcesHandler>();
+            services.AddScoped<IAuthorizationHandler, IsSelfRequirementHandler>();
         }
     }
 }

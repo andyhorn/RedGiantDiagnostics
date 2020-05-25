@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Contracts;
 using API.Contracts.Requests;
 using API.Entities;
 using API.Services;
@@ -49,6 +51,51 @@ namespace API.Controllers.V2
             // Retrieve and return the log data
             var log = await _logsService.GetByIdAsync(id);
             return Ok(log);
+        }
+
+        /// <summary>
+        /// Retrieves a list of log summaries for the given user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet(Contracts.Routes.Logs.V2.GetLogsForCurrentUser)]
+        public async Task<IActionResult> GetLogsForCurrentUser([FromHeader(Name = "Authorization")]string jwt, [FromServices] IIdentityService identityService)
+        {
+            // Validate the user's ID string
+            if (string.IsNullOrEmpty(jwt))
+            {
+                return Unauthorized();
+            }
+
+            // Remove "Bearer" from the token string
+            if (jwt.Contains("Bearer"))
+            {
+                jwt = jwt.Substring("Bearer ".Length);
+            }
+
+            // Retrieve the user based on the token
+            var user = await identityService.GetUserFromToken(jwt);
+
+            // If no user was found, the token is invalid and this request
+            // is unauthorized
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            // Retrieve all logs for the user
+            var logs = await _logsService.GetForUserAsync(user.Id);
+
+            // Create a list of summary responses
+            var response = new List<LogSummaryResponse>();
+            foreach (var log in logs) 
+            {
+                var summary = new LogSummaryResponse(log);
+                response.Add(summary);
+            }
+
+            // Return the collection
+            return Ok(response);
         }
 
         /// <summary>
@@ -166,6 +213,12 @@ namespace API.Controllers.V2
             {
                 // If no existing log was found, return NotFound
                 return NotFound();
+            }
+
+            // Only administrators can change the owner's ID
+            if (!string.IsNullOrEmpty(update.OwnerId))
+            {
+                update.OwnerId = null;
             }
 
             // Update the log data

@@ -107,14 +107,15 @@ namespace API.Services
         /// Get a list of all user objects in the identity store.
         /// </summary>
         /// <returns>An IEnumerable of IdentityUser objects</returns>
-        public async Task<IEnumerable<IdentityUser>> GetAllUsersAsync()
+        public IEnumerable<IdentityUser> GetAllUsers()
         {
-            IQueryable<IdentityUser> users = null;
-            await Task.Run(() => {
-                users = _userManager.Users;
-            });
+            return _userManager.Users.AsEnumerable();
+            // IQueryable<IdentityUser> users = null;
+            // await Task.Run(() => {
+            //     users = _userManager.Users;
+            // });
             
-            return users;
+            // return users;
         }
 
         /// <summary>
@@ -244,6 +245,11 @@ namespace API.Services
         /// <returns></returns>
         public async Task SetUserPasswordAsync(IdentityUser user, string password)
         {
+            var validator = new PasswordValidator<IdentityUser>();
+            var isValid = await validator.ValidateAsync(_userManager, null, password);
+
+            if (!isValid.Succeeded) throw new ArgumentException("Invalid password");
+
             // Validate user object
             if (user == null)
             {
@@ -271,7 +277,15 @@ namespace API.Services
             }
 
             // Set the new password
-            var setResult = await _userManager.AddPasswordAsync(user, password);
+            IdentityResult setResult = null;
+            try
+            {
+                setResult = await _userManager.AddPasswordAsync(user, password);
+            }
+            catch (Exception e) 
+            {
+                throw new ActionFailedException();
+            }
 
             if (!setResult.Succeeded)
             {
@@ -659,15 +673,18 @@ namespace API.Services
             }
 
             // Retrieve the list of roles
-            var list = await _userManager.GetRolesAsync(user);
-
-            // Validate the list object
-            if (list == null)
+            var list = new List<string>();
+            try 
             {
-                list = new List<string>();
+                var result = await _userManager.GetRolesAsync(user);
+                list = result.ToList();
             }
+            catch (Exception e)
+            {
+                return null;
+            }
+            
 
-            // Return the list
             return list;
         }
 

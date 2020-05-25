@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
@@ -7,12 +8,13 @@ using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V2
 {
     [ApiController]
-    [Authorize(Policy = Contracts.Policies.ResourceOwnerPolicy)]
+    
     [Route(Contracts.Routes.ControllerV2)]
     [Route(Contracts.Routes.ControllerV1)]
     public class IdentityController : ControllerBase
@@ -58,7 +60,9 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return the user data
-            return Ok(new UserDataResponse(user, _identityService));
+            var response = new UserDataResponse(user);
+            response.Roles = (await _identityService.GetUserRolesAsync(user)).ToArray();
+            return Ok(response);
         }
 
         /// <summary>
@@ -84,13 +88,21 @@ namespace API.Controllers.V2
                 return NotFound();
             }
 
+            // Verify the user is an active "User"
+            var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
+            var roles = await _identityService.GetUserRolesAsync(user);
+            if (!roles.Contains(Contracts.Roles.User))
+            {
+                return Unauthorized();
+            }
+
             // Login and retrieve a token
             var token = string.Empty;
             try
             {
                 token = await _identityService.LoginAsync(loginRequest.Email, loginRequest.Password);
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 if (string.IsNullOrEmpty(token))
                 {
@@ -100,7 +112,7 @@ namespace API.Controllers.V2
             }
 
             // Return Ok with the token and user ID
-            var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
+            // var user = await _identityService.GetUserByEmailAsync(loginRequest.Email);
             var response = new TokenResponse(user.Id, token);
 
             return Ok(response);
@@ -112,6 +124,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to update</param>
         /// <param name="updateRequest">The UserUpdateRequest object containing changed information</param>
         /// <returns>BadRequest, NotFound, or Ok</returns>
+        [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPut(Contracts.Routes.Identity.V2.Update)]
         public async Task<IActionResult> Update([FromRoute]string id, [FromBody]UserUpdateRequest updateRequest)
         {
@@ -136,7 +149,12 @@ namespace API.Controllers.V2
 
             // Update the user data
             var user = await _identityService.GetUserByIdAsync(id);
-            user.Map<UserUpdateRequest>(updateRequest);
+            
+            if (!string.IsNullOrEmpty(updateRequest.Email))
+            {
+                user.Email = updateRequest.Email;
+                user.UserName = updateRequest.Email;
+            }
 
             // Save the updated data to the identity store
             try
@@ -153,6 +171,7 @@ namespace API.Controllers.V2
             return Ok();
         }
 
+        [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPost(Contracts.Routes.Identity.V2.ChangePassword)]
         public async Task<IActionResult> ChangePassword([FromBody]PasswordChangeRequest request, [FromHeader(Name = "Authorization")]string jwt)
         {
@@ -163,12 +182,26 @@ namespace API.Controllers.V2
             }
 
             // Retrieve the user object
+            if (jwt.Contains("Bearer")) {
+                jwt = jwt.Substring("Bearer ".Length);
+            }
+
             var user = await _identityService.GetUserFromToken(jwt);
 
             // Verify the existence of the user
             if (user == null)
             {
                 return NotFound();
+            }
+
+            // Verify the current password
+            try
+            {
+                await _identityService.LoginAsync(user.Email, request.CurrentPassword);
+            }
+            catch (ArgumentException) 
+            {
+                return Unauthorized("Invalid current password");
             }
 
             // Set the new password

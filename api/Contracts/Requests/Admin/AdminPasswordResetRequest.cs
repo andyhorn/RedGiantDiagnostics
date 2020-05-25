@@ -4,12 +4,10 @@ namespace API.Contracts.Requests.Admin
 {
     public class AdminPasswordResetRequest
     {
-        [Required(ErrorMessage = "User ID is required")]
-        [Display(Name = "User ID")]
-        public string UserId { get; set; }
-
         [Required(ErrorMessage = "New password is required")]
         [Display(Name = "New password")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
+        [MaxLength(24, ErrorMessage = "Password cannot be more than 24 characters")]
         [DataType(DataType.Password)]
         public string NewPassword { get; set; }
 

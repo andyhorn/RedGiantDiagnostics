@@ -15,6 +15,7 @@ namespace API.Entities
         public string OwnerId { get; set; } = null;
         public string Title { get; set; } = null;
         public string Comments { get; set; } = null;
+        public DateTime UploadDate { get; set; } = DateTime.Now;
         public DateTime? Date { get; set; } = null;
         public IDictionary<string, string> EnvironmentVariables { get; set; } = new Dictionary<string, string>();
         public string RlmVersion { get; set; } = null;

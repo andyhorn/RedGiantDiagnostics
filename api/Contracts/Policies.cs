@@ -6,5 +6,6 @@ namespace API.Contracts
         public const string SelfOwnedResourceExclusionPolicy = "SelfOwnedResourceExclusionPolicy";
         public const string ResourceOwnerPolicy = "ResourceOwnerPolicy";
         public const string CorsPolicy = "CorsPolicy";
+        public const string IsSelfPolicy = "IsSelfPolicy";
     }
 }

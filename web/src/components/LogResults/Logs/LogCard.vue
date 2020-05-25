@@ -3,7 +3,7 @@
         <b-card-body class="m-0 p-0">
             <div class="d-flex justify-content-between align-items-center">
                 <b-card-title>{{ debugLog.filename }}</b-card-title>
-                <b-button v-b-toggle="id" @click="toggleButton">{{ buttonTitle }}</b-button>
+                <b-button v-b-toggle="id" size="sm" @click="toggleButton">{{ buttonTitle }}</b-button>
             </div>
             <b-collapse :id="id" class="mt-2">
                 <b-list-group>

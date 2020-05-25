@@ -68,7 +68,7 @@ namespace API.Services
             return;
         }
 
-        public async Task<LogFile> UpdateAsync<T>(string id, T update) where T : ILogUpdateRequest
+        public async Task<LogFile> UpdateAsync(string id, LogUpdateRequest update)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -88,7 +88,21 @@ namespace API.Services
                 throw new ResourceNotFoundException();
             }
 
-            log.Update<T>(update);
+            // log.Update<T>(update);
+            if (!string.IsNullOrEmpty(update.Title))
+            {
+                log.Title = update.Title;
+            }
+
+            if (!string.IsNullOrEmpty(update.Comments))
+            {
+                log.Comments = update.Comments;
+            }
+
+            if (!string.IsNullOrEmpty(update.OwnerId))
+            {
+                log.OwnerId = update.OwnerId;
+            }
 
             return await _logs.UpdateAsync(log);
         }

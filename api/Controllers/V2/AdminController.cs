@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
+using API.Contracts.Requests;
 using API.Contracts.Requests.Admin;
 using API.Contracts.Responses;
 using API.Exceptions;
@@ -36,16 +37,17 @@ namespace API.Controllers.V2
             var userList = new List<UserDataResponse>();
 
             // Retrieve the list of users
-            var users = await _identityService.GetAllUsersAsync();
+            var users = _identityService.GetAllUsers().ToList();
 
             // Validate the users object
-            if (users != null)
+            if (users != null && users.Count() > 0)
             {
                 // Create a UserDataResponse object from each user
                 // and add it to the response list
                 foreach (var user in users)
                 {
                     var response = new UserDataResponse(user);
+                    response.Roles = (await _identityService.GetUserRolesAsync(user)).ToArray();
                     userList.Add(response);
                 }
             }
@@ -125,7 +127,12 @@ namespace API.Controllers.V2
 
             // Update the user object
             var user = await _identityService.GetUserByIdAsync(id);
-            user.Map<AdminUserUpdateRequest>(request);
+
+            if (!string.IsNullOrEmpty(request.Email)) 
+            {
+                user.Email = request.Email;
+                user.UserName = request.Email;
+            }
 
             // Save the updated user object to the identity store
             try
@@ -139,6 +146,28 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return an OK
+            return Ok();
+        }
+
+        [HttpPut(Contracts.Routes.Administrator.Users.SetPassword)]
+        public async Task<IActionResult> SetUserPassword([FromRoute]string id, [FromBody]AdminPasswordResetRequest request)
+        {
+            // Validate the Model State
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Verify the user exists
+            var exists = await _identityService.UserExistsWithIdAsync(id);
+            if (!exists) 
+            {
+                return NotFound();
+            }
+
+            var user = await _identityService.GetUserByIdAsync(id);
+            await _identityService.SetUserPasswordAsync(user, request.NewPassword);
+
             return Ok();
         }
 
@@ -266,7 +295,10 @@ namespace API.Controllers.V2
             var user = await _identityService.GetUserByIdAsync(id);
 
             // Return an OK containing the user data
-            return Ok(new UserDataResponse(user));
+            var response = new UserDataResponse(user);
+            var roles = await _identityService.GetUserRolesAsync(user);
+            response.Roles = roles.ToArray();
+            return Ok(response);
         }
 
         /// <summary>
@@ -334,7 +366,7 @@ namespace API.Controllers.V2
         /// <param name="request">LogUpdateRequest containing updated information</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Logs.Update)]
-        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]AdminLogUpdateRequest request)
+        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]LogUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
