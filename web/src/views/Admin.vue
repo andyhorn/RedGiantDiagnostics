@@ -40,16 +40,23 @@ export default {
 <style scoped>
 #admin-container {
     width: 100vw;
+    height: 100vh;
+    position: fixed;
 }
 #left-nav {
     width: 13rem;
     min-width: 13rem;
     max-width: 13rem;
     height: 100vh;
-    position: fixed;
+    position: absolute;
+    left: 0;
     border-right: 1px solid grey;
 }
 #admin-view {
     padding-left: 13rem;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 10rem;
 }
 </style>

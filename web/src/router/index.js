@@ -7,6 +7,7 @@ import UserSettings from "@/views/UserSettings.vue";
 import Admin from "@/views/Admin.vue";
 import AdminUsers from "@/components/Admin/AdminUsers.vue";
 import AdminLogs from "@/components/Admin/AdminLogs.vue";
+import RegisterNewUser from "@/components/Admin/RegisterNewUser.vue";
 import store from "../store/index";
 
 Vue.use(VueRouter);
@@ -46,6 +47,11 @@ const routes = [
         path: '/admin/logs',
         name: 'AdminLogs',
         component: AdminLogs
+      },
+      {
+        path: '/admin/register',
+        name: 'RegisterNewUser',
+        component: RegisterNewUser
       }
     ]
   }
