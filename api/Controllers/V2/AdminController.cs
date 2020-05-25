@@ -37,16 +37,17 @@ namespace API.Controllers.V2
             var userList = new List<UserDataResponse>();
 
             // Retrieve the list of users
-            var users = await _identityService.GetAllUsersAsync();
+            var users = _identityService.GetAllUsers().ToList();
 
             // Validate the users object
-            if (users != null)
+            if (users != null && users.Count() > 0)
             {
                 // Create a UserDataResponse object from each user
                 // and add it to the response list
                 foreach (var user in users)
                 {
                     var response = new UserDataResponse(user);
+                    response.Roles = (await _identityService.GetUserRolesAsync(user)).ToArray();
                     userList.Add(response);
                 }
             }

@@ -9,7 +9,8 @@ namespace API.Services
     {
         Task<IdentityUser> GetUserByIdAsync(string id);
         Task<IdentityUser> GetUserByEmailAsync(string email);
-        Task<IEnumerable<IdentityUser>> GetAllUsersAsync();
+        // Task<IEnumerable<IdentityUser>> GetAllUsersAsync();
+        IEnumerable<IdentityUser> GetAllUsers();
         Task DeleteUserAsync(string id);
         Task UpdateUserAsync(IdentityUser update);
         Task<IdentityUser> CreateUserAsync(IdentityUser newUser, string password);

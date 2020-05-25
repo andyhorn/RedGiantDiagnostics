@@ -1,6 +1,27 @@
 const routes = require('../config/routes');
 const webService = require("./webService");
 
+const createNewUser = async function(data) {
+    try {
+        let result = await webService.post(data, routes.createNewUserUri);
+        return result.data;
+    } catch {
+        return false;
+    }
+}
+
+const setUserRoles = async function(userId, roles) {
+    let uri = routes.setUserRolesUri;
+    uri = uri.replace("{id}", userId);
+
+    try {
+        await webService.put(uri, { roles });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 const getAllUsers = async function() {
     try {
         let users = await webService.get(routes.getAllUsersUri);
@@ -85,5 +106,7 @@ export {
     getUserData,
     changeUserPassword,
     changeUserEmail,
-    getAllUsers
+    getAllUsers,
+    createNewUser,
+    setUserRoles
 }

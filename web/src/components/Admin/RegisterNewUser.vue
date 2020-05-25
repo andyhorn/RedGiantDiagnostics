@@ -53,6 +53,8 @@
 </template>
 
 <script>
+const userService = require('@/services/userService');
+
 export default {
     name: 'RegisterNewUser',
     data() {
@@ -64,9 +66,45 @@ export default {
         }
     },
     methods: {
-        onSubmit() {
+        async onSubmit() {
             if (this.isDisabled) return;
 
+            let created = await userService.createNewUser({ 
+                email: this.email, 
+                password: this.password,
+                confirmPassword: this.confirmPassword });
+
+            if (!created) {
+                this.$bvToast.toast("There was an error creating this user", {
+                    title: "Error Creating User",
+                    autoHideDelay: 3000,
+                    variant: "danger",
+                    toaster: "b-toaster-top-center"
+                });
+
+                return;
+            }
+
+            let roles = ["User"];
+            if (this.isAdmin)
+                roles.push("Administrator");
+
+            let success = await userService.setUserRoles(created.userId, roles);
+            if (success) {
+                this.$bvToast.toast("User created successfully!", {
+                    title: "Success",
+                    autoHideDelay: 3000,
+                    variant: "success",
+                    toaster: "b-toaster-bottom-right"
+                });
+            } else {
+                this.$bvToast.toast("There was an error setting the user's permissions.", {
+                    title: "Permissions Error",
+                    autoHideDelay: 3000,
+                    variant: "warning",
+                    toaster: "b-toaster-top-center"
+                });
+            }
         },
         onReset() {
             this.email = "";

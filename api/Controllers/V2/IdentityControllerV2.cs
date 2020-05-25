@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
@@ -59,7 +60,9 @@ namespace API.Controllers.V2
             }
 
             // If everything succeeds, return the user data
-            return Ok(new UserDataResponse(user, _identityService));
+            var response = new UserDataResponse(user);
+            response.Roles = (await _identityService.GetUserRolesAsync(user)).ToArray();
+            return Ok(response);
         }
 
         /// <summary>
