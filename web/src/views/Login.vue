@@ -46,7 +46,6 @@ export default {
                 rememberMe: this.rememberMe
             };
 
-            console.log("Logging in")
             try {
                 await this.$store.dispatch("login", loginData);
                 this.clear();

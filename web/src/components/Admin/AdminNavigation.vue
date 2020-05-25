@@ -36,7 +36,7 @@ export default {
 </script>
 
 <style scoped>
-.active {
+.list-group-item.active {
     border: none;
     background-color: red;
     color: white;
@@ -44,5 +44,6 @@ export default {
 }
 .list-group-item {
     border-bottom: 1px solid grey;
+    border-radius: 0;
 }
 </style>
