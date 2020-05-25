@@ -104,6 +104,18 @@ const setUserPasswordAdmin = async function(id, data) {
     }
 }
 
+const getUserByIdAdmin = async function(id) {
+    let uri = routes.getUserByIdAdminUri;
+    uri = uri.replace("{id}", id);
+
+    try {
+        let result = await webService.get(uri);
+        return result.data;
+    } catch {
+        return false;
+    }
+}
+
 const processErrors = function(err) {
     let data = err.response.data;
 
@@ -131,5 +143,6 @@ export {
     createNewUser,
     setUserRoles,
     updateUserAdmin,
-    setUserPasswordAdmin
+    setUserPasswordAdmin,
+    getUserByIdAdmin
 }

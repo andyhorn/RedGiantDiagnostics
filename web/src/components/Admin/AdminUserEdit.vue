@@ -1,6 +1,7 @@
 <template>
     <div>
         <EmailUpdateForm :currentEmail="user.email" @submit="onEmailSubmit"/>
+        <UserRolesForm :userId="user.userId" />
         <PasswordUpdateForm :requiresCurrentPassword="false" @submit="onPasswordSubmit" />
     </div>
 </template>
@@ -8,6 +9,7 @@
 <script>
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
 import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
+import UserRolesForm from "@/components/Admin/UserRolesForm.vue";
 const toastService = require("@/services/toastService");
 const userService = require("@/services/userService");
 
@@ -16,7 +18,8 @@ export default {
     props: ['user'],
     components: {
         EmailUpdateForm,
-        PasswordUpdateForm
+        PasswordUpdateForm,
+        UserRolesForm
     },
     methods: {
         async onEmailSubmit(email) {

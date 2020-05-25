@@ -295,7 +295,10 @@ namespace API.Controllers.V2
             var user = await _identityService.GetUserByIdAsync(id);
 
             // Return an OK containing the user data
-            return Ok(new UserDataResponse(user));
+            var response = new UserDataResponse(user);
+            var roles = await _identityService.GetUserRolesAsync(user);
+            response.Roles = roles.ToArray();
+            return Ok(response);
         }
 
         /// <summary>
