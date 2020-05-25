@@ -19,7 +19,7 @@
 import EmailUpdateForm from "@/components/UserSettings/EmailUpdateForm.vue";
 import PasswordUpdateForm from "@/components/UserSettings/PasswordUpdateForm.vue";
 import { changeUserPassword, changeUserEmail } from "@/services/userService.js";
-import { makeToast } from "@/services/toastService.js";
+const toastService = require("@/services/toastService");
 
 export default {
     name: 'UserSettings',
@@ -47,8 +47,7 @@ export default {
 
             // If the user data couldn't be loaded, display an error toast
             if (this.$store.state.user == null) {
-                // this.showPasswordErrorToast("Error", "Unable to load user data", []);
-                makeToast("Error", "Unable to load user data", []);
+                toastService.errorToast("Server Error", "Unable to load user data. Please refresh and try again.");
             } else {
                 // Otherwise, store the user data
                 this.user = this.$store.state.user;
@@ -61,54 +60,22 @@ export default {
                 passwordData.confirmNewPassword);
             
             if (result.success) {
-                this.$bvToast.toast("Your password has been successfully changed.", {
-                    title: "Password saved!",
-                    noCloseButton: true,
-                    variant: "success"
-                });
+                toastService.successToast("Password Saved", "Your password has been successfully saved.");
                 this.passwordForm.onReset();
             } else {
-                this.showPasswordErrorToast(result.errors);
+                toastService.errorToast("Password Error", "Unable to change your password. " +
+                "Make sure it meets the minimum requirements and try again.")
             }
-        },
-        showPasswordErrorToast(errors) {
-            let title = "Password Change Failed";
-
-            let message = "There ";
-            if (errors.length > 1) {
-                message += `were ${errors.length} errors `;
-            } else {
-                message += "was an error ";
-            }
-
-            message += "with your password change request:";
-            makeToast(title, message, errors, { variant: "danger" });
-        },
-        showEmailErrorToast(errors) {
-            let title = "Email Change Failed";
-
-            let message = "There ";
-            if (errors.length > 1) {
-                message += `were ${errors.length} errors `;
-            } else {
-                message += "was an error ";
-            }
-            message += "with your email change request";
-
-            makeToast(title, message, errors, { variant: "danger" });
         },
         async onEmailChange(email) {
             let result = await changeUserEmail(this.user.userId, email);
 
             if (result.success) {
-                this.$bvToast.toast("Your email has been successfully changed.", {
-                    title: "Email updated!",
-                    noCloseButton: true,
-                    variant: "success"
-                });
+                toastService.success("Email Updated", "Your email has been saved!");
                 this.fetchUser(true);
             } else {
-                this.showEmailErrorToast(result.errors);
+                toastService.errorToast("Email Update Failed", "Unable to change your email address. " +
+                "Make sure this email is not already being used by another user and try again.");
             }
         },
     }
