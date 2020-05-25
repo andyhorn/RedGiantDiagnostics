@@ -1,7 +1,7 @@
 import Vue from "vue";
 
 const BOTTOM_RIGHT = "b-toaster-bottom-right";
-const CENTER_TOP = "b-toaster-center-top";
+const CENTER_TOP = "b-toaster-top-center";
 
 const ERROR = "danger";
 const SUCCESS = "success";

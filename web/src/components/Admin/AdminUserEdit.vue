@@ -1,7 +1,7 @@
 <template>
     <div>
         <EmailUpdateForm :currentEmail="user.email" @submit="onEmailSubmit"/>
-        <PasswordUpdateForm />
+        <PasswordUpdateForm :requiresCurrentPassword="false" @submit="onPasswordSubmit" />
     </div>
 </template>
 
@@ -26,6 +26,18 @@ export default {
                 await this.$store.dispatch("fetchAllUsers");
             } else {
                 toastService.errorToast("Error", "There was an error saving your changes.");
+            }
+        },
+        async onPasswordSubmit(data) {
+            let success = await userService.setUserPasswordAdmin(this.user.userId, {
+                    newPassword: data.newPassword,
+                    confirmPassword: data.confirmPassword
+                });
+
+            if (success) {
+                toastService.successToast("Saved", "User password updated successfully!");
+            } else {
+                toastService.errorToast("Error", "There was an error updating the user's password.");
             }
         }
     }

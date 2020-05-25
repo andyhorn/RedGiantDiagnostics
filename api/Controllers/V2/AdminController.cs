@@ -127,7 +127,6 @@ namespace API.Controllers.V2
 
             // Update the user object
             var user = await _identityService.GetUserByIdAsync(id);
-            // user.Map<AdminUserUpdateRequest>(request);
 
             if (!string.IsNullOrEmpty(request.Email)) 
             {
@@ -150,8 +149,8 @@ namespace API.Controllers.V2
             return Ok();
         }
 
-        [HttpPost(Contracts.Routes.Administrator.Users.SetPassword)]
-        public async Task<IActionResult> SetUserPassword([FromBody]AdminPasswordResetRequest request)
+        [HttpPut(Contracts.Routes.Administrator.Users.SetPassword)]
+        public async Task<IActionResult> SetUserPassword([FromRoute]string id, [FromBody]AdminPasswordResetRequest request)
         {
             // Validate the Model State
             if (!ModelState.IsValid)
@@ -160,13 +159,13 @@ namespace API.Controllers.V2
             }
 
             // Verify the user exists
-            var exists = await _identityService.UserExistsWithIdAsync(request.UserId);
+            var exists = await _identityService.UserExistsWithIdAsync(id);
             if (!exists) 
             {
                 return NotFound();
             }
 
-            var user = await _identityService.GetUserByIdAsync(request.UserId);
+            var user = await _identityService.GetUserByIdAsync(id);
             await _identityService.SetUserPasswordAsync(user, request.NewPassword);
 
             return Ok();

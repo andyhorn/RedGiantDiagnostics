@@ -69,8 +69,7 @@ const updateUserAdmin = async function(userId, data) {
     uri = uri.replace("{id}", userId);
 
     try {
-        let result = await webService.put(uri, data);
-        console.log(result)
+        await webService.put(uri, data);
         return true;
     } catch {
         return false;
@@ -90,6 +89,18 @@ const changeUserPassword = async function(currentPassword, newPassword, confirmN
     catch (err) {
         let errors = processErrors(err);
         return { success: false, errors };
+    }
+}
+
+const setUserPasswordAdmin = async function(id, data) {
+    let uri = routes.setUserPasswordAdminUri;
+    uri = uri.replace("{id}", id);
+
+    try {
+        await webService.put(uri, data);
+        return true;
+    } catch {
+        return false;
     }
 }
 
@@ -119,5 +130,6 @@ export {
     getAllUsers,
     createNewUser,
     setUserRoles,
-    updateUserAdmin
+    updateUserAdmin,
+    setUserPasswordAdmin
 }
