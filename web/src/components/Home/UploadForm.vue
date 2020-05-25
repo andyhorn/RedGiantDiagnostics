@@ -12,7 +12,10 @@
           :file-name-formatter="fileNameFormatter"
         />
       </b-form-group>
-      <b-button type="submit" variant="success">Go! <b-icon icon="lightning-fill" /></b-button>
+      <b-button type="submit" variant="success" id="submit-button">
+        <b-icon icon="lightning-fill" /> Go!
+      </b-button>
+      <b-tooltip target="submit-button" ref="tooltip" :title="randomMessage()"></b-tooltip>
     </b-form>
   </div>
 </template>
@@ -25,8 +28,22 @@ export default {
   name: "UploadForm",
   data() {
     return {
-      file: null
+      file: null,
+      messages: [
+        'Work some Magic!',
+        "Let's see what you got!",
+        "Analyze this!",
+        "Brilliant!",
+        "Get it!",
+        "Send it to space!",
+        "THE RIG!"
+      ]
     };
+  },
+  mounted() {
+    this.$root.$on("bv::tooltip::show", (event) => {
+      event.vueTarget.title = this.randomMessage();
+    });
   },
   methods: {
     fileNameFormatter() {
@@ -37,17 +54,19 @@ export default {
       }
     },
     onSubmit() {
+      
       let formData = new FormData();
       formData.append("file", this.file);
       postFile(PostFile, formData)
         .then(value => {
           this.$store.commit("log_retrieved", value.data);
           this.$emit("parsed");
-          console.log(value);
         })
-        .catch(err => {
-          console.log(err);
-        });
+        .catch(() => {});
+    },
+    randomMessage() {
+      let index = Math.floor(Math.random() * this.messages.length);
+      return this.messages[index];
     }
   }
 };
