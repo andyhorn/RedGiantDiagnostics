@@ -7,9 +7,17 @@
         </div>
         <b-table striped
             :items="users"
+            :fields="tableFields"
             selectable
             select-mode="single"
-            @row-selected="onRowSelected"/>
+            @row-selected="onRowSelected">
+            <template v-slot:cell(options)="{ data }">
+                <b-button @click="onDelete(data.userId)" variant="danger" size="sm">Delete</b-button>
+            </template>
+            <template v-slot:cell(roles)="data">
+                <p>{{ makeRoles(data.item.roles) }}</p>
+            </template>
+        </b-table>
         <div v-if="selectedUser.length > 0">
             <div v-if="selectedUser[0].userId == $store.state.user.userId">
                 <p>Please visit your <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>
@@ -23,12 +31,18 @@
 </template>
 
 <script>
+import AdminUserEdit from "@/components/Admin/AdminUserEdit.vue";
+
 export default {
     name: 'AdminUsers',
+    components: {
+        AdminUserEdit
+    },
     data() {
         return {
             users: [],
-            selectedUser: []
+            selectedUser: [],
+            tableFields: ['email', 'roles', 'options']
         }
     },
     mounted() {
@@ -43,6 +57,19 @@ export default {
         },
         onRowSelected(item) {
             this.selectedUser = item;
+        },
+        makeRoles(list) {
+            let str = "";
+
+            for (let i = 0; i < list.length; i++) {
+                str += list[i];
+
+                if (i < list.length - 1) {
+                    str += ", ";
+                }
+            }
+
+            return str;
         }
     }
 }
