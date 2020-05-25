@@ -54,9 +54,6 @@ const getUserById = async function(id) {
 const changeUserEmail = async function(id, newEmail) {
     let uri = routes.changeEmail;
     uri = uri.replace("{id}", id);
-
-    console.log("changing user email to " + newEmail)
-    console.log("uri: " + uri)
     try {
         await webService.put(uri, { email: newEmail });
         return { success: true, errors: null };
@@ -64,6 +61,19 @@ const changeUserEmail = async function(id, newEmail) {
         console.log(err)
         let errors = processErrors(err);
         return { success: false, errors };
+    }
+}
+
+const updateUserAdmin = async function(userId, data) {
+    let uri = routes.updateUserAdminUri;
+    uri = uri.replace("{id}", userId);
+
+    try {
+        let result = await webService.put(uri, data);
+        console.log(result)
+        return true;
+    } catch {
+        return false;
     }
 }
 
@@ -108,5 +118,6 @@ export {
     changeUserEmail,
     getAllUsers,
     createNewUser,
-    setUserRoles
+    setUserRoles,
+    updateUserAdmin
 }

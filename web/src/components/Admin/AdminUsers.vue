@@ -15,7 +15,7 @@
                 <b-button @click="onDelete(data.userId)" variant="danger" size="sm">Delete</b-button>
             </template>
             <template v-slot:cell(roles)="data">
-                <p>{{ makeRoles(data.item.roles) }}</p>
+                {{ makeRoles(data.item.roles) }}
             </template>
         </b-table>
         <div v-if="selectedUser.length > 0">
@@ -40,7 +40,7 @@ export default {
     },
     data() {
         return {
-            users: [],
+            // users: [],
             selectedUser: [],
             tableFields: ['email', 'roles', 'options']
         }
@@ -48,12 +48,17 @@ export default {
     mounted() {
         this.fetchUsers();
     },
+    computed: {
+        users() {
+            return this.$store.state.userList;
+        }
+    },
     methods: {
         async fetchUsers() {
             await this.$store.dispatch("fetchAllUsers");
-            this.users = this.$store.state.userList;
+            // this.users = this.$store.state.userList;
 
-            return 0;
+            // return 0;
         },
         onRowSelected(item) {
             this.selectedUser = item;
