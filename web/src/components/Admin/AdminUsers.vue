@@ -34,7 +34,7 @@
 
 <script>
 import AdminUserEdit from "@/components/Admin/AdminUserEdit.vue";
-const userService = "@/services/userService";
+const userService = require("@/services/userService");
 
 export default {
     name: 'AdminUsers',

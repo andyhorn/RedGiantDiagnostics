@@ -1,5 +1,5 @@
 <template>
-    <div class="container mt-5">
+    <div class="container my-5">
         <router-link :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
         <h1>Account Settings</h1>
         <div class="my-4 p-4 border rounded">
@@ -8,7 +8,9 @@
         </div>
         <div class="my-4 p-4 border rounded">
             <h2>Update Password</h2>
-            <PasswordUpdateForm v-if="user" @submit="onPasswordChange" ref="passwordForm" />
+            <PasswordUpdateForm v-if="user" 
+                @submit="onPasswordChange" ref="passwordForm"
+                :requiresCurrentPassword="true" />
         </div>
     </div>    
 </template>
