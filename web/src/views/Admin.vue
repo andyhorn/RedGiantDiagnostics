@@ -50,13 +50,14 @@ export default {
     height: 100vh;
     position: absolute;
     left: 0;
-    border-right: 1px solid grey;
+    /* border-right: 1px solid black; */
+    box-shadow: 1px 0 5px black;
 }
 #admin-view {
     padding-left: 13rem;
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    padding-bottom: 10rem;
+    padding-bottom: 5rem;
 }
 </style>

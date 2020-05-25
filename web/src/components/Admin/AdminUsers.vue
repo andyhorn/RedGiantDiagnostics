@@ -5,7 +5,8 @@
             <p class="subtitle">Select a user from the list below to edit their information.</p>
             <router-link :to="{ name: 'RegisterNewUser' }">Create New User</router-link>
         </div>
-        <b-table striped
+        <b-table outlined
+            head-variant="dark"
             v-if="users.length > 0"
             :items="users"
             :fields="tableFields"
@@ -26,6 +27,7 @@
                     to make changes to your own account.</p>
             </div>
             <div v-else>
+                <hr />
                 <AdminUserEdit :user="selectedUser[0]" @refresh="onRefresh" />
             </div>
         </div>

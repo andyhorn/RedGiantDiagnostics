@@ -1,7 +1,6 @@
 <template>
     <div class="container mt-5" v-if="currentUser != null">
         <div class="d-flex flex-column">
-            <router-link :to="{ name: 'UserSettings' }" class="text-subtle mb-3"><b-icon-tools /> Account Settings</router-link>
             <h1>Your saved logs</h1>
             <p>{{ userLogs && userLogs.length }} available</p>
         </div>
