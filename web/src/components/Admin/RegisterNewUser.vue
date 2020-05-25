@@ -54,6 +54,7 @@
 
 <script>
 const userService = require('@/services/userService');
+const toastService = require("@/services/toastService");
 
 export default {
     name: 'RegisterNewUser',
@@ -75,12 +76,7 @@ export default {
                 confirmPassword: this.confirmPassword });
 
             if (!created) {
-                this.$bvToast.toast("There was an error creating this user", {
-                    title: "Error Creating User",
-                    autoHideDelay: 3000,
-                    variant: "danger",
-                    toaster: "b-toaster-top-center"
-                });
+                toastService.errorToast("Error Creating User", "There was an error creating this user.");
 
                 return;
             }
@@ -91,19 +87,10 @@ export default {
 
             let success = await userService.setUserRoles(created.userId, roles);
             if (success) {
-                this.$bvToast.toast("User created successfully!", {
-                    title: "Success",
-                    autoHideDelay: 3000,
-                    variant: "success",
-                    toaster: "b-toaster-bottom-right"
-                });
+                toastService.successToast("Created", "User created successfully!");
+                this.$router.push({ name: 'AdminUsers' });
             } else {
-                this.$bvToast.toast("There was an error setting the user's permissions.", {
-                    title: "Permissions Error",
-                    autoHideDelay: 3000,
-                    variant: "warning",
-                    toaster: "b-toaster-top-center"
-                });
+                toastService.errorToast("Permissions Error", "There was an error setting this user's permissions");
             }
         },
         onReset() {

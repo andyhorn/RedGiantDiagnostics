@@ -35,6 +35,7 @@
 <script>
 import AdminUserEdit from "@/components/Admin/AdminUserEdit.vue";
 const userService = require("@/services/userService");
+const toastService = require("@/services/toastService");
 
 export default {
     name: 'AdminUsers',
@@ -50,11 +51,6 @@ export default {
     },
     mounted() {
         this.fetchUsers();
-    },
-    computed: {
-        // users() {
-        //     return this.$store.state.userList;
-        // }
     },
     methods: {
         async fetchUsers() {
@@ -85,8 +81,13 @@ export default {
 
             if (confirm("Are you sure you want to permanently delete this user? " +
             "You can also disable their User status to prevent them from logging in.")) {
-                await userService.deleteUserAdmin(userId);
-                this.fetchUsers();
+                let success = await userService.deleteUserAdmin(userId);
+                if (success) {
+                    this.fetchUsers();
+                    toastService.successToast("Deleted", "The user has been deleted.");
+                } else {
+                    toastService.errorToast("Error", "There was an error that prevented this user from being deleted.")
+                }
             }
         },
         isCurrentUser(id) {
