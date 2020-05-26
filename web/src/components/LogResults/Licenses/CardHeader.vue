@@ -1,5 +1,5 @@
 <template>
-    <b-card-header class="p-2">
+    <b-card-header class="p-3 bg-white">
         <b-card-title>
         <div class="d-flex justify-content-between align-items-center">
             <h4>{{ name }}</h4>

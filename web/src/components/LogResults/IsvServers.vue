@@ -1,10 +1,14 @@
 <template>
     <div class="container">
-        <b-table :items="isvServerList" :fields="fields">
-            <template v-slot:cell(isRunning)="data">
-                {{ data.item.isRunning ? "Yes" : "No" }}
-            </template>
-        </b-table>
+        <b-card title="ISV Servers">
+            <b-card-body>
+                <b-table :items="isvServerList" :fields="fields">
+                    <template v-slot:cell(isRunning)="data">
+                        {{ data.item.isRunning ? "Yes" : "No" }}
+                    </template>
+                </b-table>
+            </b-card-body>
+        </b-card>
     </div>
 </template>
 

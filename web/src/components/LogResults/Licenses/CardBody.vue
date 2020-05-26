@@ -29,5 +29,7 @@ export default {
 </script>
 
 <style scoped>
-
+.card-body {
+    border-top: none;
+}
 </style>
