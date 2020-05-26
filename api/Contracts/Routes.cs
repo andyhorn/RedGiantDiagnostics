@@ -54,7 +54,7 @@ namespace API.Contracts
                 public const string Get = "";
                 public const string Update = "{id}";
                 public const string Login = "Login";
-                public const string ChangePassword = "Password";
+                public const string ChangePassword = "{id}/Password";
             }
             public const string GetAllUsers = "";
             public const string GetUserById = "{id}";

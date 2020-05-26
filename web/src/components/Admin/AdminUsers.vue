@@ -45,7 +45,11 @@ export default {
         return {
             users: [],
             selectedUser: [],
-            tableFields: ['email', 'roles', 'options']
+            tableFields: [
+                { key: 'email', sortable: true },
+                 'roles', 
+                 'options'
+            ]
         }
     },
     mounted() {

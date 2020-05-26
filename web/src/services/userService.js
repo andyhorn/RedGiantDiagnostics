@@ -76,9 +76,10 @@ const updateUserAdmin = async function(userId, data) {
     }
 }
 
-const changeUserPassword = async function(currentPassword, newPassword, confirmNewPassword) {
+const changeUserPassword = async function(id, currentPassword, newPassword, confirmNewPassword) {
     try {
         let uri = routes.changePassword;
+        uri = uri.replace("{id}", id);
         await webService.post({
             currentPassword,
             newPassword,

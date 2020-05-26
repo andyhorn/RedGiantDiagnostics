@@ -9,7 +9,7 @@
                 @adminSave="onAdminSave" />
         </div>
         <div v-if="!!log" class="mb-5">
-            <h1>Results</h1>
+            <h1 :class="{ 'mt-5': !isAuthenticated }">Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
                 :activeSection="activeSection" 
