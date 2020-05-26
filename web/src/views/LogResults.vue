@@ -15,6 +15,8 @@
                 :activeSection="activeSection" 
                 @clicked="tabClicked"/>
 
+            <AnalysisResults v-if="activeSection == 'Results'" :results="log.analysisResults" />
+
             <Licenses v-if="activeSection == 'Licenses'" 
                 :licenses="log.licenses" 
                 :detectedAddresses="log.hostIpList"
@@ -44,7 +46,7 @@
 import LogHeader from "../components/LogResults/LogHeader.vue";
 import SectionTabs from "../components/LogResults/SectionTabs.vue";
 import ScrollToTop from "../components/ScrollToTop.vue";
-
+import AnalysisResults from "../components/LogResults/Results/AnalysisResults.vue";
 import Licenses from "../components/LogResults/Licenses.vue";
 import LicensePools from "../components/LogResults/LicensePools.vue";
 import Statistics from "../components/LogResults/Statistics.vue";
@@ -58,6 +60,7 @@ export default {
     components: {
         LogHeader,
         SectionTabs,
+        AnalysisResults,
         Licenses,
         LicensePools,
         Statistics,

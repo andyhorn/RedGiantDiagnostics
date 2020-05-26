@@ -21,14 +21,27 @@ namespace API.Entities
         public string RlmVersion { get; set; } = null;
         public IEnumerable<string> HostMacList { get; set; } = new List<string>();
         public IEnumerable<string> HostIpList { get; set; } = new List<string>();
-        public string PrimaryHost 
+        public string PrimaryHostAddress
+        {
+            get
+            {
+                if (HostIpList.Count() > 0)
+                {
+                    return HostIpList.ElementAtOrDefault(0);
+                }
+
+                return string.Empty;
+            }
+        }
+        public string PrimaryHostMac 
         { 
             get
             {
                 if (HostMacList.Count() > 0)
                 {
-                    return HostMacList.ToList()[0];
+                    return HostMacList.ElementAtOrDefault(0);
                 }
+
                 return string.Empty;
             }
         }

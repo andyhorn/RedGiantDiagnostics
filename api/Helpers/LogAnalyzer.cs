@@ -37,8 +37,56 @@ namespace API.Helpers
             var rlmInstanceResults = VerifyRlmInstances();
             _results.AddRange(rlmInstanceResults);
 
+            // Analyze the ISV server assignments
+            var isvServerAssignmentResults = VerifyIsvServers();
+            _results.AddRange(isvServerAssignmentResults);
+
             // Analyze 
             return _results;
+        }
+
+        private List<AnalysisResult> VerifyIsvServers()
+        {
+            var results = new List<AnalysisResult>();
+
+            foreach (var license in _log.Licenses)
+            {
+                if (UsesAssignedIsvPort(license))
+                {
+                    var portBeingUsed = GetAssignedPortForIsv(license.IsvName);
+                    if (license.IsvPort != portBeingUsed)
+                    {
+                        var isvPortError = new AnalysisResult
+                        {
+                            ResultLevel = AnalysisResult.Level.Warning,
+                            Message = $"License {license.Name} is assigned to ISV port {license.IsvPort}, " +
+                            $"but the server is using {portBeingUsed}"
+                        };
+
+                        results.Add(isvPortError);
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        private string GetAssignedPortForIsv(string isvName)
+        {
+            var isv = _log.RlmStatistics.Servers.FirstOrDefault(x 
+                => x.Name.ToLower() == isvName.ToLower());
+
+            if (isv == null)
+            {
+                return string.Empty;
+            }
+
+            return isv.Port.ToString();
+        }
+
+        private bool UsesAssignedIsvPort(LicenseFile license)
+        {
+            return !string.IsNullOrEmpty(license.IsvPort);
         }
 
         private List<AnalysisResult> VerifyRlmInstances()
@@ -86,7 +134,7 @@ namespace API.Helpers
 
             foreach (var licenseFile in _log.Licenses)
             {
-                if (licenseFile.HostAddress != _log.PrimaryHost)
+                if (licenseFile.HostAddress != _log.PrimaryHostAddress)
                 {
                     var hostAddressWarning = new AnalysisResult
                     {
@@ -112,7 +160,7 @@ namespace API.Helpers
                     var expirationResult = new AnalysisResult
                     {
                         ResultLevel = AnalysisResult.Level.Error,
-                        Message = $"License ${license.Name} is expired."
+                        Message = $"License {license.Name} is expired."
                     };
 
                     expirationAnalysisResults.Add(expirationResult);

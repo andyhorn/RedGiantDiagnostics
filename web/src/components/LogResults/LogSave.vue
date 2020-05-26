@@ -1,5 +1,5 @@
 <template>
-    <b-dropdown right id="log-save-dropdown-form" :text="buttonText" ref="dropdown" class="m-2" size="sm">
+    <b-dropdown right id="log-save-dropdown-form" :text="buttonText" ref="dropdown" class="m-2" variant="success" size="med">
         <b-dropdown-form @submit.prevent="onSave" @keydown.enter="$event.stopPropagation()">
             <b-form-group label="Title" label-for="log-title-input" @submit.stop.prevent>
                 <b-form-input id="log-title-input" placeholder="Title" v-model="title" @keydown.enter="$event.stopPropagation()" />
