@@ -8,7 +8,7 @@
                 @saveLog="onSaveLog"
                 @adminSave="onAdminSave" />
         </div>
-        <div v-if="!!log" class="mt-2">
+        <div v-if="!!log" class="mb-5">
             <h1>Results</h1>
             <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
             <SectionTabs :sections="sections"
@@ -21,6 +21,8 @@
                 :licenses="log.licenses" 
                 :detectedAddresses="log.hostIpList"
                 :detectedMacs="log.hostMacList"/>
+
+            <IsvServers v-if="activeSection == 'ISV Servers'" :isvServerList="log.rlmStatistics.servers" />
 
             <LicensePools v-if="activeSection == 'License Pools'"
                 :isvStatistics="log.isvStatistics" />
@@ -48,6 +50,7 @@ import SectionTabs from "../components/LogResults/SectionTabs.vue";
 import ScrollToTop from "../components/ScrollToTop.vue";
 import AnalysisResults from "../components/LogResults/Results/AnalysisResults.vue";
 import Licenses from "../components/LogResults/Licenses.vue";
+import IsvServers from "../components/LogResults/IsvServers.vue";
 import LicensePools from "../components/LogResults/LicensePools.vue";
 import Statistics from "../components/LogResults/Statistics.vue";
 import Logs from "../components/LogResults/Logs.vue";
@@ -62,6 +65,7 @@ export default {
         SectionTabs,
         AnalysisResults,
         Licenses,
+        IsvServers,
         LicensePools,
         Statistics,
         Logs,
@@ -74,6 +78,7 @@ export default {
             sections: [
                 "Results",
                 "Licenses",
+                "ISV Servers",
                 "License Pools",
                 "Statistics",
                 "Logs",
