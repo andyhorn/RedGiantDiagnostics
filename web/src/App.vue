@@ -14,6 +14,7 @@
         <b-navbar-nav v-if="isAuthenticated">
           <b-nav-item v-if="isAdmin" to="/admin"><b-icon-wrench /> Manage</b-nav-item>
           <b-nav-item to="/profile"><b-icon-person-fill /> Profile</b-nav-item>
+          <b-nav-item :to="{ name: 'UserSettings' }"><b-icon-tools /> Account</b-nav-item>
           <b-nav-item @click="onLogout"><b-icon-reply-fill /> Logout</b-nav-item>
         </b-navbar-nav>
 

@@ -1,11 +1,9 @@
 <template>
     <div class="container">
         <h1 class="title">User Management</h1>
-        <div class="d-flex justify-content-between">
-            <p class="subtitle">Select a user from the list below to edit their information.</p>
-            <router-link :to="{ name: 'RegisterNewUser' }">Create New User</router-link>
-        </div>
-        <b-table striped
+        <p class="subtitle">Select a user from the list below to edit their information.</p>
+        <b-table outlined
+            head-variant="dark"
             v-if="users.length > 0"
             :items="users"
             :fields="tableFields"
@@ -26,7 +24,8 @@
                     to make changes to your own account.</p>
             </div>
             <div v-else>
-                <AdminUserEdit :user="selectedUser[0]" @refresh="onRefresh" />
+                <hr />
+                <AdminUserEdit :user="selectedUser[0]" @refreshUser="onRefreshUser" />
             </div>
         </div>
     </div>
@@ -46,7 +45,11 @@ export default {
         return {
             users: [],
             selectedUser: [],
-            tableFields: ['email', 'roles', 'options']
+            tableFields: [
+                { key: 'email', sortable: true },
+                 'roles', 
+                 'options'
+            ]
         }
     },
     mounted() {
@@ -73,8 +76,10 @@ export default {
 
             return str;
         },
-        onRefresh() {
-            this.fetchUsers();
+        async onRefreshUser(userId) {
+            let user = await userService.getUserByIdAdmin(userId);
+            this.selectedUser = [user];
+            this.$store.commit("updated_user_data", [userId, user]);
         },
         async onDelete(userId) {
             if (userId == this.$store.state.user.userId) return;

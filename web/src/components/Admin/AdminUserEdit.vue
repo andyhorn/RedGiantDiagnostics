@@ -1,8 +1,18 @@
 <template>
-    <div>
-        <EmailUpdateForm :currentEmail="user.email" @submit="onEmailSubmit"/>
-        <UserRolesForm :userId="user.userId" @updated="refresh"/>
-        <PasswordUpdateForm :requiresCurrentPassword="false" @submit="onPasswordSubmit" />
+    <div class="container p-3">
+        <h2>Editing {{ user.email }}</h2>
+        <div class="border rounded p-3 my-3">
+            <h3>Change User Email</h3>
+            <EmailUpdateForm :currentEmail="user.email" @submit="onEmailSubmit"/>
+        </div>
+        <div class="border rounded p-3 my-3">
+            <h3>Change User Roles</h3>
+            <UserRolesForm :userId="user.userId" @updated="refresh"/>
+        </div>
+        <div class="border rounded p-3 my-3">
+            <h3>Password Reset</h3>
+            <PasswordUpdateForm :requiresCurrentPassword="false" @submit="onPasswordSubmit" />
+        </div>
     </div>
 </template>
 
@@ -26,7 +36,7 @@ export default {
             let success = await userService.updateUserAdmin(this.user.userId, { email });
             if (success) {
                 toastService.successToast("Saved", "User email saved successfully!");
-                await this.$store.dispatch("fetchAllUsers");
+                this.refresh();
             } else {
                 toastService.errorToast("Error", "There was an error saving your changes.");
             }
@@ -44,7 +54,7 @@ export default {
             }
         },
         refresh() {
-            this.$emit("refresh");
+            this.$emit("refreshUser", this.user.userId);
         }
     }
 }

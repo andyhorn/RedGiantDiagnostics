@@ -21,7 +21,7 @@ namespace API.Security
 
         protected async override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsSelfRequirement requirement)
         {
-            var targetedUserId = _httpContextAccessor.HttpContext.Request.RouteValues["id"].ToString();
+            var targetedUserId = _httpContextAccessor.HttpContext.Request.RouteValues["id"]?.ToString();
             var loggedInUserId = context.User.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId))?.Value;
 
             if (string.IsNullOrEmpty(targetedUserId) || string.IsNullOrEmpty(loggedInUserId))

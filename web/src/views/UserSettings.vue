@@ -1,6 +1,5 @@
 <template>
     <div class="container my-5">
-        <router-link :to="{ name: 'Profile' }" class="text-subtle">Back to profile</router-link>
         <h1>Account Settings</h1>
         <div class="my-4 p-4 border rounded">
             <h2>Update Email Address</h2>
@@ -55,9 +54,10 @@ export default {
         },
         async onPasswordChange(passwordData) {
             let result = await changeUserPassword(
+                this.user.userId,
                 passwordData.currentPassword, 
                 passwordData.newPassword, 
-                passwordData.confirmNewPassword);
+                passwordData.confirmPassword);
             
             if (result.success) {
                 toastService.successToast("Password Saved", "Your password has been successfully saved.");
@@ -71,7 +71,7 @@ export default {
             let result = await changeUserEmail(this.user.userId, email);
 
             if (result.success) {
-                toastService.success("Email Updated", "Your email has been saved!");
+                toastService.successToast("Email Updated", "Your email has been saved!");
                 this.fetchUser(true);
             } else {
                 toastService.errorToast("Email Update Failed", "Unable to change your email address. " +

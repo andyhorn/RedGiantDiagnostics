@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
 using API.Entities;
+using API.Factories;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -127,11 +128,15 @@ namespace API.Controllers.V2
 
             // Parse the data into a LogFile
             LogFile log = null;
+            IEnumerable<AnalysisResult> analysisResults = null;
+            var logAnalyzer = LogAnalyzerFactory.New;
             try
             {
                 // Launch the parse on a background thread
                 await Task.Run(() => {
                     log = _logsService.Parse(data);
+                    analysisResults = logAnalyzer.Analyze(log);
+                    log.AnalysisResults = analysisResults;
                 });
             }
             catch

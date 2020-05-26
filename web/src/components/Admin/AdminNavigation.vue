@@ -1,23 +1,30 @@
 <template>
-    <div>
-        <b-list-group>
+    <div class="m-0 p-0">
+        <h2 class="my-3">Administration Portal</h2>
+        <b-list-group flush class="m-0 p-0">
             <b-list-group-item
                 :active="isActive('home')"
                 :to="{ name: 'Admin' }"
             >
-                Home
+                <div>Home</div>
             </b-list-group-item>
             <b-list-group-item 
                 :active="isActive('logs')" 
                 :to="{ name: 'AdminLogs' }"
             >
-                Logs
+                <div>Logs</div>
             </b-list-group-item>
             <b-list-group-item 
                 :active="isActive('users')" 
                 :to="{ name: 'AdminUsers' }"
             >
-                Users
+                <div>Users</div>
+            </b-list-group-item>
+            <b-list-group-item
+                :active="isActive('register')"
+                :to="{ name: 'RegisterNewUser' }"
+            >
+                <div>Registration</div>
             </b-list-group-item>
         </b-list-group>
     </div>
@@ -36,14 +43,41 @@ export default {
 </script>
 
 <style scoped>
-.list-group-item.active {
+h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    text-decoration: underline;
+}
+.list-group {
+    padding: 1px;
     border: none;
-    background-color: red;
+}
+.list-group-item.active {
+    /* background-color: #1C3144; */
+    background-color: #3E92CC;
     color: white;
     border-radius: 0;
+    border: none;
+    /* border: none; */
+    font-weight: 450;
 }
 .list-group-item {
-    border-bottom: 1px solid grey;
+    /* border: 1px solid grey; */
+    transition: background-color 500ms;
     border-radius: 0;
+    border: none;
+}
+
+.list-group-item > div {
+    width: 0;
+    margin: 0;
+    padding: 0;
+    transition: width 500ms;
+    text-align: right;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.list-group-item.active > div {
+    width: 100%;
 }
 </style>

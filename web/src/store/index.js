@@ -182,6 +182,16 @@ export default new Vuex.Store({
       state.status = "all users data retrieved";
       state.userList = users;
     },
+    updated_user_data(state, data) {
+      let userId = data[0];
+      let userData = data[1];
+      for (let i = 0; i < state.userList.length; i++) {
+        if (state.userList[i].userId == userId) {
+          state.userList[i] = userData;
+          break;
+        }
+      }
+    },
     logout(state) {
       state.userLogs = null;
       state.user = null;
@@ -190,6 +200,7 @@ export default new Vuex.Store({
       state.token = null;
       state.isAuthenticated = false;
       state.logList = null;
+      state.userList = null;
       state.status = "logged out";
       localStorage.removeItem(TOKEN_KEY);
       Vue.prototype.$cookies.remove(COOKIE_KEY);

@@ -1,5 +1,8 @@
 <template>
-    <b-table v-if="!!products.length" :items="products" :fields="fields" class="my-4"/>
+    <div class="mt-3 pt-3 container">
+        <h3>Licensed Products</h3>
+        <b-table v-if="!!products.length" :items="products" :fields="fields" class="my-4"/>
+    </div>
 </template>
 
 <script>
@@ -58,5 +61,7 @@ export default {
 </script>
 
 <style scoped>
-
+h3 {
+    font-size: 1.5rem;
+}
 </style>
