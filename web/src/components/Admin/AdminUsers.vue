@@ -25,7 +25,7 @@
             </div>
             <div v-else>
                 <hr />
-                <AdminUserEdit :user="selectedUser[0]" @refresh="onRefresh" />
+                <AdminUserEdit :user="selectedUser[0]" @refresh="onRefresh" @refreshUser="onRefreshUser" />
             </div>
         </div>
     </div>
@@ -74,6 +74,14 @@ export default {
         },
         onRefresh() {
             this.fetchUsers();
+        },
+        async onRefreshUser(userId) {
+            console.log("refreshing user with id " + userId)
+            let user = await userService.getUserByIdAdmin(userId);
+            console.log("user data:")
+            console.log(user)
+            this.selectedUser = [user];
+            this.$store.commit("updated_user_data", [userId, user]);
         },
         async onDelete(userId) {
             if (userId == this.$store.state.user.userId) return;

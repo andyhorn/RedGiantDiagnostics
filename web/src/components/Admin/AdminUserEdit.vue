@@ -36,7 +36,7 @@ export default {
             let success = await userService.updateUserAdmin(this.user.userId, { email });
             if (success) {
                 toastService.successToast("Saved", "User email saved successfully!");
-                await this.$store.dispatch("fetchAllUsers");
+                this.refresh();
             } else {
                 toastService.errorToast("Error", "There was an error saving your changes.");
             }
@@ -54,7 +54,7 @@ export default {
             }
         },
         refresh() {
-            this.$emit("refresh");
+            this.$emit("refreshUser", this.user.userId);
         }
     }
 }
