@@ -1,0 +1,45 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- Development
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs: 
+  - job: "build_app"
+    displayName: "Build DotNet Core API"
+    steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'build'
+          projects: './api'
+
+  - job: "build_vue"
+    displayName: "Build Vue.js App"
+    steps:
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          workingDir: './web'
+          customCommand: 'install @vue/cli-service'
+      - task: Npm@1
+        inputs:
+          command: 'install'
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          workingDir: './web'
+          customCommand: 'run build'
+  
+  - job: 'test_app'
+    displayName: "Run DotNet Core Unit Tests"
+    steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'test'
+          projects: './api.test'
