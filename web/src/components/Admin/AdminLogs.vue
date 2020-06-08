@@ -2,7 +2,12 @@
   <div class="container">
     <h1>Log Management</h1>
     <p>{{ logs.length }} logs currently saved to database.</p>
-    <LogTable v-if="logs.length > 0" :logs="logs" @deleteLog="onDeleteLog" />
+    <LogTable
+      v-if="logs.length > 0 && users.length > 0"
+      :logs="logs"
+      @deleteLog="onDeleteLog"
+      :users="users"
+    />
   </div>
 </template>
 
@@ -16,13 +21,22 @@ export default {
   },
   data() {
     return {
-      logs: []
+      logs: [],
+      users: []
     };
   },
   mounted() {
     this.fetchLogs();
+    this.fetchUsers();
   },
+  watch: {},
   methods: {
+    async fetchUsers() {
+      await this.$store.dispatch("fetchAllUsers");
+      console.log("users fetched:");
+      console.log(this.$store.state.userList);
+      this.users = this.$store.state.userList;
+    },
     async fetchLogs() {
       await this.$store.dispatch("fetchAllLogs");
       this.logs = this.$store.state.logList;

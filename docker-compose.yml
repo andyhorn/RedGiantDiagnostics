@@ -12,9 +12,7 @@ version: "3"
 services:
   app:
     container_name: rg-app
-    build:
-      context: ./
-      dockerfile: Dockerfile.prod
+    build: ./
     depends_on:
       - database
       - identity
