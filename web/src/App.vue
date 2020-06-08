@@ -6,22 +6,26 @@
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
       <b-collapse id="nav-collapse" is-nav>
-
         <b-navbar-nav class="ml-auto">
           <b-nav-item to="/"><b-icon-house-fill /> Home</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav v-if="isAuthenticated">
-          <b-nav-item v-if="isAdmin" to="/admin"><b-icon-wrench /> Manage</b-nav-item>
+          <b-nav-item v-if="isAdmin" to="/admin"
+            ><b-icon-wrench /> Manage</b-nav-item
+          >
           <b-nav-item to="/profile"><b-icon-person-fill /> Profile</b-nav-item>
-          <b-nav-item :to="{ name: 'UserSettings' }"><b-icon-tools /> Account</b-nav-item>
-          <b-nav-item @click="onLogout"><b-icon-reply-fill /> Logout</b-nav-item>
+          <b-nav-item :to="{ name: 'UserSettings' }"
+            ><b-icon-tools /> Account</b-nav-item
+          >
+          <b-nav-item @click="onLogout"
+            ><b-icon-reply-fill /> Logout</b-nav-item
+          >
         </b-navbar-nav>
 
         <b-navbar-nav v-if="!isAuthenticated">
           <Login />
         </b-navbar-nav>
-
       </b-collapse>
     </b-navbar>
 
@@ -33,7 +37,7 @@
 import Login from "@/views/Login";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Login
   },
@@ -41,7 +45,7 @@ export default {
     isAuthenticated() {
       return this.$store.state.isAuthenticated;
     },
-    isAdmin () {
+    isAdmin() {
       return this.$store.getters.isAdmin;
     }
   },
@@ -52,16 +56,21 @@ export default {
         this.$router.push({ name: "Home" });
     }
   }
-}
+};
 </script>
 
 <style>
 p {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-weight: 700;
 }
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Roboto', 'Segoe UI', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Roboto", "Segoe UI", sans-serif;
   font-weight: 400;
 }
 a {
@@ -70,7 +79,7 @@ a {
 }
 .text-subtle {
   font-weight: 300;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 .text-bold {
   font-weight: 600;

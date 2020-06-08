@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <UploadForm @parsed="onParsed"/>
+    <UploadForm @parsed="onParsed" />
   </div>
 </template>
 
@@ -15,7 +15,7 @@ export default {
   },
   methods: {
     onParsed() {
-      this.$router.push({ name: "Log" })
+      this.$router.push({ name: "Log" });
     }
   }
 };

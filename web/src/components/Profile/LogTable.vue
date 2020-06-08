@@ -27,9 +27,9 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template
-        v-slot:cell(uploadDate)="data"
-      >{{ data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString() }}</template>
+      <template v-slot:cell(uploadDate)="data">{{
+        data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString()
+      }}</template>
       <template v-slot:cell(options)="data">
         <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">
           Delete
@@ -37,7 +37,9 @@
         </b-button>
       </template>
       <template v-slot:cell(logTitle)="data">
-        <router-link :to="{ name: 'Log', params: { id: data.item.logId }}">{{ data.item.logTitle }}</router-link>
+        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">{{
+          data.item.logTitle
+        }}</router-link>
       </template>
     </b-table>
   </div>
@@ -80,5 +82,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

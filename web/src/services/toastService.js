@@ -8,32 +8,27 @@ const SUCCESS = "success";
 const WARNING = "warning";
 
 const successToast = function(title, message) {
-    makeToast(title, message, SUCCESS, BOTTOM_RIGHT)
-}
+  makeToast(title, message, SUCCESS, BOTTOM_RIGHT);
+};
 
 const errorToast = function(title, message) {
-    makeToast(title, message, ERROR, CENTER_TOP);
-}
+  makeToast(title, message, ERROR, CENTER_TOP);
+};
 
 const warningToast = function(title, message) {
-    makeToast(title, message, WARNING, BOTTOM_RIGHT);
-}
+  makeToast(title, message, WARNING, BOTTOM_RIGHT);
+};
 
 const makeToast = function(title, message, variant, location) {
-    new Vue().$bvToast.toast(message, {
-        title: title,
-        variant: variant,
-        autoHideDelay: 3000,
-        toaster: location
-    });
-}
+  new Vue().$bvToast.toast(message, {
+    title: title,
+    variant: variant,
+    autoHideDelay: 3000,
+    toaster: location
+  });
+};
 
-export {
-    successToast,
-    errorToast,
-    warningToast
-}
-
+export { successToast, errorToast, warningToast };
 
 // import Vue from "vue";
 
@@ -69,7 +64,7 @@ export {
 // const makeToast = function(title, message, list, options = {}) {
 //     const titleNode = makeTitleNode(title, options.titleClasses || []);
 //     const messageNode = makeMessageNode(message, options.messageClasses || []);
-    
+
 //     let bodyNode;
 //     if (list != null) {
 //         const listNode = makeListNode(list, options.listClasses || []);
