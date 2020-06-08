@@ -70,6 +70,7 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                // Any requests not containing "/api" should be returned the index file
                 endpoints.MapFallbackToFile("index.html");
             });
 
