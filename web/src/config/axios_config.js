@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const baseURL = process.env.VUE_APP_BACKEND_URL || 'http://localhost:5000/api/v2';
+const baseURL = process.env.VUE_APP_BASE_URL || '/api/v2';
 
 const options = {
   headers: {

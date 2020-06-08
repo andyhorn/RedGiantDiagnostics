@@ -1,0 +1,46 @@
+# Filename:         docker-compose.prod.yml
+# Author:           Andy Horn
+# Created:          6/8/2020
+# Description:      This docker-compose file will become the primary
+#                   file for building and launching the production
+#                   version of Red Giant Diagnostics. Instead of launching
+#                   an NGINX server with the Vue.js application inside of
+#                   its own container, this will build the production Vue.js
+#                   app and then package it with the DotNet Core API container.
+
+version: "3"
+services:
+  app:
+    container_name: rg-app
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    depends_on:
+      - database
+      - identity
+    restart: "unless-stopped"
+    env_file: .env
+    environment:
+      ASPNETCORE_URLS: http://*:80
+      ASPNETCORE_ENVIRONMENT: Production
+      NODE_ENV: Production
+
+  database:
+    container_name: rg-database
+    image: mongo
+    restart: "unless-stopped"
+    env_file: .env
+    volumes:
+      - db_data:/data/db
+
+  identity:
+    container_name: rg-identity
+    image: postgres
+    restart: "unless-stopped"
+    env_file: .env
+    volumes:
+      - identity_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+  identity_data:
