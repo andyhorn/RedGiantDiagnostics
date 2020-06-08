@@ -2,7 +2,7 @@
   <div class="container">
     <div v-if="isAuthenticated" class="d-flex flex-row justify-content-end align-items-center mt-3">
       <LogSave
-        v-if="isAuthenticated"
+        v-if="isAuthenticated && log != null"
         :logId="log.id"
         :currentTitle="log.title"
         :currentComments="log.comments"
