@@ -9,6 +9,7 @@ using API.Helpers;
 using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using static System.Net.WebRequestMethods;
 
 namespace API
 {
@@ -57,7 +59,6 @@ namespace API
 
             // app.UseHttpsRedirection();
 
-
             app.UseCors(Contracts.Policies.CorsPolicy);
 
             app.UseRouting();
@@ -69,6 +70,7 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
             });
 
             app.UseDefaultFiles();
