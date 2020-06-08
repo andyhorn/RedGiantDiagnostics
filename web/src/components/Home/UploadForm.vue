@@ -1,7 +1,10 @@
 <template>
   <div class="container">
     <b-form @submit.prevent="onSubmit">
-      <b-form-group id="file-input-group" description="Select the log file to analyze">
+      <b-form-group
+        id="file-input-group"
+        description="Select the log file to analyze"
+      >
         <h2>Upload a file</h2>
         <b-form-file
           v-model="file"
@@ -15,7 +18,11 @@
       <b-button type="submit" variant="success" id="submit-button">
         <b-icon icon="lightning-fill" /> Go!
       </b-button>
-      <b-tooltip target="submit-button" ref="tooltip" :title="randomMessage()"></b-tooltip>
+      <b-tooltip
+        target="submit-button"
+        ref="tooltip"
+        :title="randomMessage()"
+      ></b-tooltip>
     </b-form>
   </div>
 </template>
@@ -30,7 +37,7 @@ export default {
     return {
       file: null,
       messages: [
-        'Magic!',
+        "Magic!",
         "Show me what you got!",
         "Analyze this!",
         "Brilliant!",
@@ -40,7 +47,7 @@ export default {
     };
   },
   mounted() {
-    this.$root.$on("bv::tooltip::show", (event) => {
+    this.$root.$on("bv::tooltip::show", event => {
       event.vueTarget.title = this.randomMessage();
     });
   },
@@ -53,7 +60,6 @@ export default {
       }
     },
     onSubmit() {
-      
       let formData = new FormData();
       formData.append("file", this.file);
       postFile(PostFile, formData)
@@ -71,5 +77,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

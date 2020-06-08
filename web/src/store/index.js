@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 const logService = require("../services/logService");
-const authenticationService = require('../services/authenticationService');
+const authenticationService = require("../services/authenticationService");
 const userService = require("../services/userService");
 const http = require("@/config/axios_config");
 
@@ -12,8 +12,8 @@ const COOKIE_KEY = "X-RedGiant-Token-X";
 const TOKEN_KEY = "red-giant-token";
 
 const persistedStateOptions = {
-  paths: ['log', 'user', 'userId', 'isAuthenticated']
-}
+  paths: ["log", "user", "userId", "isAuthenticated"]
+};
 
 const defaultState = function() {
   return {
@@ -28,8 +28,8 @@ const defaultState = function() {
     error: null,
     token: null,
     isAuthenticated: false
-  }
-}
+  };
+};
 
 export default new Vuex.Store({
   state: defaultState(),
@@ -70,11 +70,14 @@ export default new Vuex.Store({
     retrieval_failure(state, err) {
       state.status = "failed to retrieve log";
       state.err = err;
-      new Vue().$bvToast.toast("There was an error downloading this log file. Refresh and try again.", {
-        title: "Error",
-        variant: "warning",
-        autoHideDelay: 3000
-      });
+      new Vue().$bvToast.toast(
+        "There was an error downloading this log file. Refresh and try again.",
+        {
+          title: "Error",
+          variant: "warning",
+          autoHideDelay: 3000
+        }
+      );
     },
     authenticating(state) {
       state.status = "authenticating";
@@ -97,11 +100,14 @@ export default new Vuex.Store({
       state.status = "authentication failed";
       state.error = err;
       state.isAuthenticated = false;
-      new Vue().$bvToast.toast("There was an error logging in. Check your credentials and try again.", {
-        title: "Login Failed",
-        variant: "danger",
-        toaster: "b-toaster-top-center"
-      });
+      new Vue().$bvToast.toast(
+        "There was an error logging in. Check your credentials and try again.",
+        {
+          title: "Login Failed",
+          variant: "danger",
+          toaster: "b-toaster-top-center"
+        }
+      );
     },
     fetching_user(state) {
       state.status = "fetching user data";
@@ -113,11 +119,14 @@ export default new Vuex.Store({
     fetch_failure(state, err) {
       state.status = "failed to fetch user data";
       state.error = err;
-      new Vue().$bvToast.toast("There was an error retrieving your user data. Refresh to try again.", {
-        title: "Error",
-        variant: "danger",
-        toaster: "b-toaster-top-center"
-      });
+      new Vue().$bvToast.toast(
+        "There was an error retrieving your user data. Refresh to try again.",
+        {
+          title: "Error",
+          variant: "danger",
+          toaster: "b-toaster-top-center"
+        }
+      );
     },
     fetching_user_logs(state) {
       state.status = "retrieving user logs";
@@ -154,12 +163,15 @@ export default new Vuex.Store({
     fetch_all_logs_failure(state) {
       state.status = "failed to retrieve all logs";
       state.logList = null;
-      new Vue().$bvToast.toast("Unabled to retrieve log data. Refresh and try again.", {
-        title: "Error",
-        variant: "warning",
-        autoHideDelay: 3000,
-        toaster: "b-toaster-top-center"
-      });
+      new Vue().$bvToast.toast(
+        "Unabled to retrieve log data. Refresh and try again.",
+        {
+          title: "Error",
+          variant: "warning",
+          autoHideDelay: 3000,
+          toaster: "b-toaster-top-center"
+        }
+      );
     },
     fetch_all_logs_success(state, logs) {
       state.status = "all logs retrieved";
@@ -171,12 +183,15 @@ export default new Vuex.Store({
     },
     fetch_all_users_failure(state) {
       state.status = "failed to retrieve all users";
-      new Vue().$bvToast.toast("Unable to retrieve user data. Refresh and try again.", {
-        title: "Error",
-        variant: "danger",
-        autoHideDelay: 3000,
-        toaster: "b-toaster-top-center"
-      });
+      new Vue().$bvToast.toast(
+        "Unable to retrieve user data. Refresh and try again.",
+        {
+          title: "Error",
+          variant: "danger",
+          autoHideDelay: 3000,
+          toaster: "b-toaster-top-center"
+        }
+      );
     },
     fetch_all_users_success(state, users) {
       state.status = "all users data retrieved";
@@ -216,63 +231,67 @@ export default new Vuex.Store({
     getLogById({ commit }, id) {
       return new Promise(() => {
         commit("retrieving_log", id);
-        logService.getById(id)
-          .then((log) => commit("log_retrieved", log))
-          .catch((err) => commit("retrieval_failure", err));
-      })
+        logService
+          .getById(id)
+          .then(log => commit("log_retrieved", log))
+          .catch(err => commit("retrieval_failure", err));
+      });
     },
     async deleteLogById({ commit }, id) {
       return new Promise((resolve, reject) => {
         commit("deleting_log", id);
-        logService.deleteLog(id)
+        logService
+          .deleteLog(id)
           .then(() => {
             commit("log_deleted");
             return resolve();
           })
-          .catch((err) => {
+          .catch(err => {
             commit("log_delete_failed", err);
             return reject();
-          })
-      })
+          });
+      });
     },
     login({ commit }, data) {
       commit("authenticating");
       return new Promise((resolve, reject) => {
-        authenticationService.login(data.email, data.password)
-          .then((res) => {
+        authenticationService
+          .login(data.email, data.password)
+          .then(res => {
             commit("authentication_success", res.data);
-  
+
             http.addAuthorization(res.data.token);
-  
+
             if (data.rememberMe) {
-              Vue.prototype.$cookies.set()
+              Vue.prototype.$cookies.set();
             }
 
             return resolve();
           })
-          .catch((err) => {
+          .catch(err => {
             commit("authentication_failure", err);
             return reject();
           });
-      })
+      });
     },
     fetchUser({ commit }, force) {
       return new Promise((resolve, reject) => {
         if (force || (this.state.userId != "" && this.state.user == null)) {
           commit("fetching_user");
-          userService.getUserData()
-            .then((res) => {
+          userService
+            .getUserData()
+            .then(res => {
               commit("fetch_success", res.data);
               return resolve();
             })
-            .catch((err) => {
+            .catch(err => {
               commit("fetch_failure", err);
               return reject();
             });
         } else {
           return resolve();
         }
-      })
+      });
     },
     async saveLog({ commit }, log) {
       commit("saving_log");
@@ -291,7 +310,6 @@ export default new Vuex.Store({
       } else {
         commit("log_save_failure");
       }
-
     },
     async saveLogAdmin({ commit }, log) {
       commit("saving_log");
@@ -305,8 +323,7 @@ export default new Vuex.Store({
       }
 
       // Restore the desired ownerId (if necessary)
-      if (log.ownerId != ownerId)
-        log.ownerId = ownerId;
+      if (log.ownerId != ownerId) log.ownerId = ownerId;
 
       // Update the log through the AdminController
       let success = await logService.updateLogAdmin(log);
@@ -322,7 +339,8 @@ export default new Vuex.Store({
       commit("deleting_log", id);
 
       return new Promise((resolve, reject) => {
-        logService.deleteLogAdmin(id)
+        logService
+          .deleteLogAdmin(id)
           .then(() => {
             commit("log_deleted");
 
@@ -339,8 +357,8 @@ export default new Vuex.Store({
           .catch(() => {
             commit("log_delete_failed");
             return reject();
-          })
-      })
+          });
+      });
     },
     async fetchUserLogs({ commit }, force = false) {
       if (!this.state.userLogs || force) {
@@ -352,8 +370,9 @@ export default new Vuex.Store({
     async fetchAllLogs({ commit }) {
       return new Promise((resolve, reject) => {
         commit("fetch_all_logs");
-        logService.getAllLogs()
-          .then((logs) => {
+        logService
+          .getAllLogs()
+          .then(logs => {
             commit("fetch_all_logs_success", logs);
             return resolve();
           })
@@ -361,21 +380,22 @@ export default new Vuex.Store({
             commit("fetch_all_logs_failure");
             return reject();
           });
-      })
+      });
     },
     async fetchAllUsers({ commit }) {
       return new Promise((resolve, reject) => {
         commit("fetch_all_users");
-        userService.getAllUsers()
-          .then((users) => {
+        userService
+          .getAllUsers()
+          .then(users => {
             commit("fetch_all_users_success", users);
             return resolve();
           })
           .catch(() => {
             commit("fetch_all_users_failure");
             return reject();
-          })
-      })
+          });
+      });
     },
     logout({ commit }) {
       commit("logout");
@@ -391,10 +411,6 @@ export default new Vuex.Store({
       }
     }
   },
-  modules: {
-
-  },
-  plugins: [
-    createPersistedState(persistedStateOptions)
-  ]
+  modules: {},
+  plugins: [createPersistedState(persistedStateOptions)]
 });

@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <div v-if="isAuthenticated" class="d-flex flex-row justify-content-end align-items-center mt-3">
+    <div
+      v-if="isAuthenticated"
+      class="d-flex flex-row justify-content-end align-items-center mt-3"
+    >
       <LogSave
         v-if="isAuthenticated && log != null"
         :logId="log.id"
@@ -12,10 +15,21 @@
     </div>
     <div v-if="!!log" class="mb-5">
       <h1 :class="{ 'mt-5': !isAuthenticated }">Results</h1>
-      <LogHeader :date="log.date" :rlmVersion="log.rlmVersion" :hostname="log.hostname" />
-      <SectionTabs :sections="sections" :activeSection="activeSection" @clicked="tabClicked" />
+      <LogHeader
+        :date="log.date"
+        :rlmVersion="log.rlmVersion"
+        :hostname="log.hostname"
+      />
+      <SectionTabs
+        :sections="sections"
+        :activeSection="activeSection"
+        @clicked="tabClicked"
+      />
 
-      <AnalysisResults v-if="activeSection == 'Results'" :results="log.analysisResults" />
+      <AnalysisResults
+        v-if="activeSection == 'Results'"
+        :results="log.analysisResults"
+      />
 
       <Licenses
         v-if="activeSection == 'Licenses'"
@@ -24,9 +38,15 @@
         :detectedMacs="log.hostMacList"
       />
 
-      <IsvServers v-if="activeSection == 'ISV Servers'" :isvServerList="log.rlmStatistics.servers" />
+      <IsvServers
+        v-if="activeSection == 'ISV Servers'"
+        :isvServerList="log.rlmStatistics.servers"
+      />
 
-      <LicensePools v-if="activeSection == 'License Pools'" :isvStatistics="log.isvStatistics" />
+      <LicensePools
+        v-if="activeSection == 'License Pools'"
+        :isvStatistics="log.isvStatistics"
+      />
 
       <Statistics
         v-if="activeSection == 'Statistics'"
@@ -35,7 +55,10 @@
 
       <Logs v-if="activeSection == 'Logs'" :debugLogs="debugLogs" />
 
-      <RlmInstances v-if="activeSection == 'RLM Instances'" :rlmInstances="log.rlmInstances" />
+      <RlmInstances
+        v-if="activeSection == 'RLM Instances'"
+        :rlmInstances="log.rlmInstances"
+      />
 
       <ScrollToTop />
     </div>
@@ -138,5 +161,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

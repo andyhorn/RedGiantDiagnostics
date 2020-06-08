@@ -39,18 +39,18 @@ const routes = [
     component: Admin,
     children: [
       {
-        path: '/admin/users',
-        name: 'AdminUsers',
+        path: "/admin/users",
+        name: "AdminUsers",
         component: AdminUsers
       },
       {
-        path: '/admin/logs',
-        name: 'AdminLogs',
+        path: "/admin/logs",
+        name: "AdminLogs",
         component: AdminLogs
       },
       {
-        path: '/admin/register',
-        name: 'RegisterNewUser',
+        path: "/admin/register",
+        name: "RegisterNewUser",
         component: RegisterNewUser
       }
     ]
@@ -66,8 +66,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.name === "Log" && to.params.id == null && store.state.log == null)
     next({ name: "Home" });
-  else
-    next();
-})
+  else next();
+});
 
 export default router;
