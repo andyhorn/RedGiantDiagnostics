@@ -52,6 +52,7 @@ export default {
     height: 100vh;
     position: absolute;
     left: 0;
+    background-color: #5e807f;
     /* border-right: 1px solid black; */
     box-shadow: 1px 0 5px black;
 }

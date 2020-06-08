@@ -1,5 +1,5 @@
 <template>
-    <div class="m-0 p-0">
+    <div class="m-0 p-0 text-light">
         <h2 class="my-3">Administration Portal</h2>
         <b-list-group flush class="m-0 p-0">
             <b-list-group-item
@@ -53,19 +53,18 @@ h2 {
     border: none;
 }
 .list-group-item.active {
-    /* background-color: #1C3144; */
-    background-color: #3E92CC;
-    color: white;
+    background-color: #EFEFEF;
     border-radius: 0;
+    color: black;
     border: none;
-    /* border: none; */
     font-weight: 450;
 }
 .list-group-item {
-    /* border: 1px solid grey; */
     transition: background-color 500ms;
     border-radius: 0;
     border: none;
+    background-color: rgba(0,0,0,0);
+    color: #EEE;
 }
 
 .list-group-item > div {

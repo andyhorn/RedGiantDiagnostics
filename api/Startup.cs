@@ -9,6 +9,7 @@ using API.Helpers;
 using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using static System.Net.WebRequestMethods;
 
 namespace API
 {
@@ -41,7 +43,7 @@ namespace API
             services.SetupAuthentication();
 
             services.SetupSecurityPolicies();
-            
+
             services.AddControllers();
 
             services.AddMvcCore().AddDataAnnotations();
@@ -68,7 +70,12 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                // Any requests not containing "/api" should be returned the index file
+                endpoints.MapFallbackToFile("index.html");
             });
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             DbInitializer.SeedIdentity(userManager, roleManager);
         }
