@@ -18,6 +18,12 @@ namespace API
         {
             var host = CreateHostBuilder(args).Build();
 
+            // var host = new WebHostBuilder()
+            //     .UseKestrel()
+            //     .UseContentRoot(System.IO.Directory.GetCurrentDirectory())
+            //     .UseStartup<Startup>()
+            //     .Build();
+
             using (var scope = host.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<IdentityContext>();
@@ -31,6 +37,9 @@ namespace API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseKestrel();
+                    webBuilder.UseContentRoot(System.IO.Directory.GetCurrentDirectory());
+                    webBuilder.UseIISIntegration();
                     webBuilder.UseStartup<Startup>();
                 });
     }

@@ -1,38 +1,23 @@
 # Filename:     docker-compose.dev.yml
 # Author:       Andy Horn
-# Created:      4/12/2020
-# Description:  This is a Development-mode override file that will change
-#               configuration settings to put the applications into 
-#               "development" mode instead of "production" mode.
+# Created:      6/8/2020
+# Description:  This is a Development-mode docker-compose file that will
+#               launch the databases and a PGAdmin container, the DotNet Core
+#               API will need to be launched manually, along with the Vue.js server.
 
 version: "3"
 services:
-  web:
-    build:
-      # Use the development-spec Dockerfile
-      context: ./web
-      dockerfile: Dockerfile.dev
-    environment: 
-      # Set the node environment to "development"
-      NODE_ENV: "development"
-      VUE_APP_BACKEND_URL: http://localhost:5000/api/v2
-    volumes:
-      # Mount the local files to the container
-      - ./web/src:/app/src
-
-  api:
-    ports:
-      # Expose the port externally during development for testing
-      - "5000:5000"
-    environment:
-      # Set the environment to "Development" instead of "Production"
-      ASPNETCORE_ENVIRONMENT: Development
-
   database:
+    container_name: rg-database
+    image: mongo
+    env_file: .env
     ports:
       - "27017-27019:27017-27019"
 
   identity:
+    container_name: rg-identity
+    image: postgres
+    env_file: .env
     ports:
       - "5432:5432"
 
@@ -44,5 +29,5 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=SuperSecret
     ports:
       - "8000:80"
-    depends_on: 
+    depends_on:
       - identity

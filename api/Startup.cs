@@ -41,7 +41,7 @@ namespace API
             services.SetupAuthentication();
 
             services.SetupSecurityPolicies();
-            
+
             services.AddControllers();
 
             services.AddMvcCore().AddDataAnnotations();
@@ -57,6 +57,7 @@ namespace API
 
             // app.UseHttpsRedirection();
 
+
             app.UseCors(Contracts.Policies.CorsPolicy);
 
             app.UseRouting();
@@ -69,6 +70,9 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             DbInitializer.SeedIdentity(userManager, roleManager);
         }

@@ -20,8 +20,6 @@ RUN npm install
 # Copy the application files
 COPY ./web ./
 
-RUN ls
-
 # Build the production app
 RUN npm run build
 
@@ -36,7 +34,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS dotnet-build-stage
 WORKDIR /app
 
 # Copy the project file
-COPY ./api/*.csproj ./
+COPY ./api/API.csproj ./
 
 # Run the restore
 RUN dotnet restore
@@ -45,7 +43,7 @@ RUN dotnet restore
 COPY ./api ./
 
 # Build the application
-RUN dotnet publish -c Release -o out
+RUN dotnet publish "/app/API.csproj" -c Release -o out
 
 ################################
 ### BUILD THE PRODUCTION APP ###
