@@ -37,7 +37,7 @@ namespace api.test
         {
             // Arrange
             var list = A.CollectionOfDummy<IdentityUser>(3);
-            A.CallTo(() => _identityService.GetAllUsersAsync())
+            A.CallTo(() => _identityService.GetAllUsers())
                 .Returns(list);
 
             // Act
@@ -52,7 +52,7 @@ namespace api.test
         {
             // Arrange
             var list = A.CollectionOfDummy<IdentityUser>(3);
-            A.CallTo(() => _identityService.GetAllUsersAsync())
+            A.CallTo(() => _identityService.GetAllUsers())
                 .Returns(list);
 
             // Act
@@ -486,7 +486,7 @@ namespace api.test
             // Arrange
             var request = A.Dummy<AdminUserRolesUpdateRequest>();
             var id = string.Empty;
-            
+
             // Act
             var result = await _controller.SetUserRoles(id, request);
 
@@ -555,7 +555,7 @@ namespace api.test
         {
             // Arrange
             var id = string.Empty;
-            
+
             // Act
             var result = await _controller.GetUserById(id);
 
@@ -568,7 +568,7 @@ namespace api.test
         {
             // Arrange
             var id = string.Empty;
-            
+
             // Act
             var result = await _controller.GetUserById(id);
 

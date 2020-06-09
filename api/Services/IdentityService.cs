@@ -110,12 +110,6 @@ namespace API.Services
         public IEnumerable<IdentityUser> GetAllUsers()
         {
             return _userManager.Users.AsEnumerable();
-            // IQueryable<IdentityUser> users = null;
-            // await Task.Run(() => {
-            //     users = _userManager.Users;
-            // });
-            
-            // return users;
         }
 
         /// <summary>
@@ -173,15 +167,6 @@ namespace API.Services
             {
                 throw new ResourceNotFoundException();
             }
-            // var user = await GetUserByIdAsync(update.Id);
-            // if (user == null)
-            // {
-            //     throw new ResourceNotFoundException();
-            // }
-
-            // Map the update object to the user, updating any changed
-            // information
-            // user = user.Update(update);
 
             // Update the user object
             var result = await _userManager.UpdateAsync(update);
@@ -191,12 +176,6 @@ namespace API.Services
             {
                 throw new ActionFailedException();
             }
-
-            // // Update the user's roles
-            // if (update.Roles != null)
-            // {
-            //     await UpdateUserRoles(user, update.Roles);
-            // }
         }
 
         /// <summary>
@@ -245,6 +224,16 @@ namespace API.Services
         /// <returns></returns>
         public async Task SetUserPasswordAsync(IdentityUser user, string password)
         {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentNullException("password");
+            }
+
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
             var validator = new PasswordValidator<IdentityUser>();
             var isValid = await validator.ValidateAsync(_userManager, null, password);
 
@@ -282,7 +271,7 @@ namespace API.Services
             {
                 setResult = await _userManager.AddPasswordAsync(user, password);
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 throw new ActionFailedException();
             }
@@ -334,7 +323,8 @@ namespace API.Services
             bool isValid = false;
 
             // Run the check asynchronously
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 isValid = _tokenService.IsValid(jwt);
             });
 
@@ -674,16 +664,17 @@ namespace API.Services
 
             // Retrieve the list of roles
             var list = new List<string>();
-            try 
+            try
             {
                 var result = await _userManager.GetRolesAsync(user);
-                list = result.ToList();
+                if (result != null)
+                    list = result.ToList();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return null;
+
             }
-            
+
 
             return list;
         }
