@@ -19,3 +19,5 @@ module.exports.updateUserAdminUri = "admin/users/{id}";
 module.exports.setUserPasswordAdminUri = "admin/users/{id}/password";
 module.exports.getUserByIdAdminUri = "admin/users/{id}";
 module.exports.deleteUserAdminUri = "admin/users/{id}";
+module.exports.logAnalyticsAdminUri = "admin/logs/analytics";
+module.exports.logAnalysisTypesAdminUri = "admin/logs/analytics/types";

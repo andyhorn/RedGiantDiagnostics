@@ -6,6 +6,7 @@ using API.Contracts;
 using API.Contracts.Requests;
 using API.Contracts.Requests.Admin;
 using API.Contracts.Responses;
+using API.Entities;
 using API.Exceptions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -62,7 +63,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserRegistrationRequest containing new user data</param>
         /// <returns>Created with the new user's ID or BadRequest</returns>
         [HttpPost(Contracts.Routes.Administrator.Users.Register)]
-        public async Task<IActionResult> RegisterUser([FromBody]AdminUserRegistrationRequest request)
+        public async Task<IActionResult> RegisterUser([FromBody] AdminUserRegistrationRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -110,7 +111,7 @@ namespace API.Controllers.V2
         /// <param name="request">UserUpdateRequest containing updated information</param>
         /// <returns>Ok or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Users.Update)]
-        public async Task<IActionResult> UpdateUser([FromRoute]string id, [FromBody]AdminUserUpdateRequest request)
+        public async Task<IActionResult> UpdateUser([FromRoute] string id, [FromBody] AdminUserUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -128,7 +129,7 @@ namespace API.Controllers.V2
             // Update the user object
             var user = await _identityService.GetUserByIdAsync(id);
 
-            if (!string.IsNullOrEmpty(request.Email)) 
+            if (!string.IsNullOrEmpty(request.Email))
             {
                 user.Email = request.Email;
                 user.UserName = request.Email;
@@ -150,7 +151,7 @@ namespace API.Controllers.V2
         }
 
         [HttpPut(Contracts.Routes.Administrator.Users.SetPassword)]
-        public async Task<IActionResult> SetUserPassword([FromRoute]string id, [FromBody]AdminPasswordResetRequest request)
+        public async Task<IActionResult> SetUserPassword([FromRoute] string id, [FromBody] AdminPasswordResetRequest request)
         {
             // Validate the Model State
             if (!ModelState.IsValid)
@@ -160,7 +161,7 @@ namespace API.Controllers.V2
 
             // Verify the user exists
             var exists = await _identityService.UserExistsWithIdAsync(id);
-            if (!exists) 
+            if (!exists)
             {
                 return NotFound();
             }
@@ -178,7 +179,7 @@ namespace API.Controllers.V2
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [Authorize(Policy = Contracts.Policies.SelfOwnedResourceExclusionPolicy)]
         [HttpDelete(Contracts.Routes.Administrator.Users.Delete)]
-        public async Task<IActionResult> DeleteUser([FromRoute]string id)
+        public async Task<IActionResult> DeleteUser([FromRoute] string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -210,7 +211,7 @@ namespace API.Controllers.V2
 
         [Authorize(Policy = Contracts.Policies.SelfOwnedResourceExclusionPolicy)]
         [HttpPut(Contracts.Routes.Administrator.Users.Roles)]
-        public async Task<IActionResult> SetUserRoles([FromRoute]string id, [FromBody]AdminUserRolesUpdateRequest request)
+        public async Task<IActionResult> SetUserRoles([FromRoute] string id, [FromBody] AdminUserRolesUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -248,7 +249,7 @@ namespace API.Controllers.V2
         }
 
         [HttpGet(Contracts.Routes.Administrator.Users.Roles)]
-        public async Task<IActionResult> GetUserRoles([FromRoute]string id)
+        public async Task<IActionResult> GetUserRoles([FromRoute] string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -276,7 +277,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet(Contracts.Routes.Administrator.Users.GetById)]
-        public async Task<IActionResult> GetUserById([FromRoute]string id)
+        public async Task<IActionResult> GetUserById([FromRoute] string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -307,7 +308,7 @@ namespace API.Controllers.V2
         /// <param name="email">The email address of the user to retrieve</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpGet(Contracts.Routes.Administrator.Users.GetByEmail)]
-        public async Task<IActionResult> GetUserByEmail([FromRoute]string email)
+        public async Task<IActionResult> GetUserByEmail([FromRoute] string email)
         {
             // Validate the email string
             if (string.IsNullOrEmpty(email))
@@ -341,14 +342,14 @@ namespace API.Controllers.V2
 
             // Retrieve all logs in the database
             var logs = await _logsService.GetAllLogsAsync();
-            
+
             // If no logs were returned or the list was null, 
             // return an Ok with an empty list of log summaries
             if (logs == null || logs.Count() == 0)
             {
                 return Ok(list);
             }
-            
+
             // Create a summary for each log in the list
             foreach (var log in logs)
             {
@@ -366,7 +367,7 @@ namespace API.Controllers.V2
         /// <param name="request">LogUpdateRequest containing updated information</param>
         /// <returns>Ok, NotFound, or BadRequest</returns>
         [HttpPut(Contracts.Routes.Administrator.Logs.Update)]
-        public async Task<IActionResult> UpdateLog([FromRoute]string id, [FromBody]LogUpdateRequest request)
+        public async Task<IActionResult> UpdateLog([FromRoute] string id, [FromBody] LogUpdateRequest request)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -402,7 +403,7 @@ namespace API.Controllers.V2
         /// <param name="id">The ID of the log to delete</param>
         /// <returns>NoContent, NotFound, or BadRequest</returns>
         [HttpDelete(Contracts.Routes.Administrator.Logs.Delete)]
-        public async Task<IActionResult> DeleteLog([FromRoute]string id)
+        public async Task<IActionResult> DeleteLog([FromRoute] string id)
         {
             // Validate the ID string
             if (string.IsNullOrEmpty(id))
@@ -430,6 +431,70 @@ namespace API.Controllers.V2
 
             // If everything succeeds, return a NoContent
             return NoContent();
+        }
+
+        [HttpGet(Contracts.Routes.Administrator.Logs.Analytics)]
+        public async Task<IActionResult> GetAnalytics()
+        {
+            var logs = await _logsService.GetAllLogsAsync();
+            var response = new AnalyticsResponse();
+
+            response.NumberOfLogs = logs.Count();
+            response.LogSaveDates = logs.Select(log => log.UploadDate).ToList();
+
+            var errors = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Error))
+                : new List<AnalysisResult>();
+
+            var warnings = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Warning))
+                : new List<AnalysisResult>();
+
+            var suggestions = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Suggestion))
+                : new List<AnalysisResult>();
+
+            foreach (var error in errors)
+            {
+                if (!response.ErrorFrequency.ContainsKey(error.ResultType.ToString()))
+                {
+                    response.ErrorFrequency.Add(error.ResultType.ToString(), 0);
+                }
+
+                response.ErrorFrequency[error.ResultType.ToString()] += 1;
+            }
+
+            foreach (var warning in warnings)
+            {
+                if (!response.WarningFrequency.ContainsKey(warning.ResultType.ToString()))
+                {
+                    response.WarningFrequency.Add(warning.ResultType.ToString(), 0);
+                }
+
+                response.WarningFrequency[warning.ResultType.ToString()] += 1;
+            }
+
+            foreach (var suggestion in suggestions)
+            {
+                if (!response.SuggestionFrequency.ContainsKey(suggestion.ResultType.ToString()))
+                {
+                    response.SuggestionFrequency.Add(suggestion.ResultType.ToString(), 0);
+                }
+
+                response.SuggestionFrequency[suggestion.ResultType.ToString()] += 1;
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet(Contracts.Routes.Administrator.Logs.AnalysisTypes)]
+        public IActionResult GetAnalysisResultTypes()
+        {
+            var types = Enum.GetNames(typeof(AnalysisResult.Type));
+            return Ok(types);
         }
     }
 }

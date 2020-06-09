@@ -27,9 +27,12 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:cell(uploadDate)="data">{{
+      <template v-slot:cell(ownerId)="data">{{ getOwnerName(data.item.ownerId) }}</template>
+      <template v-slot:cell(uploadDate)="data">
+        {{
         data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString()
-      }}</template>
+        }}
+      </template>
       <template v-slot:cell(options)="data">
         <b-button variant="danger" size="sm" @click="onDelete(data.item.logId)">
           Delete
@@ -37,9 +40,11 @@
         </b-button>
       </template>
       <template v-slot:cell(logTitle)="data">
-        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">{{
+        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">
+          {{
           data.item.logTitle
-        }}</router-link>
+          }}
+        </router-link>
       </template>
     </b-table>
   </div>
@@ -48,24 +53,24 @@
 <script>
 export default {
   name: "LogTable",
-  props: ["logs"],
+  props: ["logs", "users"],
   data() {
     return {
       fields: [
         {
           key: "logTitle",
-          display: "Title",
+          label: "Title",
           sortable: true,
           thStyle: { width: "20%" }
         },
-        { key: "comments", display: "Comments", thStyle: { width: "50%" } },
+        { key: "comments", label: "Comments" },
         {
           key: "uploadDate",
-          display: "Upload Date",
+          label: "Upload Date",
           sortable: true,
           tdClass: "w-20"
         },
-        { key: "options", display: "Options", thStyle: { width: "10%" } }
+        { key: "options", display: "Options" }
       ],
       perPage: 10,
       currentPage: 1,
@@ -73,11 +78,35 @@ export default {
       sortDesc: true
     };
   },
+  computed: {
+    displayOwners() {
+      return (
+        this.$store.getters.isAdmin &&
+        this.$route.name == "AdminLogs" &&
+        this.users.length > 0
+      );
+    }
+  },
   methods: {
+    getOwnerName(id) {
+      let owner = this.users.find(user => user.userId == id);
+      return owner != null ? owner.email : "email not found";
+    },
     onDelete(id) {
       if (confirm("Are you sure you want to delete this log?"))
         this.$emit("deleteLog", id);
     }
+  },
+  mounted() {
+    console.log(this.users);
+    if (this.displayOwners) {
+      this.fields.splice(1, 0, {
+        key: "ownerId",
+        label: "Owner",
+        sortable: true
+      });
+    }
+    console.log(this.logs);
   }
 };
 </script>

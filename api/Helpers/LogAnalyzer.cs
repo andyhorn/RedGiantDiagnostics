@@ -22,7 +22,6 @@ namespace API.Helpers
 
             // Analyze the expiration dates
             var expirationDateResults = VerifyLicenseExpirationDates();
-            // _results.AddRange(expirationDateResults);
             _results.AddRange(expirationDateResults);
 
             // Analyze the Host IP addresses
@@ -41,8 +40,92 @@ namespace API.Helpers
             var isvServerAssignmentResults = VerifyIsvServers();
             _results.AddRange(isvServerAssignmentResults);
 
-            // Analyze 
+            // Analyze the existence of Red Giant licenses
+            var licenseCountResult = VerifyLicenseCount();
+            if (licenseCountResult != null)
+                _results.Add(licenseCountResult);
+
+            var licenseUseResults = VerifyLicenseUse();
+            _results.AddRange(licenseUseResults);
+
             return _results;
+        }
+
+        private List<AnalysisResult> VerifyLicenseUse()
+        {
+            var results = new List<AnalysisResult>();
+
+            foreach (var isv in _log.IsvStatistics)
+            {
+                foreach (var pool in isv.LicensePools)
+                {
+                    if (pool.Available == 0)
+                    {
+                        var outOfSeats = new AnalysisResult()
+                        {
+                            Message = $"{pool.Product} is out of available seats.",
+                            ResultLevel = AnalysisResult.Level.Error,
+                            ResultType = AnalysisResult.Type.AllLicensesInUse
+                        };
+
+                        results.Add(outOfSeats);
+                    }
+                    else if (pool.Available < 2)
+                    {
+                        var nearlyOutOfSeats = new AnalysisResult()
+                        {
+                            Message = $"{pool.Product} is nearly out of available seats.",
+                            ResultLevel = AnalysisResult.Level.Warning,
+                            ResultType = AnalysisResult.Type.NearlyAllLicensesInUse
+                        };
+
+                        results.Add(nearlyOutOfSeats);
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        private AnalysisResult VerifyLicenseCount()
+        {
+            var redGiantLicenses = _log.Licenses.Where(license =>
+            {
+                var name = license.Name;
+                name = name.Trim().ToLower().Replace(" ", "");
+                return name.Contains("redgiant");
+            });
+
+            if (redGiantLicenses.Count() > 0)
+            {
+                return null;
+            }
+
+            redGiantLicenses = _log.Licenses.Where(license =>
+            {
+                var name = license.Name;
+                name = name.Trim().ToLower().Replace(" ", "");
+                return name.Contains("red") || name.Contains("giant");
+            });
+
+            if (redGiantLicenses.Count() == 0)
+            {
+                return new AnalysisResult
+                {
+                    Message = "No Red Giant licenses found.",
+                    ResultLevel = AnalysisResult.Level.Error,
+                    ResultType = AnalysisResult.Type.NoLicensesFound
+                };
+            }
+            else
+            {
+                return new AnalysisResult
+                {
+                    Message = "Make sure there is a Red Giant license present.",
+                    ResultLevel = AnalysisResult.Level.Suggestion,
+                    ResultType = AnalysisResult.Type.NoLicensesFound
+                };
+            }
         }
 
         private List<AnalysisResult> VerifyIsvServers()
@@ -59,6 +142,7 @@ namespace API.Helpers
                         var isvPortError = new AnalysisResult
                         {
                             ResultLevel = AnalysisResult.Level.Warning,
+                            ResultType = AnalysisResult.Type.MismatchedIsvPort,
                             Message = $"License {license.Name} is assigned to ISV port {license.IsvPort}, " +
                             $"but the server is using {portBeingUsed}"
                         };
@@ -73,7 +157,7 @@ namespace API.Helpers
 
         private string GetAssignedPortForIsv(string isvName)
         {
-            var isv = _log.RlmStatistics.Servers.FirstOrDefault(x 
+            var isv = _log.RlmStatistics.Servers.FirstOrDefault(x
                 => x.Name.ToLower() == isvName.ToLower());
 
             if (isv == null)
@@ -98,6 +182,7 @@ namespace API.Helpers
                 var rlmInstanceWarning = new AnalysisResult
                 {
                     ResultLevel = AnalysisResult.Level.Warning,
+                    ResultType = AnalysisResult.Type.MultipleRlmInstances,
                     Message = $"There have been {_log.RlmInstances.Count()} RLM instances detected running on this server."
                 };
 
@@ -114,10 +199,11 @@ namespace API.Helpers
             foreach (var license in _log.Licenses)
             {
                 if (license.HostMac != _log.HostMacList.ElementAtOrDefault(0))
-                {   
+                {
                     var macWarningResult = new AnalysisResult
                     {
                         ResultLevel = AnalysisResult.Level.Error,
+                        ResultType = AnalysisResult.Type.MismatchedMac,
                         Message = $"License {license.Name} is not assigned to the host's primary MAC address."
                     };
 
@@ -139,6 +225,7 @@ namespace API.Helpers
                     var hostAddressWarning = new AnalysisResult
                     {
                         ResultLevel = AnalysisResult.Level.Warning,
+                        ResultType = AnalysisResult.Type.MismatchedIp,
                         Message = $"License {licenseFile.Name} is not assigned to the host's primary IP address."
                     };
 
@@ -160,6 +247,7 @@ namespace API.Helpers
                     var expirationResult = new AnalysisResult
                     {
                         ResultLevel = AnalysisResult.Level.Error,
+                        ResultType = AnalysisResult.Type.ExpiredLicense,
                         Message = $"License {license.Name} is expired."
                     };
 
@@ -172,6 +260,7 @@ namespace API.Helpers
                         var result = new AnalysisResult
                         {
                             ResultLevel = AnalysisResult.Level.Error,
+                            ResultType = AnalysisResult.Type.ExpiredLicense,
                             Message = $"The license for {product} is expired."
                         };
 

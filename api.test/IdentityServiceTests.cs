@@ -148,7 +148,7 @@ namespace api.test
         }
 
         [Test]
-        public async Task IdentityService_GetAllUsers_ReturnsListOfIdentityUsers()
+        public void IdentityService_GetAllUsers_ReturnsListOfIdentityUsers()
         {
             // Arrange
             const int numUsers = 3;
@@ -160,7 +160,7 @@ namespace api.test
             A.CallTo(() => _userManager.Users).Returns(list.AsQueryable());
 
             // Act
-            var result = await _identityService.GetAllUsersAsync();
+            var result = _identityService.GetAllUsers();
 
             // Assert
             Assert.IsInstanceOf(typeof(IQueryable<IdentityUser>), result);
@@ -311,7 +311,7 @@ namespace api.test
             A.CallTo(() => _userManager.FindByEmailAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
             A.CallTo(() => _signInManager.PasswordSignInAsync(
-                A<string>.Ignored, 
+                A<string>.Ignored,
                 A<string>.Ignored,
                 A<bool>.Ignored,
                 A<bool>.Ignored
@@ -325,10 +325,10 @@ namespace api.test
         public async Task IdentityService_Login_LoginSuccess_ReturnsToken()
         {
             // Arrange
-            A.CallTo(() => 
+            A.CallTo(() =>
                 _userManager.FindByEmailAsync(A<string>.Ignored))
                 .Returns(A.Fake<IdentityUser>());
-            A.CallTo(() => 
+            A.CallTo(() =>
                 _signInManager.PasswordSignInAsync(
                     A<string>.Ignored,
                     A<string>.Ignored,
@@ -374,7 +374,7 @@ namespace api.test
         {
             // Arrange
             IdentityUser user = A.Dummy<IdentityUser>();
-            string password = A.Dummy<string>();
+            const string password = "Th1s1s@v@l1dP@ssw0rd!";
             A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
                 .Returns(true);
             A.CallTo(() => _userManager.RemovePasswordAsync(A<IdentityUser>.Ignored))
@@ -389,7 +389,7 @@ namespace api.test
         {
             // Arrange
             IdentityUser user = A.Dummy<IdentityUser>();
-            string password = A.Dummy<string>();
+            const string password = "Th1s1s@v@l1dP@ssw0rd!";
             A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
                 .Returns(true);
             A.CallTo(() => _userManager.RemovePasswordAsync(A<IdentityUser>.Ignored))
@@ -406,7 +406,7 @@ namespace api.test
         {
             // Arrange
             IdentityUser user = A.Dummy<IdentityUser>();
-            string password = A.Dummy<string>();
+            const string password = "Th1s1s@v@l1dP@ssw0rd!";
             bool passwordSet = false;
             A.CallTo(() => _userManager.HasPasswordAsync(A<IdentityUser>.Ignored))
                 .Returns(true);
