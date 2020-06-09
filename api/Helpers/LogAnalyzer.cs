@@ -42,7 +42,8 @@ namespace API.Helpers
 
             // Analyze the existence of Red Giant licenses
             var licenseCountResult = VerifyLicenseCount();
-            _results.Add(licenseCountResult);
+            if (licenseCountResult != null)
+                _results.Add(licenseCountResult);
 
             var licenseUseResults = VerifyLicenseUse();
             _results.AddRange(licenseUseResults);

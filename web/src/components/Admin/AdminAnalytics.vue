@@ -45,9 +45,17 @@ export default {
   },
   computed: {
     uploadChartData() {
-      return this.allUploadChartData[
-        this.availableYears.indexOf(this.selectedYear)
-      ];
+      return this.allUploadChartData.length > 0
+        ? this.allUploadChartData[
+            this.availableYears.indexOf(this.selectedYear)
+          ]
+        : null;
+    },
+    showUploadDates() {
+      return this.allUploadChartData.length > 0;
+    },
+    showErrorChart() {
+      return this.errorChartData != null;
     }
   },
   data() {
@@ -56,9 +64,7 @@ export default {
       selectedYear: 0,
       analytics: null,
       allUploadChartData: [],
-      errorChartData: {},
-      showUploadDates: false,
-      showErrorChart: false,
+      errorChartData: null,
       analysisTypes: [],
       options: {
         scales: {
@@ -86,11 +92,7 @@ export default {
     },
     async processChartData() {
       this.allUploadChartData = this.getLogUploadDistribution();
-      this.showUploadDates = true;
-
-      let chartData = this.getLogErrorDistribution();
-      this.errorChartData = chartData;
-      this.showErrorChart = true;
+      this.errorChartData = this.getLogErrorDistribution();
     },
     getLogErrorDistribution() {
       let axisLabels = [];
