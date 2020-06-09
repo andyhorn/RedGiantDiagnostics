@@ -12,7 +12,7 @@ import {
   logAnalysisTypesAdminUri
 } from "../config/routes";
 
-const updateLogAdmin = async function(log) {
+const updateLogAdmin = async function (log) {
   let uri = updateLogAdminUri;
   uri = uri.replace("{id}", log.id);
 
@@ -24,14 +24,14 @@ const updateLogAdmin = async function(log) {
   }
 };
 
-const deleteLogAdmin = async function(id) {
+const deleteLogAdmin = async function (id) {
   let uri = deleteLogAdminUri;
   uri = uri.replace("{id}", id);
 
   await del(uri);
 };
 
-const getById = async function(id) {
+const getById = async function (id) {
   let uri = `${getLogById}/${id}`;
   try {
     let log = await get(uri);
@@ -41,7 +41,7 @@ const getById = async function(id) {
   }
 };
 
-const saveLog = async function(log) {
+const saveLog = async function (log) {
   let uri = `${postLog}`;
   try {
     let response = await postFile(uri, log);
@@ -51,7 +51,7 @@ const saveLog = async function(log) {
   }
 };
 
-const updateLog = async function(log) {
+const updateLog = async function (log) {
   let uri = `${putLog}/${log.id}`;
   try {
     await put(uri, log);
@@ -61,7 +61,7 @@ const updateLog = async function(log) {
   }
 };
 
-const deleteLog = async function(id) {
+const deleteLog = async function (id) {
   let uri = `${deleteLogUri}/${id}`;
   try {
     await del(uri);
@@ -71,7 +71,7 @@ const deleteLog = async function(id) {
   }
 };
 
-const getLogsForCurrentUser = async function() {
+const getLogsForCurrentUser = async function () {
   let uri = currentUserLogs;
   try {
     let logs = await get(uri);
@@ -81,7 +81,7 @@ const getLogsForCurrentUser = async function() {
   }
 };
 
-const getAllLogs = async function() {
+const getAllLogs = async function () {
   let uri = getAllLogsUri;
   try {
     let logs = await get(uri);
@@ -91,7 +91,7 @@ const getAllLogs = async function() {
   }
 };
 
-const getLogAnalytics = async function() {
+const getLogAnalytics = async function () {
   let uri = logAnalyticsAdminUri;
   try {
     let response = await get(uri);
@@ -99,9 +99,9 @@ const getLogAnalytics = async function() {
   } catch {
     return null;
   }
-};
+}
 
-const getLogAnalysisTypes = async function() {
+const getLogAnalysisTypes = async function () {
   let uri = logAnalysisTypesAdminUri;
   try {
     let response = await get(uri);
@@ -109,7 +109,7 @@ const getLogAnalysisTypes = async function() {
   } catch {
     return null;
   }
-};
+}
 
 export {
   getById,

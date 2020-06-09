@@ -40,7 +40,11 @@
         </b-button>
       </template>
       <template v-slot:cell(logTitle)="data">
-        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">{{ data.item.logTitle }}</router-link>
+        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">
+          {{
+          data.item.logTitle
+          }}
+        </router-link>
       </template>
     </b-table>
   </div>
