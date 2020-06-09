@@ -25,6 +25,8 @@ namespace API.Contracts
                 public const string Update = Base + "/{id}";
                 public const string GetAll = Base;
                 public const string Delete = Base + "/{id}";
+                public const string Analytics = Base + "/analytics";
+                public const string AnalysisTypes = Base + "/analytics/types";
             }
         }
         public static class Logs

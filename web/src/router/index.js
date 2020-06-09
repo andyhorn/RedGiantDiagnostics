@@ -5,6 +5,7 @@ import LogResults from "../views/LogResults.vue";
 import Profile from "@/views/Profile.vue";
 import UserSettings from "@/views/UserSettings.vue";
 import Admin from "@/views/Admin.vue";
+import AdminAnalytics from "@/components/Admin/AdminAnalytics.vue";
 import AdminUsers from "@/components/Admin/AdminUsers.vue";
 import AdminLogs from "@/components/Admin/AdminLogs.vue";
 import RegisterNewUser from "@/components/Admin/RegisterNewUser.vue";
@@ -38,6 +39,11 @@ const routes = [
     name: "Admin",
     component: Admin,
     children: [
+      {
+        path: "",
+        name: "AdminAnalytics",
+        component: AdminAnalytics
+      },
       {
         path: "/admin/users",
         name: "AdminUsers",

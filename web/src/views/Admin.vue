@@ -22,7 +22,7 @@ export default {
   },
   computed: {
     activeSection() {
-      if (this.$route.name == "Admin") return "home";
+      if (this.$route.name == "AdminAnalytics") return "home";
       else if (this.$route.name == "AdminLogs") return "logs";
       else if (this.$route.name == "AdminUsers") return "users";
       else if (this.$route.name == "RegisterNewUser") return "register";

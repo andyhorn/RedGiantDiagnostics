@@ -2,22 +2,16 @@
   <div class="m-0 p-0 text-light">
     <h2 class="my-3">Administration Portal</h2>
     <b-list-group flush class="m-0 p-0">
-      <b-list-group-item :active="isActive('home')" :to="{ name: 'Admin' }">
+      <b-list-group-item :active="isActive('home')" :to="{ name: 'AdminAnalytics' }">
         <div>Home</div>
       </b-list-group-item>
       <b-list-group-item :active="isActive('logs')" :to="{ name: 'AdminLogs' }">
         <div>Logs</div>
       </b-list-group-item>
-      <b-list-group-item
-        :active="isActive('users')"
-        :to="{ name: 'AdminUsers' }"
-      >
+      <b-list-group-item :active="isActive('users')" :to="{ name: 'AdminUsers' }">
         <div>Users</div>
       </b-list-group-item>
-      <b-list-group-item
-        :active="isActive('register')"
-        :to="{ name: 'RegisterNewUser' }"
-      >
+      <b-list-group-item :active="isActive('register')" :to="{ name: 'RegisterNewUser' }">
         <div>Registration</div>
       </b-list-group-item>
     </b-list-group>

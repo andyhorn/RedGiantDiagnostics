@@ -9,7 +9,20 @@ namespace API.Entities
             Error
         }
 
+        public enum Type
+        {
+            ExpiredLicense,
+            NoLicensesFound,
+            MismatchedIp,
+            MismatchedMac,
+            MismatchedIsvPort,
+            AllLicensesInUse,
+            NearlyAllLicensesInUse,
+            MultipleRlmInstances
+        }
+
         public Level ResultLevel { get; set; }
+        public Type ResultType { get; set; }
         public string Message { get; set; }
     }
 }

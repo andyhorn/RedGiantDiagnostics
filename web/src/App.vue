@@ -7,20 +7,24 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
-          <b-nav-item to="/"><b-icon-house-fill /> Home</b-nav-item>
+          <b-nav-item :to="{ name: 'Home' }">
+            <b-icon-house-fill />Home
+          </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav v-if="isAuthenticated">
-          <b-nav-item v-if="isAdmin" to="/admin"
-            ><b-icon-wrench /> Manage</b-nav-item
-          >
-          <b-nav-item to="/profile"><b-icon-person-fill /> Profile</b-nav-item>
-          <b-nav-item :to="{ name: 'UserSettings' }"
-            ><b-icon-tools /> Account</b-nav-item
-          >
-          <b-nav-item @click="onLogout"
-            ><b-icon-reply-fill /> Logout</b-nav-item
-          >
+          <b-nav-item v-if="isAdmin" :to="{ name: 'AdminAnalytics' }">
+            <b-icon-wrench />Manage
+          </b-nav-item>
+          <b-nav-item :to="{ name: 'Profile' }">
+            <b-icon-person-fill />Profile
+          </b-nav-item>
+          <b-nav-item :to="{ name: 'UserSettings' }">
+            <b-icon-tools />Account
+          </b-nav-item>
+          <b-nav-item @click="onLogout">
+            <b-icon-reply-fill />Logout
+          </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav v-if="!isAuthenticated">
