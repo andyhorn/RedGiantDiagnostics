@@ -45,9 +45,12 @@ namespace API.Factories
             return licenseFile;
         }
 
-        private string GetLicenseName(string[] data) 
+        private string GetLicenseName(string[] data)
         {
-            var fileNameLine = data.FirstOrDefault(line => line.Contains("LICENSE FILE"));
+            var fileNameLine = data.FirstOrDefault(line => line.Contains("LICENSE FILE:"));
+
+            if (string.IsNullOrWhiteSpace(fileNameLine))
+                return string.Empty;
 
             var filename = fileNameLine.Substring("LICENSE FILE: ".Length);
 
@@ -114,7 +117,7 @@ namespace API.Factories
         {
             var productLicenses = new List<ProductLicense>();
             var productList = _utilities.GetSubsections("[0-9]+-seat license", "[0-9]+-seat license", data);
-            
+
             // Validate data
             if (productList == null || productList.Count() == 0)
             {

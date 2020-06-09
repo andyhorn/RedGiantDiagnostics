@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Contracts;
 using API.Contracts.Requests;
@@ -177,8 +178,15 @@ namespace api.test
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
             var token = A.Dummy<string>();
+            var roles = new List<string>
+            {
+                "User"
+            };
+
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(true);
+            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(token);
 
@@ -195,8 +203,15 @@ namespace api.test
             // Arrange
             var request = A.Dummy<UserLoginRequest>();
             const string token = "THIS_IS_A_TOKEN";
+            var roles = new List<string>
+            {
+                "User"
+            };
+
             A.CallTo(() => _identityService.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .Returns(token);
+            A.CallTo(() => _identityService.GetUserRolesAsync(A<IdentityUser>.Ignored))
+                .Returns(roles);
             A.CallTo(() => _identityService.UserExistsWithEmailAsync(A<string>.Ignored))
                 .Returns(true);
 
@@ -218,7 +233,7 @@ namespace api.test
 
             // Act
             var result = await _controller.ChangePassword(request, jwt);
-            
+
             // Assert
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
@@ -303,7 +318,7 @@ namespace api.test
             IdentityUser user = A.Dummy<IdentityUser>();
             A.CallTo(() => _identityService.GetUserFromToken(A<string>.Ignored))
                 .Returns(user);
-            
+
             // Act
             var result = await _controller.ChangePassword(request, jwt);
 
@@ -423,7 +438,7 @@ namespace api.test
             var id = A.Dummy<string>();
             A.CallTo(() => _identityService.UserExistsWithIdAsync(A<string>.Ignored))
                 .Returns(true);
-            
+
             // Act
             var result = await _controller.Update(id, request);
 

@@ -442,15 +442,20 @@ namespace API.Controllers.V2
             response.NumberOfLogs = logs.Count();
             response.LogSaveDates = logs.Select(log => log.UploadDate).ToList();
 
-            var errors = logs.SelectMany(log
-                => log.AnalysisResults.Where(res
-                    => res.ResultLevel == AnalysisResult.Level.Error));
-            var warnings = logs.SelectMany(log
-                => log.AnalysisResults.Where(res
-                    => res.ResultLevel == AnalysisResult.Level.Warning));
-            var suggestions = logs.SelectMany(log
-                => log.AnalysisResults.Where(res
-                    => res.ResultLevel == AnalysisResult.Level.Suggestion));
+            var errors = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Error))
+                : new List<AnalysisResult>();
+
+            var warnings = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Warning))
+                : new List<AnalysisResult>();
+
+            var suggestions = logs.Count() > 0
+                ? logs.SelectMany(log => log.AnalysisResults.Where(res
+                    => res.ResultLevel == AnalysisResult.Level.Suggestion))
+                : new List<AnalysisResult>();
 
             foreach (var error in errors)
             {
