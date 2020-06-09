@@ -271,7 +271,7 @@ namespace API.Services
             {
                 setResult = await _userManager.AddPasswordAsync(user, password);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new ActionFailedException();
             }

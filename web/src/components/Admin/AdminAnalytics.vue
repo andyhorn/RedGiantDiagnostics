@@ -6,7 +6,11 @@
         <div class="box">
           <div class="d-flex flex-row align-items-center justify-content-end">
             <p class="py-0 px-2 m-0">Viewing Year:</p>
-            <b-form-select class="w-25" v-model="selectedYear" :options="availableYears" />
+            <b-form-select
+              class="w-25"
+              v-model="selectedYear"
+              :options="availableYears"
+            />
           </div>
           <BarChart
             v-if="showUploadDates"

@@ -27,10 +27,13 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:cell(ownerId)="data">{{ getOwnerName(data.item.ownerId) }}</template>
+      <template v-slot:cell(ownerId)="data">{{
+        getOwnerName(data.item.ownerId)
+      }}</template>
       <template v-slot:cell(uploadDate)="data">
         {{
-        data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString()
+          data.item.uploadDate &&
+            new Date(data.item.uploadDate).toLocaleString()
         }}
       </template>
       <template v-slot:cell(options)="data">
@@ -41,9 +44,7 @@
       </template>
       <template v-slot:cell(logTitle)="data">
         <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">
-          {{
-          data.item.logTitle
-          }}
+          {{ data.item.logTitle }}
         </router-link>
       </template>
     </b-table>
