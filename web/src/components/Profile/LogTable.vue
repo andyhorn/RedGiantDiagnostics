@@ -27,13 +27,10 @@
           <strong>Loading...</strong>
         </div>
       </template>
-      <template v-slot:cell(ownerId)="data">{{
-        getOwnerName(data.item.ownerId)
-      }}</template>
+      <template v-slot:cell(ownerId)="data">{{ getOwnerName(data.item.ownerId) }}</template>
       <template v-slot:cell(uploadDate)="data">
         {{
-          data.item.uploadDate &&
-            new Date(data.item.uploadDate).toLocaleString()
+        data.item.uploadDate && new Date(data.item.uploadDate).toLocaleString()
         }}
       </template>
       <template v-slot:cell(options)="data">
@@ -43,9 +40,7 @@
         </b-button>
       </template>
       <template v-slot:cell(logTitle)="data">
-        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">
-          {{ data.item.logTitle }}
-        </router-link>
+        <router-link :to="{ name: 'Log', params: { id: data.item.logId } }">{{ data.item.logTitle }}</router-link>
       </template>
     </b-table>
   </div>
@@ -99,7 +94,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.users);
     if (this.displayOwners) {
       this.fields.splice(1, 0, {
         key: "ownerId",
@@ -107,7 +101,6 @@ export default {
         sortable: true
       });
     }
-    console.log(this.logs);
   }
 };
 </script>
