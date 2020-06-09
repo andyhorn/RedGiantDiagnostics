@@ -8,22 +8,22 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item :to="{ name: 'Home' }">
-            <b-icon-house-fill />Home
+            <b-icon-house-fill class="mr-2" />Home
           </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav v-if="isAuthenticated">
           <b-nav-item v-if="isAdmin" :to="{ name: 'AdminAnalytics' }">
-            <b-icon-wrench />Manage
+            <b-icon-wrench class="mr-2" />Manage
           </b-nav-item>
           <b-nav-item :to="{ name: 'Profile' }">
-            <b-icon-person-fill />Profile
+            <b-icon-person-fill class="mr-2" />Profile
           </b-nav-item>
           <b-nav-item :to="{ name: 'UserSettings' }">
-            <b-icon-tools />Account
+            <b-icon-tools class="mr-2" />Account
           </b-nav-item>
           <b-nav-item @click="onLogout">
-            <b-icon-reply-fill />Logout
+            <b-icon-reply-fill class="mr-2" />Logout
           </b-nav-item>
         </b-navbar-nav>
 
