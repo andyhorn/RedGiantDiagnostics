@@ -98,7 +98,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.users);
     if (this.displayOwners) {
       this.fields.splice(1, 0, {
         key: "ownerId",
@@ -106,7 +105,6 @@ export default {
         sortable: true
       });
     }
-    console.log(this.logs);
   }
 };
 </script>
