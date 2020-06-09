@@ -33,8 +33,6 @@ export default {
   methods: {
     async fetchUsers() {
       await this.$store.dispatch("fetchAllUsers");
-      console.log("users fetched:");
-      console.log(this.$store.state.userList);
       this.users = this.$store.state.userList;
     },
     async fetchLogs() {

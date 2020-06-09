@@ -86,8 +86,7 @@ export default {
   },
   methods: {
     async fetch() {
-      let analytics = await getLogAnalytics();
-      this.analytics = analytics;
+      this.analytics = await getLogAnalytics();
       this.analysisTypes = await getLogAnalysisTypes();
     },
     async processChartData() {
