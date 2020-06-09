@@ -19,14 +19,14 @@ namespace API.Security
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected async override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsSelfRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsSelfRequirement requirement)
         {
             var targetedUserId = _httpContextAccessor.HttpContext.Request.RouteValues["id"]?.ToString();
             var loggedInUserId = context.User.Claims.FirstOrDefault(x => x.Type.Equals(Contracts.Claims.UserId))?.Value;
 
             if (string.IsNullOrEmpty(targetedUserId) || string.IsNullOrEmpty(loggedInUserId))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (targetedUserId == loggedInUserId)
@@ -34,7 +34,7 @@ namespace API.Security
                 context.Succeed(requirement);
             }
 
-            return;
+            return Task.CompletedTask;
         }
     }
 }

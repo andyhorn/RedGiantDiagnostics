@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.V2
 {
     [ApiController]
-    
+
     [Route(Contracts.Routes.ControllerV2)]
     [Route(Contracts.Routes.ControllerV1)]
     public class IdentityController : ControllerBase
@@ -33,7 +33,7 @@ namespace API.Controllers.V2
         /// <returns>IdentityUser object for the logged-in user</returns>
         [AllowAnonymous]
         [HttpGet(Contracts.Routes.Identity.V2.Get)]
-        public async Task<IActionResult> Get([FromHeader(Name = "Authorization")]string token)
+        public async Task<IActionResult> Get([FromHeader(Name = "Authorization")] string token)
         {
             // Validate the token string
             if (string.IsNullOrEmpty(token))
@@ -72,7 +72,7 @@ namespace API.Controllers.V2
         /// <returns>BadRequest, NotFound, Unauthorized, or Ok with a JWT</returns>
         [AllowAnonymous]
         [HttpPost(Contracts.Routes.Identity.V2.Login)]
-        public async Task<IActionResult> Login([FromBody]UserLoginRequest loginRequest)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest loginRequest)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -102,7 +102,7 @@ namespace API.Controllers.V2
             {
                 token = await _identityService.LoginAsync(loginRequest.Email, loginRequest.Password);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 if (string.IsNullOrEmpty(token))
                 {
@@ -126,7 +126,7 @@ namespace API.Controllers.V2
         /// <returns>BadRequest, NotFound, or Ok</returns>
         [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPut(Contracts.Routes.Identity.V2.Update)]
-        public async Task<IActionResult> Update([FromRoute]string id, [FromBody]UserUpdateRequest updateRequest)
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UserUpdateRequest updateRequest)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -149,7 +149,7 @@ namespace API.Controllers.V2
 
             // Update the user data
             var user = await _identityService.GetUserByIdAsync(id);
-            
+
             if (!string.IsNullOrEmpty(updateRequest.Email))
             {
                 user.Email = updateRequest.Email;
@@ -173,7 +173,7 @@ namespace API.Controllers.V2
 
         [Authorize(Policy = Contracts.Policies.IsSelfPolicy)]
         [HttpPost(Contracts.Routes.Identity.V2.ChangePassword)]
-        public async Task<IActionResult> ChangePassword([FromBody]PasswordChangeRequest request, [FromHeader(Name = "Authorization")]string jwt)
+        public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeRequest request, [FromHeader(Name = "Authorization")] string jwt)
         {
             // Validate the ModelState
             if (!ModelState.IsValid)
@@ -182,7 +182,8 @@ namespace API.Controllers.V2
             }
 
             // Retrieve the user object
-            if (jwt.Contains("Bearer")) {
+            if (jwt.Contains("Bearer"))
+            {
                 jwt = jwt.Substring("Bearer ".Length);
             }
 
@@ -199,7 +200,7 @@ namespace API.Controllers.V2
             {
                 await _identityService.LoginAsync(user.Email, request.CurrentPassword);
             }
-            catch (ArgumentException) 
+            catch (ArgumentException)
             {
                 return Unauthorized("Invalid current password");
             }
