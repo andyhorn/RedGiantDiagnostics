@@ -1,7 +1,10 @@
 <template>
   <div class="container">
     <h1>Analytics</h1>
-    <div class="row">
+    <div class="text-center" v-if="isLoading">
+      <b-spinner label="Loading" />
+    </div>
+    <div class="row" v-if="!isLoading">
       <div class="col">
         <div class="box">
           <div class="d-flex flex-row align-items-center justify-content-end">
@@ -18,7 +21,7 @@
         </div>
       </div>
     </div>
-    <div class="row my-3">
+    <div class="row my-3" v-if="!isLoading">
       <div class="col">
         <div class="box">
           <BarChart
@@ -60,6 +63,7 @@ export default {
   },
   data() {
     return {
+      isLoading: true,
       availableYears: [],
       selectedYear: 0,
       analytics: null,
@@ -92,6 +96,7 @@ export default {
     async processChartData() {
       this.allUploadChartData = this.getLogUploadDistribution();
       this.errorChartData = this.getLogErrorDistribution();
+      this.isLoading = false;
     },
     getLogErrorDistribution() {
       let axisLabels = [];
