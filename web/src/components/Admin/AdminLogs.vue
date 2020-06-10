@@ -8,6 +8,9 @@
       @deleteLog="onDeleteLog"
       :users="users"
     />
+    <div class="text-center" v-if="isLoading">
+      <b-spinner label="Loading" />
+    </div>
   </div>
 </template>
 
@@ -22,12 +25,14 @@ export default {
   data() {
     return {
       logs: [],
-      users: []
+      users: [],
+      isLoading: true
     };
   },
-  mounted() {
-    this.fetchLogs();
-    this.fetchUsers();
+  async mounted() {
+    await this.fetchLogs();
+    await this.fetchUsers();
+    this.isLoading = false;
   },
   watch: {},
   methods: {
