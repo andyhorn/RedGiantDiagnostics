@@ -4,7 +4,10 @@
     <div class="text-center" v-if="isLoading">
       <b-spinner label="Loading" />
     </div>
-    <div class="row" v-if="!isLoading">
+    <div class="text-center" v-if="!isLoading && allUploadChartData.length == 0">
+      <p>No logs have been saved - Analytics are unavailable.</p>
+    </div>
+    <div class="row" v-if="!isLoading && allUploadChartData.length > 0">
       <div class="col">
         <div class="box">
           <div class="d-flex flex-row align-items-center justify-content-end">
@@ -21,7 +24,7 @@
         </div>
       </div>
     </div>
-    <div class="row my-3" v-if="!isLoading">
+    <div class="row my-3" v-if="!isLoading && allUploadChartData.length > 0">
       <div class="col">
         <div class="box">
           <BarChart
