@@ -1,13 +1,14 @@
 <template>
   <div class="container">
     <h1 class="title">User Management</h1>
-    <p class="subtitle">
-      Select a user from the list below to edit their information.
-    </p>
+    <p class="subtitle">Select a user from the list below to edit their information.</p>
+    <div class="text-center" v-if="isLoading">
+      <b-spinner label="Loading" />
+    </div>
     <b-table
       outlined
       head-variant="dark"
-      v-if="users.length > 0"
+      v-if="!isLoading && users.length > 0"
       :items="users"
       :fields="tableFields"
       selectable
@@ -20,21 +21,15 @@
           @click="onDelete(data.item.userId)"
           variant="danger"
           size="sm"
-          >Delete</b-button
-        >
+        >Delete</b-button>
       </template>
-      <template v-slot:cell(roles)="data">
-        {{ makeRoles(data.item.roles) }}
-      </template>
+      <template v-slot:cell(roles)="data">{{ makeRoles(data.item.roles) }}</template>
     </b-table>
     <div v-if="selectedUser.length > 0">
       <div v-if="selectedUser[0].userId == $store.state.user.userId">
         <p>
           Please visit your
-          <router-link :to="{ name: 'UserSettings' }"
-            >Account Settings</router-link
-          >
-          to make changes to your own account.
+          <router-link :to="{ name: 'UserSettings' }">Account Settings</router-link>to make changes to your own account.
         </p>
       </div>
       <div v-else>
@@ -57,6 +52,7 @@ export default {
   },
   data() {
     return {
+      isLoading: true,
       users: [],
       selectedUser: [],
       tableFields: [{ key: "email", sortable: true }, "roles", "options"]
@@ -69,6 +65,7 @@ export default {
     async fetchUsers() {
       await this.$store.dispatch("fetchAllUsers");
       this.users = this.$store.state.userList;
+      this.isLoading = false;
     },
     onRowSelected(item) {
       this.selectedUser = item;
