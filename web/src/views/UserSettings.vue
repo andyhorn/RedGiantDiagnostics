@@ -3,11 +3,7 @@
     <h1>Account Settings</h1>
     <div class="my-4 p-4 border rounded">
       <h2>Update Email Address</h2>
-      <EmailUpdateForm
-        v-if="user"
-        :currentEmail="user.email"
-        @submit="onEmailChange"
-      />
+      <EmailUpdateForm v-if="user" :currentEmail="user.email" @submit="onEmailChange" />
     </div>
     <div class="my-4 p-4 border rounded">
       <h2>Update Password</h2>
@@ -80,7 +76,8 @@ export default {
         toastService.errorToast(
           "Password Error",
           "Unable to change your password. " +
-            "Make sure it meets the minimum requirements and try again."
+            "Please double check your current password, " +
+            "make sure your new password meets the minimum requirements, and try again."
         );
       }
     },
