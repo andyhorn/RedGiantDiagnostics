@@ -22,28 +22,24 @@ namespace API.Factories
         private ILicenseFileFactory _licenseFileFactory;
         private IRlmStatisticsTableFactory _rlmStatisticsTableFactory;
         private IRlmInstanceFactory _rlmInstanceFactory;
-        public LogParserFactory(IUtilities utilities, 
-            IDebugLogFactory debugLogFactory, 
+        public LogParserFactory(IUtilities utilities,
+            IDebugLogFactory debugLogFactory,
             IIsvStatisticsFactory isvStatisticsFactory,
             ILicenseFileFactory licenseFileFactory,
             IRlmStatisticsTableFactory rlmStatisticsTableFactory,
             IRlmInstanceFactory rlmInstanceFactory)
-            {
-                _utilities = utilities;
-                _debugLogFactory = debugLogFactory;
-                _isvStatisticsFactory = isvStatisticsFactory;
-                _licenseFileFactory = licenseFileFactory;
-                _rlmStatisticsTableFactory = rlmStatisticsTableFactory;
-                _rlmInstanceFactory = rlmInstanceFactory;
-            }
-        public ILogParser New { get => new LogParser(
-            _utilities,
-            _debugLogFactory,
-            _isvStatisticsFactory,
-            _licenseFileFactory,
-            _rlmStatisticsTableFactory,
-            _rlmInstanceFactory
-        ); }
+        {
+            _utilities = utilities;
+            _debugLogFactory = debugLogFactory;
+            _isvStatisticsFactory = isvStatisticsFactory;
+            _licenseFileFactory = licenseFileFactory;
+            _rlmStatisticsTableFactory = rlmStatisticsTableFactory;
+            _rlmInstanceFactory = rlmInstanceFactory;
+        }
+        public ILogParser New
+        {
+            get => new LogParser(_utilities, _debugLogFactory, _isvStatisticsFactory, _licenseFileFactory, _rlmStatisticsTableFactory, _rlmInstanceFactory);
+        }
     }
     public interface ILogParser
     {
@@ -66,8 +62,8 @@ namespace API.Factories
         private string[] _data;
 
         public LogParser(
-            IUtilities utilities, 
-            IDebugLogFactory debugLogFactory, 
+            IUtilities utilities,
+            IDebugLogFactory debugLogFactory,
             IIsvStatisticsFactory isvStatisticsFactory,
             ILicenseFileFactory licenseFileFactory,
             IRlmStatisticsTableFactory rlmStatisticsTableFactory,
@@ -169,7 +165,7 @@ namespace API.Factories
             var rlmVersion = _utilities.GetLineValue("RLM version", 2, data);
 
             var hostname = _utilities.GetLineValue("Hostname:", 1, data);
-            
+
             var logDate = _utilities.GetDateTimeFrom($"{date} {time}");
 
             _log.Date = logDate;
@@ -223,7 +219,7 @@ namespace API.Factories
                 return;
             }
 
-            var isMac = new Regex("[A-Fa-f0-9]{12}");
+            var isMac = new Regex("^[A-Fa-f0-9]{12}$");
             var isIp = new Regex("(?<=ip=)([0-9]{1,3}\\.){3}([0-9]{1,3})");
 
             var macList = list.ToList()
@@ -267,7 +263,7 @@ namespace API.Factories
             foreach (var data in licenseData)
             {
                 var license = _licenseFileFactory.Parse(data.ToArray());
-                
+
                 // Validate the license
                 if (license != null)
                     licenses.Add(license);
