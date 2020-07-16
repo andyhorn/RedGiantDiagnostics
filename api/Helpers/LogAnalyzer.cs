@@ -266,6 +266,20 @@ namespace API.Helpers
                         expirationAnalysisResults.Add(result);
                     }
                 }
+                else if (IsLicenseMissingExpirationDate(license))
+                {
+                    foreach (var product in GetMissingExpirationDates(license))
+                    {
+                        var result = new AnalysisResult
+                        {
+                            ResultLevel = AnalysisResult.Level.Warning,
+                            ResultType = AnalysisResult.Type.MissingExpirationDate,
+                            Message = $"No expiration date could be found for {product}"
+                        };
+
+                        expirationAnalysisResults.Add(result);
+                    }
+                }
             }
 
             return expirationAnalysisResults;
@@ -284,6 +298,44 @@ namespace API.Helpers
             }
 
             return expiredProducts;
+        }
+
+        private List<string> GetMissingExpirationDates(LicenseFile file)
+        {
+            var missingExpirationDates = new List<string>();
+
+            if (file.ProductLicenses.Count() == 0)
+            {
+                missingExpirationDates.Add(file.Name);
+            }
+            else
+            {
+                foreach (var product in file.ProductLicenses)
+                {
+                    if (IsExpirationDateMissing(product))
+                    {
+                        missingExpirationDates.Add(product.ProductName);
+                    }
+                }
+            }
+
+            return missingExpirationDates;
+        }
+
+        private bool IsLicenseMissingExpirationDate(LicenseFile file)
+        {
+            bool someMissing = false;
+
+            foreach (var product in file.ProductLicenses)
+            {
+                if (IsExpirationDateMissing(product))
+                {
+                    someMissing = true;
+                    break;
+                }
+            }
+
+            return file.ProductLicenses.Count() == 0 || someMissing;
         }
 
         private bool SomeLicensesExpired(LicenseFile file)
@@ -315,12 +367,18 @@ namespace API.Helpers
                 }
             }
 
-            return allExpired;
+            return file.ProductLicenses.Count() > 0 && allExpired;
         }
 
         private bool LicenseIsExpired(ProductLicense productLicense)
         {
-            return productLicense.ExpirationDate < DateTime.Now;
+            return productLicense.ExpirationDate != null
+                && productLicense.ExpirationDate < DateTime.Now;
+        }
+
+        private bool IsExpirationDateMissing(ProductLicense productLicense)
+        {
+            return productLicense.ExpirationDate == null;
         }
     }
 }

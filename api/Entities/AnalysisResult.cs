@@ -12,6 +12,7 @@ namespace API.Entities
         public enum Type
         {
             ExpiredLicense,
+            MissingExpirationDate,
             NoLicensesFound,
             MismatchedIp,
             MismatchedMac,
