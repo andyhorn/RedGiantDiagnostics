@@ -13,7 +13,6 @@ namespace API.Helpers
         public LogAnalyzer()
         {
             _results = new List<AnalysisResult>();
-            // _log = log;
         }
 
         public IEnumerable<AnalysisResult> Analyze(LogFile log)
@@ -202,7 +201,7 @@ namespace API.Helpers
                 {
                     var macWarningResult = new AnalysisResult
                     {
-                        ResultLevel = AnalysisResult.Level.Error,
+                        ResultLevel = AnalysisResult.Level.Warning,
                         ResultType = AnalysisResult.Type.MismatchedMac,
                         Message = $"License {license.Name} is not assigned to the host's primary MAC address."
                     };
