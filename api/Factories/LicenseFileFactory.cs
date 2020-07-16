@@ -29,15 +29,10 @@ namespace API.Factories
             var licenseFile = New;
 
             licenseFile.Name = GetLicenseName(data);
-            // licenseFile.Name = _utilities.GetLineValue("LICENSE FILE", 2, data);
-            // licenseFile.UUID = GetLicenseUuid(data);
             licenseFile.UUID = _utilities.GetLineValue("license uuid", 3, data);
-            // licenseFile.HostAddress = GetLicenseHostAddress(data);
             licenseFile.HostAddress = _utilities.GetLineValue("HOST", 1, data);
             licenseFile.HostMac = GetLicenseHostMac(data);
-            // licenseFile.HostPort = GetLicenseHostPort(data);
             licenseFile.HostPort = _utilities.GetLineValue("HOST", 3, data);
-            // licenseFile.IsvName = GetLicenseIsvName(data);
             licenseFile.IsvName = _utilities.GetLineValue("ISV", 1, data);
             licenseFile.IsvPort = GetLicenseIsvPort(data);
             licenseFile.ProductLicenses = GetLicenseProducts(data);
